@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream text-charcoal font-serif antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-mono uppercase font-bold;
+  }
+
+  h1 {
+    @apply text-3xl tracking-tight;
+  }
+
+  h2 {
+    @apply text-2xl tracking-tight;
+  }
+
+  h3 {
+    @apply text-lg;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-coral text-soft-white font-mono text-sm uppercase tracking-wider
+           px-6 py-3 rounded-button border-2 border-deep-black
+           shadow-button hover:shadow-button-hover active:shadow-button-active
+           transition-all duration-150 cursor-pointer;
+  }
+
+  .btn-secondary {
+    @apply bg-soft-white text-charcoal font-mono text-sm uppercase tracking-wider
+           px-6 py-3 rounded-button border-2 border-deep-black
+           shadow-button hover:shadow-button-hover active:shadow-button-active
+           transition-all duration-150 cursor-pointer;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-warm-gray font-mono text-sm uppercase tracking-wider
+           px-6 py-3 rounded-button cursor-pointer
+           hover:bg-cream transition-all duration-150;
+  }
+
+  .card {
+    @apply bg-soft-white rounded-card border-3 border-deep-black
+           shadow-card p-6 transition-all duration-150;
+  }
+
+  .card-hover {
+    @apply hover:shadow-card-hover;
+  }
+
+  .input {
+    @apply bg-soft-white text-charcoal font-serif
+           px-4 py-3 rounded-button border-2 border-deep-black
+           shadow-input focus:border-coral focus:outline-none
+           transition-all duration-150 w-full;
+  }
+
+  .input-error {
+    @apply border-red-500;
+  }
+
+  .input-disabled {
+    @apply bg-cream border-gray-300 cursor-not-allowed;
+  }
+
+  .pill {
+    @apply inline-flex items-center px-4 py-2 rounded-pill
+           border-2 border-deep-black font-mono text-sm
+           cursor-pointer transition-all duration-150;
+  }
+
+  .pill-active {
+    @apply bg-coral text-soft-white;
+  }
+
+  .pill-inactive {
+    @apply bg-soft-white text-charcoal hover:bg-cream;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2 py-1 rounded text-xs
+           font-mono border border-deep-black;
+  }
+
+  .badge-github {
+    @apply bg-coral text-soft-white;
+  }
+
+  .badge-hackernews {
+    @apply bg-[#F5A623] text-soft-white;
+  }
+
+  .badge-producthunt {
+    @apply bg-mint text-soft-white;
+  }
+
+  .badge-techcrunch {
+    @apply bg-[#D4A5A5] text-soft-white;
+  }
+}
