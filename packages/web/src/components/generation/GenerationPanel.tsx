@@ -4,7 +4,6 @@ import { Card } from '@/components/ui/Card';
 import { GeneratedPost } from './GeneratedPost';
 import { CarouselPreview } from './CarouselPreview';
 import { api } from '@/lib/api';
-import { useAuth } from '@/lib/auth';
 import { Sparkles } from 'lucide-react';
 
 interface Trend {
@@ -20,7 +19,6 @@ interface GenerationPanelProps {
 }
 
 export function GenerationPanel({ trend, type }: GenerationPanelProps) {
-  const { token } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generated, setGenerated] = useState<any>(null);
 
@@ -30,8 +28,7 @@ export function GenerationPanel({ trend, type }: GenerationPanelProps) {
     try {
       const result = await api.post<{ post: any }>(
         '/posts/generate',
-        { trendId: trend._id, type },
-        token || undefined
+        { trendId: trend._id, type }
       );
       setGenerated(result.post);
     } catch (err) {

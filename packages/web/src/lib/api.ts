@@ -1,23 +1,16 @@
 const API_BASE = '/api';
 
-interface RequestOptions extends RequestInit {
-  token?: string;
-}
+interface RequestOptions extends RequestInit {}
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const { token, ...fetchOptions } = options;
-
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
   const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...fetchOptions,
+    ...options,
+    credentials: 'include',
     headers,
   });
 
@@ -30,30 +23,27 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 }
 
 export const api = {
-  get: <T>(endpoint: string, token?: string) =>
-    request<T>(endpoint, { method: 'GET', token }),
+  get: <T>(endpoint: string) =>
+    request<T>(endpoint, { method: 'GET' }),
 
-  post: <T>(endpoint: string, body?: unknown, token?: string) =>
+  post: <T>(endpoint: string, body?: unknown) =>
     request<T>(endpoint, {
       method: 'POST',
       body: body ? JSON.stringify(body) : undefined,
-      token,
     }),
 
-  put: <T>(endpoint: string, body?: unknown, token?: string) =>
+  put: <T>(endpoint: string, body?: unknown) =>
     request<T>(endpoint, {
       method: 'PUT',
       body: body ? JSON.stringify(body) : undefined,
-      token,
     }),
 
-  patch: <T>(endpoint: string, body?: unknown, token?: string) =>
+  patch: <T>(endpoint: string, body?: unknown) =>
     request<T>(endpoint, {
       method: 'PATCH',
       body: body ? JSON.stringify(body) : undefined,
-      token,
     }),
 
-  delete: <T>(endpoint: string, token?: string) =>
-    request<T>(endpoint, { method: 'DELETE', token }),
+  delete: <T>(endpoint: string) =>
+    request<T>(endpoint, { method: 'DELETE' }),
 };

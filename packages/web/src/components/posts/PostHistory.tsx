@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { PostCard } from './PostCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { api } from '@/lib/api';
-import { useAuth } from '@/lib/auth';
 
 interface Post {
   _id: string;
@@ -13,14 +12,13 @@ interface Post {
 }
 
 export function PostHistory() {
-  const { token } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const data = await api.get<{ posts: Post[] }>('/posts', token || undefined);
+        const data = await api.get<{ posts: Post[] }>('/posts');
         setPosts(data.posts);
       } catch (err) {
         console.error('Failed to fetch posts:', err);
@@ -29,7 +27,7 @@ export function PostHistory() {
       }
     };
     fetchPosts();
-  }, [token]);
+  }, []);
 
   if (isLoading) {
     return (

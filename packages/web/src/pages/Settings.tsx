@@ -9,7 +9,7 @@ import { useAuth } from '@/lib/auth';
 import { Key, Clock, Bell, Save } from 'lucide-react';
 
 export function Settings() {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [openaiKey, setOpenaiKey] = useState('');
   const [anthropicKey, setAnthropicKey] = useState('');
   const [digestTime, setDigestTime] = useState('09:00');
@@ -40,7 +40,7 @@ export function Settings() {
         emailDigest,
         openaiKey: openaiKey || undefined,
         anthropicKey: anthropicKey || undefined,
-      }, token || undefined);
+      });
     } catch (err) {
       console.error('Failed to save settings:', err);
     } finally {

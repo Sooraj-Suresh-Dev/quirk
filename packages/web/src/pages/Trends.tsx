@@ -5,7 +5,6 @@ import { TrendFilters } from '@/components/trends/TrendFilters';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Input } from '@/components/ui/Input';
 import { api } from '@/lib/api';
-import { useAuth } from '@/lib/auth';
 import { Search } from 'lucide-react';
 
 interface Trend {
@@ -18,7 +17,6 @@ interface Trend {
 }
 
 export function Trends() {
-  const { token } = useAuth();
   const [trends, setTrends] = useState<Trend[]>([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -27,7 +25,7 @@ export function Trends() {
   useEffect(() => {
     const fetchTrends = async () => {
       try {
-        const data = await api.get<{ trends: Trend[] }>('/trends', token || undefined);
+        const data = await api.get<{ trends: Trend[] }>('/trends');
         setTrends(data.trends);
       } catch (err) {
         console.error('Failed to fetch trends:', err);
@@ -36,7 +34,7 @@ export function Trends() {
       }
     };
     fetchTrends();
-  }, [token]);
+  }, []);
 
   const filtered = trends
     .filter(t => activeFilter === 'all' || t.source === activeFilter)

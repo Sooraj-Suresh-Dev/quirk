@@ -10,14 +10,14 @@ import { Voice } from '@/pages/Voice';
 import { Settings } from '@/pages/Settings';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { token } = useAuth();
-  if (!token) return <Navigate to="/login" replace />;
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { token } = useAuth();
-  if (token) return <Navigate to="/dashboard" replace />;
+  const { user } = useAuth();
+  if (user) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }
 

@@ -7,7 +7,6 @@ import { GenerationPanel } from '@/components/generation/GenerationPanel';
 import { PostHistory } from '@/components/posts/PostHistory';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { api } from '@/lib/api';
-import { useAuth } from '@/lib/auth';
 
 interface Trend {
   _id: string;
@@ -19,7 +18,6 @@ interface Trend {
 }
 
 export function Dashboard() {
-  const { token } = useAuth();
   const [trends, setTrends] = useState<Trend[]>([]);
   const [selectedTrend, setSelectedTrend] = useState<Trend | null>(null);
   const [postType, setPostType] = useState<'text' | 'carousel' | 'image-prompt'>('text');
@@ -29,7 +27,7 @@ export function Dashboard() {
   useEffect(() => {
     const fetchTrends = async () => {
       try {
-        const data = await api.get<{ trends: Trend[] }>('/trends', token || undefined);
+        const data = await api.get<{ trends: Trend[] }>('/trends');
         setTrends(data.trends);
       } catch (err) {
         console.error('Failed to fetch trends:', err);
@@ -38,7 +36,7 @@ export function Dashboard() {
       }
     };
     fetchTrends();
-  }, [token]);
+  }, []);
 
   const filteredTrends = activeFilter === 'all'
     ? trends

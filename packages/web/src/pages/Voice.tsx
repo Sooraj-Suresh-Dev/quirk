@@ -4,7 +4,6 @@ import { VoiceSamples } from '@/components/voice/VoiceSamples';
 import { VoiceProfile } from '@/components/voice/VoiceProfile';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
-import { useAuth } from '@/lib/auth';
 import { Sparkles } from 'lucide-react';
 
 interface VoiceProfile {
@@ -15,7 +14,6 @@ interface VoiceProfile {
 }
 
 export function Voice() {
-  const { token } = useAuth();
   const [samples, setSamples] = useState<string[]>(['', '', '', '', '']);
   const [profile, setProfile] = useState<VoiceProfile | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -28,8 +26,7 @@ export function Voice() {
     try {
       const result = await api.post<{ voiceProfile: VoiceProfile }>(
         '/users/voice',
-        { samples: validSamples },
-        token || undefined
+        { samples: validSamples }
       );
       setProfile(result.voiceProfile);
     } catch (err) {

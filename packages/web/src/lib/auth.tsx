@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { api } from './api';
 
 interface User {
@@ -19,28 +19,30 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string) => Promise<void>;
   setPassword: (token: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('quirk_token'));
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    api.get<{ user: User }>('/auth/session')
+      .then(res => setUser(res.user))
+      .catch(() => {});
+  }, []);
 
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await api.post<{ user: User; token: string }>('/auth/login', { email, password });
+      const res = await api.post<{ user: User }>('/auth/login', { email, password });
       setUser(res.user);
-      setToken(res.token);
-      localStorage.setItem('quirk_token', res.token);
     } finally {
       setIsLoading(false);
     }
@@ -58,23 +60,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setPassword = useCallback(async (magicToken: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await api.post<{ user: User; token: string }>('/auth/set-password', { token: magicToken, password });
+      const res = await api.post<{ user: User }>('/auth/set-password', { token: magicToken, password });
       setUser(res.user);
-      setToken(res.token);
-      localStorage.setItem('quirk_token', res.token);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    await api.post('/auth/logout');
     setUser(null);
-    setToken(null);
-    localStorage.removeItem('quirk_token');
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, signup, setPassword, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, setPassword, logout }}>
       {children}
     </AuthContext.Provider>
   );
