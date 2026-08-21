@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { supabase } from '../services/supabase.js';
+import { verifyAccessToken } from '../services/token.js';
 import { User, IUser } from '../models/User.js';
 import { logError, logWarn } from '../config/logger.js';
 
@@ -9,33 +9,27 @@ export interface AuthRequest extends Request {
 }
 
 export async function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
-  const token = req.headers.authorization?.split(' ')[1];
+  const token = req.cookies?.token;
 
   if (!token) {
-    res.status(401).json({ error: 'No token provided' });
+    res.status(401).json({ error: 'Not authenticated' });
     return;
   }
 
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-
-    if (error || !user) {
-      res.status(401).json({ error: 'Invalid token' });
-      return;
-    }
-
-    const dbUser = await User.findOne({ supabaseId: user.id });
-    if (!dbUser) {
-      logWarn(`AUTH: user not found in DB at ${req.path}`);
-      res.status(401).json({ error: 'User not found' });
-      return;
-    }
-
-    req.user = dbUser;
-    req.userId = dbUser._id.toString();
-    next();
-  } catch (err) {
-    logError(`AUTH: exception at ${req.path}`, { err });
-    res.status(401).json({ error: 'Authentication failed' });
+  const payload = verifyAccessToken(token);
+  if (!payload) {
+    res.status(401).json({ error: 'Invalid or expired token' });
+    return;
   }
+
+  const dbUser = await User.findById(payload.userId);
+  if (!dbUser) {
+    logWarn(`AUTH: user not found in DB at ${req.path}`);
+    res.status(401).json({ error: 'User not found' });
+    return;
+  }
+
+  req.user = dbUser;
+  req.userId = dbUser._id.toString();
+  next();
 }

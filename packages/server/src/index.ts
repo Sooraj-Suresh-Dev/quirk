@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { config } from './config/env.js';
 import { connectDB } from './config/db.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -15,6 +16,7 @@ import { startDailyDigestCron } from './cron/dailyDigest.js';
 const app = express();
 
 app.use(cors({ origin: config.CLIENT_URL, credentials: true }));
+app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
 
