@@ -10,7 +10,7 @@ export async function fetchAllTrends(): Promise<void> {
       fetchHackerNewsTrends(),
     ]);
 
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     for (const trend of githubTrends) {
       await Trend.findOneAndUpdate(

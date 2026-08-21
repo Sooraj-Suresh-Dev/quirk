@@ -1,6 +1,7 @@
 import { Router, Router as ExpressRouter } from 'express';
 import { Trend } from '../models/Trend.js';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
+import { fetchAllTrends } from '../services/trendFetcher.js';
 
 const router: ExpressRouter = Router();
 
@@ -20,7 +21,7 @@ router.get('/', async (_req, res) => {
 // POST /api/trends/refresh — Force-refresh trends (auth required)
 router.post('/refresh', requireAuth, async (_req: AuthRequest, res) => {
   try {
-    // Trigger trend refresh - will be implemented in trendFetcher
+    await fetchAllTrends();
     res.json({ message: 'Trend refresh triggered' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to refresh trends' });

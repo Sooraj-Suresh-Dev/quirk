@@ -7,7 +7,8 @@ interface GitHubTrending {
 
 export async function fetchGitHubTrends(): Promise<GitHubTrending[]> {
   try {
-    const response = await fetch('https://api.github.com/search/repositories?q=created:>2026-08-20&sort=stars&order=desc&per_page=10', {
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const response = await fetch(`https://api.github.com/search/repositories?q=created:>${since}&sort=stars&order=desc&per_page=10`, {
       headers: {
         'Accept': 'application/vnd.github.v3+json',
       },

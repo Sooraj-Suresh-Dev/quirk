@@ -17,7 +17,7 @@ const trendSchema = new Schema<ITrend>({
   summary: { type: String, default: '' },
   tags: [{ type: String }],
   fetchedAt: { type: Date, default: Date.now },
-  expiresAt: { type: Date, index: { expireAfterSeconds: 0 } },
+  expiresAt: { type: Date, index: { expireAfterSeconds: 604800 } },
 });
 
 trendSchema.index({ source: 1, fetchedAt: -1 });

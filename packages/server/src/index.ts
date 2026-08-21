@@ -12,6 +12,7 @@ import postRoutes from './routes/posts.js';
 import userRoutes from './routes/users.js';
 import { startTrendRefreshCron } from './cron/trendRefresh.js';
 import { startDailyDigestCron } from './cron/dailyDigest.js';
+import { fetchAllTrends } from './services/trendFetcher.js';
 
 const app = express();
 
@@ -35,6 +36,7 @@ async function start() {
   await connectDB();
   startTrendRefreshCron();
   startDailyDigestCron();
+  await fetchAllTrends();
   app.listen(config.PORT, () => {
     logInfo(`Server running on http://localhost:${config.PORT}`);
   });
