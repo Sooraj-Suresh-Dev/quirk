@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { PageLayout } from '@/components/layout/PageLayout';
@@ -10,10 +10,31 @@ export function SetPassword() {
   const { setPassword, isLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const magicToken = searchParams.get('token');
   const [password, setPasswordValue] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
+  const [magicToken, setMagicToken] = useState('');
+
+  useEffect(() => {
+    // Check query params first: ?token=...
+    const queryToken = searchParams.get('token');
+    if (queryToken) {
+      setMagicToken(queryToken);
+      return;
+    }
+
+    // Check URL hash: #access_token=...&token_type=bearer&type=magiclink
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get('access_token');
+      if (accessToken) {
+        setMagicToken(accessToken);
+        // Clean up URL hash
+        window.history.replaceState({}, '', window.location.pathname + window.location.search);
+      }
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +54,22 @@ export function SetPassword() {
       setError(err instanceof Error ? err.message : 'Failed to set password');
     }
   };
+
+  if (!magicToken) {
+    return (
+      <PageLayout>
+        <Card className="text-center">
+          <h1 className="font-mono text-2xl font-bold text-charcoal mb-2">INVALID LINK</h1>
+          <p className="font-serif text-warm-gray mb-6">
+            This magic link is invalid or has expired. Please request a new one.
+          </p>
+          <Button onClick={() => navigate('/signup')} className="w-full">
+            SIGN UP
+          </Button>
+        </Card>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout>

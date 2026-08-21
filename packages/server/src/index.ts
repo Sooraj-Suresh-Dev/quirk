@@ -3,6 +3,8 @@ import cors from 'cors';
 import { config } from './config/env.js';
 import { connectDB } from './config/db.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { requestLogger } from './middleware/requestLogger.js';
+import { logInfo } from './config/logger.js';
 import authRoutes from './routes/auth.js';
 import trendRoutes from './routes/trends.js';
 import postRoutes from './routes/posts.js';
@@ -14,8 +16,8 @@ const app = express();
 
 app.use(cors({ origin: config.CLIENT_URL, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
+app.use(requestLogger);
 
-// Routes
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
@@ -31,9 +33,8 @@ async function start() {
   await connectDB();
   startTrendRefreshCron();
   startDailyDigestCron();
-
   app.listen(config.PORT, () => {
-    console.log(`Server running on http://localhost:${config.PORT}`);
+    logInfo(`Server running on http://localhost:${config.PORT}`);
   });
 }
 

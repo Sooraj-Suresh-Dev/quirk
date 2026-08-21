@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from './auth.js';
+import { logWarn } from '../config/logger.js';
 
 const generationCounts = new Map<string, { count: number; resetAt: number }>();
 
@@ -24,6 +25,7 @@ export function rateLimiter(req: AuthRequest, res: Response, next: NextFunction)
 
   if (entry.count >= RATE_LIMIT) {
     const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
+    logWarn(`RATE LIMIT exceeded for user ${userId} (${entry.count}/${RATE_LIMIT})`);
     res.status(429).json({
       error: 'Rate limit exceeded',
       retryAfter,

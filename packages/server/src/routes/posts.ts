@@ -5,6 +5,7 @@ import { Trend } from '../models/Trend.js';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
 import { rateLimiter } from '../middleware/rateLimiter.js';
 import { generatePost } from '../services/postGenerator.js';
+import { logError } from '../config/logger.js';
 
 const router: ExpressRouter = Router();
 
@@ -19,9 +20,9 @@ router.get('/', requireAuth, async (req: AuthRequest, res) => {
     const posts = await Post.find({ userId: req.userId })
       .sort({ createdAt: -1 })
       .limit(20);
-
     res.json({ posts });
   } catch (err) {
+    logError('POSTS list failed', { err });
     res.status(500).json({ error: 'Failed to fetch posts' });
   }
 });
@@ -59,6 +60,7 @@ router.post('/generate', requireAuth, rateLimiter, async (req: AuthRequest, res)
       res.status(400).json({ error: 'Invalid input', details: err.errors });
       return;
     }
+    logError('POST generate failed', { err });
     res.status(500).json({ error: 'Failed to generate post' });
   }
 });
@@ -85,6 +87,7 @@ router.patch('/:id', requireAuth, async (req: AuthRequest, res) => {
 
     res.json({ post });
   } catch (err) {
+    logError('POST update failed', { err });
     res.status(500).json({ error: 'Failed to update post' });
   }
 });
@@ -92,18 +95,14 @@ router.patch('/:id', requireAuth, async (req: AuthRequest, res) => {
 // DELETE /api/posts/:id — Delete post
 router.delete('/:id', requireAuth, async (req: AuthRequest, res) => {
   try {
-    const post = await Post.findOneAndDelete({
-      _id: req.params.id,
-      userId: req.userId,
-    });
-
+    const post = await Post.findOneAndDelete({ _id: req.params.id, userId: req.userId });
     if (!post) {
       res.status(404).json({ error: 'Post not found' });
       return;
     }
-
     res.json({ message: 'Post deleted' });
   } catch (err) {
+    logError('POST delete failed', { err });
     res.status(500).json({ error: 'Failed to delete post' });
   }
 });

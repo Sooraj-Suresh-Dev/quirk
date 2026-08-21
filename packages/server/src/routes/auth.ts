@@ -1,9 +1,12 @@
 import { Router, Router as ExpressRouter } from 'express';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
-import { supabase } from '../services/supabase.js';
+import { supabase, supabaseAdmin } from '../services/supabase.js';
+import { config } from '../config/env.js';
 import { User } from '../models/User.js';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
+import { logError, logWarn } from '../config/logger.js';
+import { sendMagicLinkEmail } from '../services/emailSender.js';
 
 const router: ExpressRouter = Router();
 
@@ -26,26 +29,60 @@ router.post('/magic-link', async (req, res) => {
   try {
     const { email } = magicLinkSchema.parse(req.body);
 
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    // Create user in Supabase (bypasses email provider restrictions)
+    const { error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      email_confirm: true,
+    });
+
+    if (createError && createError.message !== 'User already exists') {
+      logWarn(`MAGIC LINK create user failed: ${createError.message}`);
+      res.status(400).json({ error: createError.message });
+      return;
+    }
+
+    // Generate magic link
+    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'magiclink',
+      email,
+      options: {
+        redirectTo: `${config.CLIENT_URL}/set-password`,
+      },
+    });
 
     if (error) {
+      logWarn(`MAGIC LINK generate failed: ${error.message}`);
       res.status(400).json({ error: error.message });
       return;
     }
 
-    // Create user if not exists
-    await User.findOneAndUpdate(
-      { email },
-      { email },
-      { upsert: true, new: true }
-    );
+    const magicLink = data.properties.action_link;
 
-    res.json({ message: 'Magic link sent' });
+    // Save to MongoDB
+    await User.findOneAndUpdate({ email }, { email }, { upsert: true, new: true });
+
+    if (config.NODE_ENV === 'development') {
+      // Dev: log to console
+      console.log('');
+      console.log('\x1b[36m🔗 MAGIC LINK (dev mode):\x1b[0m');
+      console.log(`\x1b[1m${magicLink}\x1b[0m`);
+      console.log('');
+      res.json({ message: 'Magic link generated', magicLink });
+    } else {
+      // Prod: send via email
+      const sent = await sendMagicLinkEmail(email, magicLink);
+      if (!sent) {
+        res.status(500).json({ error: 'Failed to send magic link email' });
+        return;
+      }
+      res.json({ message: 'Magic link sent' });
+    }
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: 'Invalid input', details: err.errors });
       return;
     }
+    logError('MAGIC LINK failed', { err });
     res.status(500).json({ error: 'Failed to send magic link' });
   }
 });
@@ -55,7 +92,6 @@ router.post('/set-password', async (req, res) => {
   try {
     const { token, password } = setPasswordSchema.parse(req.body);
 
-    // Verify magic link token with Supabase
     const { data: { user }, error } = await supabase.auth.getUser(token);
 
     if (error || !user) {
@@ -63,42 +99,44 @@ router.post('/set-password', async (req, res) => {
       return;
     }
 
-    // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Update or create user with password
     const dbUser = await User.findOneAndUpdate(
       { email: user.email },
-      {
-        supabaseId: user.id,
-        passwordHash,
-      },
+      { supabaseId: user.id, passwordHash },
       { new: true }
     );
 
     if (!dbUser) {
+      logError(`SET PASSWORD: DB write failed for ${user.email}`);
       res.status(500).json({ error: 'Failed to create user' });
       return;
     }
 
-    // Create a session token
+    // Set password on Supabase user (user was created without password)
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+      password,
+    });
+
+    if (updateError) {
+      logError(`SET PASSWORD: Supabase update failed for ${user.email}`);
+      res.status(500).json({ error: 'Failed to set password' });
+      return;
+    }
+
     const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({
       email: user.email!,
       password,
     });
 
     if (sessionError) {
+      logError(`SET PASSWORD: session creation failed for ${user.email}`);
       res.status(500).json({ error: 'Failed to create session' });
       return;
     }
 
     res.json({
-      user: {
-        id: dbUser._id,
-        email: dbUser.email,
-        preferences: dbUser.preferences,
-        voiceProfile: dbUser.voiceProfile,
-      },
+      user: { id: dbUser._id, email: dbUser.email, preferences: dbUser.preferences, voiceProfile: dbUser.voiceProfile },
       token: sessionData.session.access_token,
     });
   } catch (err) {
@@ -106,6 +144,7 @@ router.post('/set-password', async (req, res) => {
       res.status(400).json({ error: 'Invalid input', details: err.errors });
       return;
     }
+    logError('SET PASSWORD failed', { err });
     res.status(500).json({ error: 'Failed to set password' });
   }
 });
@@ -115,57 +154,36 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
 
-    // Find user
     const dbUser = await User.findOne({ email });
     if (!dbUser || !dbUser.passwordHash) {
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
 
-    // Verify password
     const isValid = await bcrypt.compare(password, dbUser.passwordHash);
     if (!isValid) {
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
 
-    // Sign in with Supabase to get session
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      // If Supabase auth fails, create a new session
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
       if (signUpError) {
+        logError(`LOGIN: Supabase signUp failed for ${email}`);
         res.status(500).json({ error: 'Failed to create session' });
         return;
       }
-
       res.json({
-        user: {
-          id: dbUser._id,
-          email: dbUser.email,
-          preferences: dbUser.preferences,
-          voiceProfile: dbUser.voiceProfile,
-        },
+        user: { id: dbUser._id, email: dbUser.email, preferences: dbUser.preferences, voiceProfile: dbUser.voiceProfile },
         token: signUpData.session?.access_token,
       });
       return;
     }
 
     res.json({
-      user: {
-        id: dbUser._id,
-        email: dbUser.email,
-        preferences: dbUser.preferences,
-        voiceProfile: dbUser.voiceProfile,
-      },
+      user: { id: dbUser._id, email: dbUser.email, preferences: dbUser.preferences, voiceProfile: dbUser.voiceProfile },
       token: data.session.access_token,
     });
   } catch (err) {
@@ -173,6 +191,7 @@ router.post('/login', async (req, res) => {
       res.status(400).json({ error: 'Invalid input', details: err.errors });
       return;
     }
+    logError('LOGIN failed', { err });
     res.status(500).json({ error: 'Login failed' });
   }
 });
@@ -184,14 +203,8 @@ router.get('/session', requireAuth, (req: AuthRequest, res) => {
     res.status(401).json({ error: 'Not authenticated' });
     return;
   }
-
   res.json({
-    user: {
-      id: user._id,
-      email: user.email,
-      preferences: user.preferences,
-      voiceProfile: user.voiceProfile,
-    },
+    user: { id: user._id, email: user.email, preferences: user.preferences, voiceProfile: user.voiceProfile },
   });
 });
 
@@ -199,7 +212,7 @@ router.get('/session', requireAuth, (req: AuthRequest, res) => {
 router.post('/logout', requireAuth, async (req: AuthRequest, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (token) {
-    await supabase.auth.admin.signOut(token);
+    await supabaseAdmin.auth.admin.signOut(token);
   }
   res.json({ message: 'Logged out' });
 });

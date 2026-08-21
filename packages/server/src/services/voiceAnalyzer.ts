@@ -2,6 +2,7 @@ import { generateWithOpenAI } from './openai.js';
 import { generateWithOpenRouter } from './openrouter.js';
 import { config } from '../config/env.js';
 
+
 interface VoiceProfile {
   tone: string;
   avgSentenceLength: number;
@@ -37,17 +38,15 @@ Return ONLY the JSON object, no other text.`;
     try {
       result = await generateWithOpenRouter(prompt, systemPrompt);
     } catch {
-      // Fall through to default
+      // Fall through to heuristic
     }
   }
 
   if (!result) {
-    // Return a basic analysis based on heuristics
     return heuristicAnalysis(samples);
   }
 
   try {
-    // Extract JSON from the response
     const jsonMatch = result.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       return heuristicAnalysis(samples);

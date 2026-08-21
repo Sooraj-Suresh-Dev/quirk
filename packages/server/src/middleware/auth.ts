@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { supabase } from '../services/supabase.js';
 import { User, IUser } from '../models/User.js';
+import { logError, logWarn } from '../config/logger.js';
 
 export interface AuthRequest extends Request {
   user?: IUser;
@@ -25,6 +26,7 @@ export async function requireAuth(req: AuthRequest, res: Response, next: NextFun
 
     const dbUser = await User.findOne({ supabaseId: user.id });
     if (!dbUser) {
+      logWarn(`AUTH: user not found in DB at ${req.path}`);
       res.status(401).json({ error: 'User not found' });
       return;
     }
@@ -33,6 +35,7 @@ export async function requireAuth(req: AuthRequest, res: Response, next: NextFun
     req.userId = dbUser._id.toString();
     next();
   } catch (err) {
+    logError(`AUTH: exception at ${req.path}`, { err });
     res.status(401).json({ error: 'Authentication failed' });
   }
 }

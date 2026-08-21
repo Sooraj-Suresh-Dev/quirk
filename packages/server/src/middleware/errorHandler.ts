@@ -1,18 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
+import { logError, logWarn } from '../config/logger.js';
 
 export function errorHandler(
-  error: Error,
-  _req: Request,
+  err: Error,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): void {
-  console.error('Error:', error);
+  if (err instanceof ZodError) {
+    logWarn(`Validation error at ${req.method} ${req.path}`, { err });
 
-  if (error instanceof ZodError) {
     res.status(400).json({
       error: 'Validation error',
-      details: error.errors.map((e) => ({
+      details: err.errors.map((e) => ({
         path: e.path.join('.'),
         message: e.message,
       })),
@@ -20,10 +21,14 @@ export function errorHandler(
     return;
   }
 
-  if (error.name === 'UnauthorizedError') {
+  if (err.name === 'UnauthorizedError') {
+    logWarn(`Unauthorized at ${req.method} ${req.path}`);
+
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
+
+  logError(`Internal server error at ${req.method} ${req.path}`, { err });
 
   res.status(500).json({ error: 'Internal server error' });
 }

@@ -2,6 +2,7 @@ import { ITrend } from '../models/Trend.js';
 import { IUser } from '../models/User.js';
 import { generateWithOpenAI } from './openai.js';
 import { generateWithOpenRouter } from './openrouter.js';
+import { logError } from '../config/logger.js';
 
 export async function generatePost(
   trend: ITrend,
