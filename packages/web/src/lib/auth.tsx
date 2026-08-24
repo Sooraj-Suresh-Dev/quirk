@@ -30,12 +30,23 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     api.get<{ user: User }>('/auth/session')
       .then(res => setUser(res.user))
-      .catch(() => {});
+      .catch(async (err) => {
+        if (err.status === 401) {
+          try {
+            await api.post('/auth/refresh');
+            const res = await api.get<{ user: User }>('/auth/session');
+            setUser(res.user);
+          } catch {
+            // Refresh failed — user stays logged out
+          }
+        }
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {

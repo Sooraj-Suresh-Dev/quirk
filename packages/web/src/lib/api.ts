@@ -16,7 +16,9 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(error.error || 'Request failed');
+    const err = new Error(error.error || 'Request failed');
+    (err as any).status = response.status;
+    throw err;
   }
 
   return response.json();
