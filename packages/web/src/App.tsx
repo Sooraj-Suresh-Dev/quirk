@@ -1,12 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { AuthModalProvider } from '@/lib/auth-modal';
+import { ToastProvider } from '@/lib/toast';
 import { Landing } from '@/pages/Landing';
 import { SetPassword } from '@/pages/SetPassword';
 import { Dashboard } from '@/pages/Dashboard';
-import { Trends } from '@/pages/Trends';
+import { Discover } from '@/pages/Discover';
+import { Library } from '@/pages/Library';
 import { Voice } from '@/pages/Voice';
 import { Settings } from '@/pages/Settings';
+import { Generate } from '@/pages/Generate';
 import { About } from '@/pages/About';
 import { Pricing } from '@/pages/Pricing';
 import { Features } from '@/pages/Features';
@@ -15,7 +18,8 @@ import { Terms } from '@/pages/Terms';
 import { FAQ } from '@/pages/FAQ';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
   if (!user) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
@@ -32,7 +36,9 @@ function AppRoutes() {
       <Route path="/terms" element={<Terms />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/trends" element={<ProtectedRoute><Trends /></ProtectedRoute>} />
+      <Route path="/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
+      <Route path="/generate/:trendId" element={<ProtectedRoute><Generate /></ProtectedRoute>} />
+      <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
       <Route path="/voice" element={<ProtectedRoute><Voice /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -45,7 +51,9 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <AuthModalProvider>
-          <AppRoutes />
+          <ToastProvider>
+            <AppRoutes />
+          </ToastProvider>
         </AuthModalProvider>
       </AuthProvider>
     </BrowserRouter>

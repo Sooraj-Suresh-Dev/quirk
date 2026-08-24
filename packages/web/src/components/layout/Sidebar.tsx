@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { Home, TrendingUp, Mic, Settings, LogOut } from 'lucide-react';
+import { Home, Compass, BookOpen, Mic, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 
 const navItems = [
   { to: '/dashboard', icon: Home, label: 'Dashboard' },
-  { to: '/trends', icon: TrendingUp, label: 'Trends' },
+  { to: '/discover', icon: Compass, label: 'Discover' },
+  { to: '/library', icon: BookOpen, label: 'Library' },
   { to: '/voice', icon: Mic, label: 'Voice' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
