@@ -5,9 +5,10 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
+  className?: string;
 }
 
-export function Modal({ isOpen, onClose, children }: ModalProps) {
+export function Modal({ isOpen, onClose, children, className = '' }: ModalProps) {
   useEffect(() => {
     if (!isOpen) return;
     const handleEscape = (e: KeyboardEvent) => {
@@ -29,10 +30,10 @@ export function Modal({ isOpen, onClose, children }: ModalProps) {
         className="absolute inset-0 bg-deep-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-soft-white rounded-card border-3 border-deep-black shadow-card p-8 max-w-md w-full">
+      <div className={`relative bg-soft-white rounded-card border-3 border-deep-black shadow-card p-8 max-w-md w-full ${className}`}>
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-warm-gray hover:text-charcoal transition-colors"
+          className="absolute top-4 right-4 text-warm-gray hover:text-charcoal transition-colors z-10"
         >
           <X size={20} />
         </button>
