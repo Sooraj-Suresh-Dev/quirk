@@ -1,8 +1,15 @@
+import { fetchOgImage } from './ogImage.js';
+
 interface GitHubTrending {
   title: string;
   url: string;
   summary: string;
   tags: string[];
+  thumbnailUrl?: string;
+  stars?: number;
+  forks?: number;
+  author?: string;
+  createdAt?: string;
 }
 
 export async function fetchGitHubTrends(): Promise<GitHubTrending[]> {
@@ -21,12 +28,25 @@ export async function fetchGitHubTrends(): Promise<GitHubTrending[]> {
 
     const data = await response.json();
 
-    return (data.items || []).map((repo: any) => ({
-      title: `${repo.full_name} — ${repo.description || 'No description'}`.slice(0, 200),
+    const results = (data.items || []).map((repo: any) => ({
+      title: repo.full_name,
       url: repo.html_url,
-      summary: repo.description || `Stars: ${repo.stargazers_count}`,
+      summary: repo.description || `Stars: ${repo.stargazers_count} • ${repo.language || 'Unknown'}`,
       tags: [repo.language, ...(repo.topics || [])].filter(Boolean).slice(0, 5),
+      stars: repo.stargazers_count,
+      forks: repo.forks_count,
+      author: repo.owner?.login,
+      createdAt: repo.created_at,
     }));
+
+    const withThumbnails = await Promise.all(
+      results.map(async (trend: GitHubTrending) => ({
+        ...trend,
+        thumbnailUrl: await fetchOgImage(trend.url),
+      }))
+    );
+
+    return withThumbnails;
   } catch (error) {
     console.error('Failed to fetch GitHub trends:', error);
     return [];

@@ -6,6 +6,13 @@ export interface ITrend extends Document {
   url: string;
   summary: string;
   tags: string[];
+  thumbnailUrl?: string;
+  stars?: number;
+  forks?: number;
+  points?: number;
+  comments?: number;
+  author?: string;
+  createdAt?: string;
   fetchedAt: Date;
   expiresAt: Date;
 }
@@ -16,6 +23,13 @@ const trendSchema = new Schema<ITrend>({
   url: { type: String, required: true },
   summary: { type: String, default: '' },
   tags: [{ type: String }],
+  thumbnailUrl: { type: String },
+  stars: { type: Number },
+  forks: { type: Number },
+  points: { type: Number },
+  comments: { type: Number },
+  author: { type: String },
+  createdAt: { type: String },
   fetchedAt: { type: Date, default: Date.now },
   expiresAt: { type: Date, index: { expireAfterSeconds: 604800 } },
 });
