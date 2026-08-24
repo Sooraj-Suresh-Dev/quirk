@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { TrendCard } from '@/components/trends/TrendCard';
+import { TrendGrid } from '@/components/trends/TrendGrid';
+import { TrendModal } from '@/components/trends/TrendModal';
 import { TrendFilters } from '@/components/trends/TrendFilters';
-import { Skeleton } from '@/components/ui/Skeleton';
 import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
 import { Search } from 'lucide-react';
 
@@ -14,12 +15,24 @@ interface Trend {
   url: string;
   summary: string;
   tags: string[];
+  thumbnailUrl?: string;
+  stars?: number;
+  forks?: number;
+  points?: number;
+  comments?: number;
+  author?: string;
+  createdAt?: string;
 }
+
+const ITEMS_PER_PAGE = 12;
 
 export function Trends() {
   const [trends, setTrends] = useState<Trend[]>([]);
+  const [selectedTrend, setSelectedTrend] = useState<Trend | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -36,12 +49,27 @@ export function Trends() {
     fetchTrends();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter, search]);
+
   const filtered = trends
     .filter(t => activeFilter === 'all' || t.source === activeFilter)
     .filter(t =>
       t.title.toLowerCase().includes(search.toLowerCase()) ||
       t.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()))
     );
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginatedTrends = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const handleSelect = (trend: Trend) => {
+    setSelectedTrend(trend);
+    setModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-cream">
@@ -62,26 +90,45 @@ export function Trends() {
 
           <TrendFilters active={activeFilter} onChange={setActiveFilter} />
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {isLoading ? (
-              <>
-                <Skeleton className="h-40" />
-                <Skeleton className="h-40" />
-                <Skeleton className="h-40" />
-                <Skeleton className="h-40" />
-              </>
-            ) : filtered.length === 0 ? (
-              <p className="font-serif text-warm-gray text-center py-8 col-span-2">
-                No trends found
-              </p>
-            ) : (
-              filtered.map(trend => (
-                <TrendCard key={trend._id} trend={trend} />
-              ))
-            )}
+          <div className="mt-6">
+            <TrendGrid
+              trends={paginatedTrends}
+              selectedId={selectedTrend?._id}
+              isLoading={isLoading}
+              onSelect={handleSelect}
+              onGenerate={handleSelect}
+            />
           </div>
+
+          {!isLoading && totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 mt-8">
+              <Button
+                variant="secondary"
+                onClick={() => setCurrentPage(p => p - 1)}
+                disabled={currentPage === 1}
+              >
+                PREVIOUS
+              </Button>
+              <span className="font-mono text-sm text-warm-gray">
+                {currentPage} / {totalPages}
+              </span>
+              <Button
+                variant="secondary"
+                onClick={() => setCurrentPage(p => p + 1)}
+                disabled={currentPage === totalPages}
+              >
+                NEXT
+              </Button>
+            </div>
+          )}
         </div>
       </main>
+
+      <TrendModal
+        trend={selectedTrend}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </div>
   );
 }

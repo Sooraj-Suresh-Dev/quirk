@@ -11,6 +11,13 @@ interface Trend {
   title: string;
   summary: string;
   source: string;
+  thumbnailUrl?: string;
+  stars?: number;
+  forks?: number;
+  points?: number;
+  comments?: number;
+  author?: string;
+  createdAt?: string;
 }
 
 interface GenerationPanelProps {

@@ -4,6 +4,7 @@ import { VoiceSamples } from '@/components/voice/VoiceSamples';
 import { VoiceProfile } from '@/components/voice/VoiceProfile';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
+import { useToast } from '@/lib/toast';
 import { Sparkles } from 'lucide-react';
 
 interface VoiceProfile {
@@ -14,6 +15,7 @@ interface VoiceProfile {
 }
 
 export function Voice() {
+  const { toast } = useToast();
   const [samples, setSamples] = useState<string[]>(['', '', '', '', '']);
   const [profile, setProfile] = useState<VoiceProfile | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -29,8 +31,10 @@ export function Voice() {
         { samples: validSamples }
       );
       setProfile(result.voiceProfile);
+      toast('success', 'Voice profile analyzed successfully!');
     } catch (err) {
       console.error('Failed to analyze voice:', err);
+      toast('error', 'Failed to analyze voice. Please try again.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -40,7 +44,7 @@ export function Voice() {
     <div className="min-h-screen bg-cream">
       <Sidebar />
       <main className="ml-[60px] p-8">
-        <div className="max-w-5xl mx-auto">
+          <div className="max-w-6xl mx-auto">
           <h1 className="font-mono text-3xl font-bold text-charcoal mb-2">VOICE TRAINING</h1>
           <p className="font-serif text-warm-gray mb-8">
             Paste 3-5 of your best LinkedIn posts. We'll analyze your writing style and use it for all future generations.

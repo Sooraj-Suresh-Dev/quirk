@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { TrendCard } from '@/components/trends/TrendCard';
+import { TrendGrid } from '@/components/trends/TrendGrid';
+import { TrendModal } from '@/components/trends/TrendModal';
 import { Pill } from '@/components/ui/Pill';
 import { Button } from '@/components/ui/Button';
-import { Skeleton } from '@/components/ui/Skeleton';
 import { api } from '@/lib/api';
 
 interface Trend {
@@ -12,6 +12,13 @@ interface Trend {
   url: string;
   summary: string;
   tags: string[];
+  thumbnailUrl?: string;
+  stars?: number;
+  forks?: number;
+  points?: number;
+  comments?: number;
+  author?: string;
+  createdAt?: string;
 }
 
 interface TrendsSectionProps {
@@ -28,6 +35,8 @@ export function TrendsSection({
   className = '',
 }: TrendsSectionProps) {
   const [trends, setTrends] = useState<Trend[]>([]);
+  const [selectedTrend, setSelectedTrend] = useState<Trend | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +69,11 @@ export function TrendsSection({
     currentPage * ITEMS_PER_PAGE
   );
 
+  const handleSelect = (trend: Trend) => {
+    setSelectedTrend(trend);
+    setModalOpen(true);
+  };
+
   return (
     <section className={`py-24 px-8 ${className}`}>
       <div className="mx-auto">
@@ -70,23 +84,15 @@ export function TrendsSection({
           <Pill active={activeFilter === 'github'} onClick={() => setActiveFilter('github')}>GITHUB</Pill>
           <Pill active={activeFilter === 'hackernews'} onClick={() => setActiveFilter('hackernews')}>HACKER NEWS</Pill>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {isLoading ? (
-            <>
-              <Skeleton className="h-40" />
-              <Skeleton className="h-40" />
-              <Skeleton className="h-40" />
-            </>
-          ) : paginatedTrends.length === 0 ? (
-            <p className="font-serif text-warm-gray text-center py-8 col-span-3">
-              No trends found
-            </p>
-          ) : (
-            paginatedTrends.map(trend => (
-              <TrendCard key={trend._id} trend={trend} />
-            ))
-          )}
-        </div>
+
+        <TrendGrid
+          trends={paginatedTrends}
+          selectedId={selectedTrend?._id}
+          isLoading={isLoading}
+          onSelect={handleSelect}
+          onGenerate={handleSelect}
+        />
+
         {!isLoading && totalPages > 1 && (
           <div className="flex items-center justify-center gap-4 mt-8">
             <Button
@@ -109,6 +115,12 @@ export function TrendsSection({
           </div>
         )}
       </div>
+
+      <TrendModal
+        trend={selectedTrend}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </section>
   );
 }
