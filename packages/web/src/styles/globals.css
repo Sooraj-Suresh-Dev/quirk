@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5F0E8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2D2D2D;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E8725C;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2D2D2D #F5F0E8;
+}
+
 @layer base {
   body {
     @apply bg-cream text-charcoal font-serif antialiased;
@@ -102,5 +124,25 @@
 
   .badge-techcrunch {
     @apply bg-[#D4A5A5] text-soft-white;
+  }
+
+  .bento-grid {
+    @apply grid grid-cols-3 gap-4;
+  }
+
+  .bento-card {
+    @apply bg-soft-white rounded-card border-3 border-deep-black shadow-card p-6;
+  }
+
+  .bento-card-wide {
+    @apply col-span-2;
+  }
+
+  .bento-card-tall {
+    @apply row-span-2;
+  }
+
+  .bento-card-hero {
+    @apply col-span-2 row-span-2;
   }
 }
