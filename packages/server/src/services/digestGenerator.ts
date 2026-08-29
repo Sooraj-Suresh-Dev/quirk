@@ -10,7 +10,7 @@ export interface DigestContent {
 
 export async function generateDigest(user: IUser): Promise<DigestContent> {
   const trends = await Trend.find({
-    source: { $in: user.preferences?.sources || ['github', 'hackernews'] },
+    source: { $in: user.preferences?.sources || ['github', 'producthunt'] },
     expiresAt: { $gt: new Date() },
   })
     .sort({ fetchedAt: -1 })

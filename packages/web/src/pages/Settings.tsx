@@ -19,7 +19,7 @@ export function Settings() {
   const [anthropicKey, setAnthropicKey] = useState('');
   const [digestTime, setDigestTime] = useState('09:00');
   const [emailDigest, setEmailDigest] = useState(false);
-  const [sources, setSources] = useState<string[]>(['github', 'hackernews']);
+  const [sources, setSources] = useState<string[]>(['github', 'producthunt']);
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -28,7 +28,7 @@ export function Settings() {
     if (user?.preferences) {
       setDigestTime(user.preferences.digestTime || '09:00');
       setEmailDigest(user.preferences.emailDigest || false);
-      setSources(user.preferences.sources || ['github', 'hackernews']);
+      setSources(user.preferences.sources || ['github', 'producthunt']);
     }
   }, [user]);
 
@@ -118,8 +118,8 @@ export function Settings() {
                 <Pill active={sources.includes('github')} onClick={() => toggleSource('github')}>
                   GITHUB
                 </Pill>
-                <Pill active={sources.includes('hackernews')} onClick={() => toggleSource('hackernews')}>
-                  HACKER NEWS
+                <Pill active={sources.includes('producthunt')} onClick={() => toggleSource('producthunt')}>
+                  PRODUCT HUNT
                 </Pill>
               </div>
             </Card>

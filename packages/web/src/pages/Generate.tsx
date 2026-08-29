@@ -9,11 +9,11 @@ import { GenerationPanel } from '@/components/generation/GenerationPanel';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { timeAgo } from '@/lib/timeAgo';
 import { api } from '@/lib/api';
-import { ArrowLeft, Star, ArrowUp, Clock, User, ExternalLink, Github, Newspaper } from 'lucide-react';
+import { ArrowLeft, Star, Heart, Clock, User, ExternalLink, Github, Rocket } from 'lucide-react';
 
 interface Trend {
   _id: string;
-  source: 'github' | 'hackernews';
+  source: 'github' | 'producthunt';
   title: string;
   url: string;
   summary: string;
@@ -21,8 +21,9 @@ interface Trend {
   thumbnailUrl?: string;
   stars?: number;
   forks?: number;
-  points?: number;
-  comments?: number;
+  votes?: number;
+  website?: string;
+  makers?: string[];
   author?: string;
   createdAt?: string;
 }
@@ -102,7 +103,7 @@ export function Generate() {
                   {trend.source === 'github' ? (
                     <Github size={24} className="text-warm-gray" />
                   ) : (
-                    <Newspaper size={24} className="text-warm-gray" />
+                    <Rocket size={24} className="text-warm-gray" />
                   )}
                 </div>
               )}
@@ -117,10 +118,10 @@ export function Generate() {
                       {trend.stars.toLocaleString()}
                     </span>
                   )}
-                  {trend.source === 'hackernews' && trend.points != null && (
+                  {trend.source === 'producthunt' && trend.votes != null && (
                     <span className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
-                      <ArrowUp size={12} className="text-[#F5A623]" />
-                      {trend.points.toLocaleString()}
+                      <Heart size={12} className="text-[#DA553F]" />
+                      {trend.votes.toLocaleString()}
                     </span>
                   )}
                   {trend.author && (

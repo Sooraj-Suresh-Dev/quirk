@@ -39,7 +39,7 @@ const faqs = [
   {
     question: 'What trend sources do you support?',
     answer:
-      'Quirk currently tracks GitHub Trending, Product Hunt, Hacker News, and TechCrunch. Trends are updated every hour and cached for efficiency.',
+      'Quirk currently tracks GitHub Trending, Product Hunt, and TechCrunch. Trends are updated every hour and cached for efficiency.',
   },
   {
     question: 'How many posts can I generate?',

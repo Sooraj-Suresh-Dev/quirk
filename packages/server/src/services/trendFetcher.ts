@@ -1,13 +1,13 @@
 import { Trend } from '../models/Trend.js';
 import { fetchGitHubTrends } from './scrapers/github.js';
-import { fetchHackerNewsTrends } from './scrapers/hackernews.js';
+import { fetchProductHuntTrends } from './scrapers/producthunt.js';
 import { logError } from '../config/logger.js';
 
 export async function fetchAllTrends(): Promise<void> {
   try {
-    const [githubTrends, hnTrends] = await Promise.all([
+    const [githubTrends, phTrends] = await Promise.all([
       fetchGitHubTrends(),
-      fetchHackerNewsTrends(),
+      fetchProductHuntTrends(),
     ]);
 
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -20,10 +20,10 @@ export async function fetchAllTrends(): Promise<void> {
       );
     }
 
-    for (const trend of hnTrends) {
+    for (const trend of phTrends) {
       await Trend.findOneAndUpdate(
-        { source: 'hackernews', url: trend.url },
-        { ...trend, source: 'hackernews', fetchedAt: new Date(), expiresAt },
+        { source: 'producthunt', url: trend.url },
+        { ...trend, source: 'producthunt', fetchedAt: new Date(), expiresAt },
         { upsert: true }
       );
     }

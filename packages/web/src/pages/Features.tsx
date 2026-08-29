@@ -9,11 +9,10 @@ const features = [
     icon: TrendingUp,
     title: 'TREND DETECTION',
     description:
-      'Quirk automatically discovers trending topics from four major tech sources every hour. No more scrolling through feeds to find what matters.',
+      'Quirk automatically discovers trending topics from three major tech sources every hour. No more scrolling through feeds to find what matters.',
     details: [
       'GitHub Trending — discover rising repos and dev tools',
       'Product Hunt — catch new product launches early',
-      'Hacker News — top stories from the tech community',
       'TechCrunch — breaking tech news and analysis',
     ],
   },

@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { timeAgo } from '@/lib/timeAgo';
-import { ExternalLink, Github, Newspaper, X, Star, GitFork, ArrowUp, MessageSquare, Clock, User, Sparkles } from 'lucide-react';
+import { ExternalLink, Github, Rocket, X, Star, GitFork, Heart, Clock, User, Sparkles, Globe } from 'lucide-react';
 
 interface Trend {
   _id: string;
-  source: 'github' | 'hackernews';
+  source: 'github' | 'producthunt';
   title: string;
   url: string;
   summary: string;
@@ -14,8 +14,9 @@ interface Trend {
   thumbnailUrl?: string;
   stars?: number;
   forks?: number;
-  points?: number;
-  comments?: number;
+  votes?: number;
+  website?: string;
+  makers?: string[];
   author?: string;
   createdAt?: string;
 }
@@ -87,7 +88,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
         <div className="overflow-y-auto flex-1 p-6">
             <div className="flex gap-6 min-h-[300px]">
               {/* Left: Thumbnail */}
-              <div className="w-2/5 shrink-0">
+              <div className="w-2/5 shrink-0 max-h-[400px]">
                 {trend.thumbnailUrl ? (
                   <div className="relative rounded-card overflow-hidden h-full">
                     <img
@@ -104,7 +105,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
                     {trend.source === 'github' ? (
                       <Github size={48} className="text-warm-gray" />
                     ) : (
-                      <Newspaper size={48} className="text-warm-gray" />
+                      <Rocket size={48} className="text-warm-gray" />
                     )}
                   </div>
                 )}
@@ -145,19 +146,30 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
                       )}
                     </>
                   )}
-                  {trend.source === 'hackernews' && (
+                  {trend.source === 'producthunt' && (
                     <>
-                      {trend.points != null && (
+                      {trend.votes != null && (
                         <span className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
-                          <ArrowUp size={12} className="text-[#F5A623]" />
-                          {trend.points.toLocaleString()} points
+                          <Heart size={12} className="text-[#DA553F]" />
+                          {trend.votes.toLocaleString()} votes
                         </span>
                       )}
-                      {trend.comments != null && (
+                      {trend.makers && trend.makers.length > 0 && (
                         <span className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
-                          <MessageSquare size={12} />
-                          {trend.comments.toLocaleString()} comments
+                          <User size={12} />
+                          {trend.makers.join(', ')}
                         </span>
+                      )}
+                      {trend.website && (
+                        <a
+                          href={trend.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-mono text-coral hover:text-coral-hover"
+                        >
+                          <Globe size={12} />
+                          Website
+                        </a>
                       )}
                     </>
                   )}

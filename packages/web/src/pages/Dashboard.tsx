@@ -9,7 +9,7 @@ import { Compass, FileText, Layers, Image, ArrowRight, BarChart3 } from 'lucide-
 
 interface Trend {
   _id: string;
-  source: 'github' | 'hackernews';
+  source: 'github' | 'producthunt';
   title: string;
   url: string;
   summary: string;
@@ -17,8 +17,9 @@ interface Trend {
   thumbnailUrl?: string;
   stars?: number;
   forks?: number;
-  points?: number;
-  comments?: number;
+  votes?: number;
+  website?: string;
+  makers?: string[];
   author?: string;
   createdAt?: string;
 }

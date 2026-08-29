@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
     const search = req.query.search as string | undefined;
 
     const query: Record<string, unknown> = { expiresAt: { $gt: new Date() } };
-    if (source && (source === 'github' || source === 'hackernews')) {
+    if (source && (source === 'github' || source === 'producthunt')) {
       query.source = source;
     }
     if (search) {

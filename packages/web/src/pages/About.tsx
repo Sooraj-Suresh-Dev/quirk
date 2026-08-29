@@ -77,7 +77,7 @@ export function About() {
               <span className="text-coral mt-1">&#9679;</span>
               <span>
                 <strong className="text-charcoal">Trend detection</strong> from
-                GitHub, Product Hunt, Hacker News, and TechCrunch — automatically
+                GitHub, Product Hunt, and TechCrunch — automatically
                 updated every hour.
               </span>
             </li>

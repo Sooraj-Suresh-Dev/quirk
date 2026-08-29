@@ -7,7 +7,7 @@ import { api } from '@/lib/api';
 
 interface Trend {
   _id: string;
-  source: 'github' | 'hackernews';
+  source: 'github' | 'producthunt';
   title: string;
   url: string;
   summary: string;
@@ -15,8 +15,9 @@ interface Trend {
   thumbnailUrl?: string;
   stars?: number;
   forks?: number;
-  points?: number;
-  comments?: number;
+  votes?: number;
+  website?: string;
+  makers?: string[];
   author?: string;
   createdAt?: string;
 }
@@ -82,7 +83,7 @@ export function TrendsSection({
         <div className="flex gap-2 mb-8">
           <Pill active={activeFilter === 'all'} onClick={() => setActiveFilter('all')}>ALL</Pill>
           <Pill active={activeFilter === 'github'} onClick={() => setActiveFilter('github')}>GITHUB</Pill>
-          <Pill active={activeFilter === 'hackernews'} onClick={() => setActiveFilter('hackernews')}>HACKER NEWS</Pill>
+          <Pill active={activeFilter === 'producthunt'} onClick={() => setActiveFilter('producthunt')}>PRODUCT HUNT</Pill>
         </div>
 
         <TrendGrid

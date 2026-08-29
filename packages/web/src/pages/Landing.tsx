@@ -10,7 +10,7 @@ const features = [
     icon: TrendingUp,
     title: 'TREND DETECTION',
     description:
-      'Auto-discover trending topics from GitHub and Hacker News every hour.',
+      'Auto-discover trending topics from GitHub and Product Hunt every hour.',
   },
   {
     icon: Sparkles,

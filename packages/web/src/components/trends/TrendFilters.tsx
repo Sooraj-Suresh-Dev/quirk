@@ -8,7 +8,7 @@ interface TrendFiltersProps {
 const filters = [
   { value: 'all', label: 'ALL' },
   { value: 'github', label: 'GITHUB' },
-  { value: 'hackernews', label: 'HACKER NEWS' },
+  { value: 'producthunt', label: 'PRODUCT HUNT' },
 ];
 
 export function TrendFilters({ active, onChange }: TrendFiltersProps) {

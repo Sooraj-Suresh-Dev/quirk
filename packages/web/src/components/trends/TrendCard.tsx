@@ -3,11 +3,11 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { timeAgo } from '@/lib/timeAgo';
-import { ExternalLink, Github, Newspaper, Heart, Sparkles, Star, ArrowUp, Clock } from 'lucide-react';
+import { ExternalLink, Github, Rocket, Heart, Sparkles, Star, Clock } from 'lucide-react';
 
 interface Trend {
   _id: string;
-  source: 'github' | 'hackernews';
+  source: 'github' | 'producthunt';
   title: string;
   url: string;
   summary: string;
@@ -15,8 +15,9 @@ interface Trend {
   thumbnailUrl?: string;
   stars?: number;
   forks?: number;
-  points?: number;
-  comments?: number;
+  votes?: number;
+  website?: string;
+  makers?: string[];
   author?: string;
   createdAt?: string;
 }
@@ -86,7 +87,7 @@ export function TrendCard({ trend, selected, onClick, onBookmark, onGenerate }: 
               }}
             />
             <div className="absolute bottom-2 left-2 w-7 h-7 rounded-full bg-soft-white border-2 border-deep-black flex items-center justify-center">
-              {trend.source === 'github' ? <Github size={14} /> : <Newspaper size={14} />}
+              {trend.source === 'github' ? <Github size={14} /> : <Rocket size={14} />}
             </div>
           </div>
         ) : (
@@ -94,7 +95,7 @@ export function TrendCard({ trend, selected, onClick, onBookmark, onGenerate }: 
             {trend.source === 'github' ? (
               <Github size={20} className="text-warm-gray" />
             ) : (
-              <Newspaper size={20} className="text-warm-gray" />
+              <Rocket size={20} className="text-warm-gray" />
             )}
           </div>
         )}
@@ -109,10 +110,10 @@ export function TrendCard({ trend, selected, onClick, onBookmark, onGenerate }: 
               {trend.stars >= 1000 ? `${(trend.stars / 1000).toFixed(1)}k` : trend.stars}
             </span>
           )}
-          {trend.source === 'hackernews' && trend.points != null && (
+          {trend.source === 'producthunt' && trend.votes != null && (
             <span className="inline-flex items-center gap-0.5 text-xs font-mono text-warm-gray">
-              <ArrowUp size={10} className="text-[#F5A623]" />
-              {trend.points}
+              <Heart size={10} className="text-[#DA553F]" />
+              {trend.votes}
             </span>
           )}
           {trend.createdAt && (
