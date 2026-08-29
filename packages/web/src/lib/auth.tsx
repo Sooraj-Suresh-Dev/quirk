@@ -14,6 +14,11 @@ interface User {
     sources: string[];
     digestTime: string;
     emailDigest: boolean;
+    openaiKey?: string;
+    anthropicKey?: string;
+    preferredProvider?: string;
+    preferredModel?: string;
+    preferredTemperature?: number;
   };
 }
 

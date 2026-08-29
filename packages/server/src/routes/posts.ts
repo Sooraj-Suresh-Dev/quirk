@@ -5,6 +5,8 @@ import { Trend } from '../models/Trend.js';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
 import { rateLimiter } from '../middleware/rateLimiter.js';
 import { generatePost } from '../services/postGenerator.js';
+import { PROVIDERS, DEFAULT_PROVIDER, DEFAULT_MODEL, DEFAULT_TEMPERATURE, getProvider } from '../config/models.js';
+import { config } from '../config/env.js';
 import { logError } from '../config/logger.js';
 
 const router: ExpressRouter = Router();
@@ -12,7 +14,48 @@ const router: ExpressRouter = Router();
 const generateSchema = z.object({
   trendId: z.string(),
   type: z.enum(['text', 'carousel', 'image-prompt']),
+  provider: z.string().optional(),
+  model: z.string().optional(),
+  temperature: z.number().min(0.1).max(2.0).optional(),
 });
+
+// GET /api/posts/models — List available providers and models
+router.get('/models', requireAuth, (req: AuthRequest, res) => {
+  const user = req.user;
+
+  const providers = PROVIDERS.map(p => ({
+    id: p.id,
+    name: p.name,
+    hasApiKey: hasApiKeyForProvider(p.id, user),
+    models: p.models.map(m => ({
+      id: m.id,
+      name: m.name,
+      defaultTemperature: m.defaultTemperature,
+    })),
+  }));
+
+  res.json({
+    providers,
+    defaults: {
+      provider: DEFAULT_PROVIDER,
+      model: DEFAULT_MODEL,
+      temperature: DEFAULT_TEMPERATURE,
+    },
+  });
+});
+
+function hasApiKeyForProvider(providerId: string, user?: any): boolean {
+  switch (providerId) {
+    case 'openai':
+      return !!(config.OPENAI_API_KEY || user?.preferences?.openaiKey);
+    case 'anthropic':
+      return !!(config.ANTHROPIC_API_KEY || user?.preferences?.anthropicKey);
+    case 'openrouter':
+      return !!config.OPENROUTER_API_KEY;
+    default:
+      return false;
+  }
+}
 
 // GET /api/posts — List user's posts
 router.get('/', requireAuth, async (req: AuthRequest, res) => {
@@ -30,7 +73,7 @@ router.get('/', requireAuth, async (req: AuthRequest, res) => {
 // POST /api/posts/generate — Generate new post
 router.post('/generate', requireAuth, rateLimiter, async (req: AuthRequest, res) => {
   try {
-    const { trendId, type } = generateSchema.parse(req.body);
+    const { trendId, type, provider, model, temperature } = generateSchema.parse(req.body);
 
     const trend = await Trend.findById(trendId);
     if (!trend) {
@@ -44,7 +87,16 @@ router.post('/generate', requireAuth, rateLimiter, async (req: AuthRequest, res)
       return;
     }
 
-    const content = await generatePost(trend, type, user);
+    const selectedProvider = provider || user.preferences?.preferredProvider || DEFAULT_PROVIDER;
+    const providerInfo = getProvider(selectedProvider);
+    const selectedModel = model || providerInfo?.models[0]?.id;
+    const selectedTemperature = temperature ?? user.preferences?.preferredTemperature ?? DEFAULT_TEMPERATURE;
+
+    const { content, fallback } = await generatePost(trend, type, user, {
+      provider: selectedProvider,
+      model: selectedModel,
+      temperature: selectedTemperature,
+    });
 
     const post = await Post.create({
       userId: req.userId,
@@ -54,14 +106,15 @@ router.post('/generate', requireAuth, rateLimiter, async (req: AuthRequest, res)
       status: 'generated',
     });
 
-    res.json({ post });
+    res.json({ post, fallback });
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: 'Invalid input', details: err.errors });
       return;
     }
+    const message = err instanceof Error ? err.message : 'Failed to generate post';
     logError('POST generate failed', { err });
-    res.status(500).json({ error: 'Failed to generate post' });
+    res.status(500).json({ error: message });
   }
 });
 

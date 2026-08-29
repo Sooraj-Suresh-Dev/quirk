@@ -1,11 +1,20 @@
 import { config } from '../config/env.js';
+import { DEFAULT_MODEL } from '../config/models.js';
+import { logError } from '../config/logger.js';
 
-export async function generateWithOpenRouter(prompt: string, systemPrompt?: string) {
+export async function generateWithOpenRouter(
+  prompt: string,
+  systemPrompt?: string,
+  model?: string,
+  temperature?: number
+) {
   const apiKey = config.OPENROUTER_API_KEY;
 
   if (!apiKey) {
     throw new Error('No OpenRouter API key available');
   }
+
+  const selectedModel = model || DEFAULT_MODEL;
 
   const messages: { role: string; content: string }[] = [];
 
@@ -21,17 +30,30 @@ export async function generateWithOpenRouter(prompt: string, systemPrompt?: stri
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'meta-llama/llama-3-8b-instruct',
+      model: selectedModel,
       messages,
-      temperature: 0.7,
+      temperature: temperature ?? 0.7,
       max_tokens: 2000,
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`OpenRouter API error: ${response.status}`);
+    const errorBody = await response.text().catch(() => 'Could not read error body');
+    logError('OpenRouter API error', {
+      status: response.status,
+      statusText: response.statusText,
+      model: selectedModel,
+      body: errorBody,
+    });
+    throw new Error(`OpenRouter API error ${response.status}: ${errorBody.slice(0, 200)}`);
   }
 
   const data = await response.json();
+
+  if (!data.choices?.[0]?.message?.content) {
+    logError('OpenRouter empty response', { data });
+    throw new Error('OpenRouter returned empty response');
+  }
+
   return data.choices[0].message.content || '';
 }

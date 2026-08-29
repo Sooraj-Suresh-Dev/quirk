@@ -17,6 +17,9 @@ export interface IUser extends Document {
     emailDigest: boolean;
     openaiKey?: string;
     anthropicKey?: string;
+    preferredProvider?: string;
+    preferredModel?: string;
+    preferredTemperature?: number;
   };
   createdAt: Date;
 }
@@ -33,11 +36,14 @@ const userSchema = new Schema<IUser>({
     emojiFrequency: { type: Number },
   },
   preferences: {
-    sources: { type: [String], default: ['github', 'hackernews'] },
+    sources: { type: [String], default: ['github', 'producthunt'] },
     digestTime: { type: String, default: '09:00' },
     emailDigest: { type: Boolean, default: false },
     openaiKey: { type: String },
     anthropicKey: { type: String },
+    preferredProvider: { type: String },
+    preferredModel: { type: String },
+    preferredTemperature: { type: Number },
   },
   createdAt: { type: Date, default: Date.now },
 });

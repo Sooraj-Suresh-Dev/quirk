@@ -1,7 +1,13 @@
 import OpenAI from 'openai';
 import { config } from '../config/env.js';
 
-export async function generateWithOpenAI(prompt: string, systemPrompt?: string, userApiKey?: string) {
+export async function generateWithOpenAI(
+  prompt: string,
+  systemPrompt?: string,
+  model?: string,
+  temperature?: number,
+  userApiKey?: string
+) {
   const apiKey = userApiKey || config.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -18,9 +24,9 @@ export async function generateWithOpenAI(prompt: string, systemPrompt?: string, 
   messages.push({ role: 'user', content: prompt });
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: model || 'gpt-4o-mini',
     messages,
-    temperature: 0.7,
+    temperature: temperature ?? 0.7,
     max_tokens: 2000,
   });
 

@@ -16,6 +16,9 @@ const preferencesSchema = z.object({
   emailDigest: z.boolean().optional(),
   openaiKey: z.string().optional(),
   anthropicKey: z.string().optional(),
+  preferredProvider: z.string().optional(),
+  preferredModel: z.string().optional(),
+  preferredTemperature: z.number().min(0.1).max(2.0).optional(),
 });
 
 // GET /api/users/profile — Get user profile + voice
