@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { AuthModalProvider } from '@/lib/auth-modal';
 import { ToastProvider } from '@/lib/toast';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Landing } from '@/pages/Landing';
 import { SetPassword } from '@/pages/SetPassword';
 import { Dashboard } from '@/pages/Dashboard';
@@ -52,7 +53,9 @@ export default function App() {
       <AuthProvider>
         <AuthModalProvider>
           <ToastProvider>
-            <AppRoutes />
+            <ErrorBoundary>
+              <AppRoutes />
+            </ErrorBoundary>
           </ToastProvider>
         </AuthModalProvider>
       </AuthProvider>
