@@ -1,5 +1,6 @@
 import { ITrend } from '../models/Trend.js';
 import { IUser } from '../models/User.js';
+import { Voice } from '../models/Voice.js';
 import { generateWithOpenAI } from './openai.js';
 import { generateWithAnthropic } from './anthropic.js';
 import { generateWithOpenRouter } from './openrouter.js';
@@ -9,6 +10,17 @@ interface GenerateOptions {
   provider?: string;
   model?: string;
   temperature?: number;
+}
+
+interface ImagePromptContent {
+  prompt: string;
+  style: string;
+  caption: string;
+}
+
+interface CarouselContent {
+  caption: string;
+  imagePrompts: string[];
 }
 
 interface GenerateResult {
@@ -24,7 +36,10 @@ export async function generatePost(
 ): Promise<GenerateResult> {
   const { provider = 'openrouter', model, temperature } = options;
 
-  const systemPrompt = buildSystemPrompt(user);
+  const voiceDoc = await Voice.findOne({ userId: user._id, isActive: true });
+  const voice = voiceDoc?.profile;
+
+  const systemPrompt = buildSystemPrompt(user, voice);
   const userPrompt = buildUserPrompt(trend, type);
 
   let result = '';
@@ -58,27 +73,71 @@ export async function generatePost(
   }
 
   if (type === 'carousel') {
+    let caption = '';
+    let imagePrompts: string[] = [];
+
+    // Step 1: Generate caption using text post prompt (high quality LinkedIn post)
+    const captionPrompt = buildUserPrompt(trend, 'text');
+    let captionResult = '';
+
+    const captionUserKey = getUserKey(user, provider);
+    try {
+      if (captionUserKey) {
+        captionResult = await generateWithProvider(provider, captionPrompt, buildSystemPrompt(user, voice), model, temperature, captionUserKey);
+      }
+    } catch {}
+
+    if (!captionResult) {
+      try {
+        captionResult = await generateWithProvider(provider, captionPrompt, buildSystemPrompt(user, voice), model, temperature);
+      } catch {}
+    }
+
+    if (captionResult) {
+      caption = cleanCaption(captionResult);
+    }
+
+    // Step 2: Generate slides with image prompts (using original carousel prompt)
     try {
       const jsonMatch = result.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
-        return { content: JSON.parse(jsonMatch[0]) as Record<string, unknown>[], fallback: isFallback };
+        const slides = JSON.parse(jsonMatch[0]) as Record<string, unknown>[];
+        imagePrompts = slides.map((slide) => (slide.imagePrompt as string) || '').filter(Boolean);
       }
-    } catch {
-      // Fall through
+    } catch {}
+
+    if (!caption) {
+      caption = generateFallbackCarouselCaption();
     }
-    return { content: parseCarouselFallback(result), fallback: isFallback };
+
+    const carouselContent: CarouselContent = { caption, imagePrompts };
+    return { content: carouselContent as unknown as Record<string, unknown>[], fallback: isFallback };
   }
 
   if (type === 'image-prompt') {
+    let promptText = result;
+    let styleText = 'modern editorial';
+    let captionText = '';
+
     try {
       const jsonMatch = result.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        return { content: JSON.stringify(JSON.parse(jsonMatch[0])), fallback: isFallback };
+        const parsed = JSON.parse(jsonMatch[0]);
+        promptText = parsed.prompt || promptText;
+        styleText = parsed.style || styleText;
+        captionText = parsed.caption || captionText;
       }
     } catch {
-      // Fall through
+      // Use raw result as prompt
     }
-    return { content: result, fallback: isFallback };
+
+    const content: ImagePromptContent = {
+      prompt: promptText,
+      style: styleText,
+      caption: captionText,
+    };
+
+    return { content: JSON.stringify(content) as unknown as string, fallback: isFallback };
   }
 
   // Text post: clean up any leading labels the model may have added
@@ -89,11 +148,54 @@ export async function generatePost(
     /^Post:\s*/i,
     /^LinkedIn post:\s*/i,
     /^Text post:\s*/i,
+    /^Here's the output for.*:\s*/i,
+    /^Here's a.*post.*about.*trend:\s*/i,
+    /^Here's a.*LinkedIn.*:\s*/i,
+    /^Here's the.*:\s*/i,
+    /^Here's a.*viral.*:\s*/i,
+    /^Sure,.*:\s*/i,
+    /^Below is.*:\s*/i,
+    /^Attached is.*:\s*/i,
+    /^Here's your.*:\s*/i,
+    /^\*\*(.+?)\*\*/g,               // Remove **bold** markers
+    /^#+\s*/gm,                       // Remove # heading markers
+    /^[*-]\s+/gm,                     // Remove list markers
   ];
   for (const pattern of labelPatterns) {
     cleanResult = cleanResult.replace(pattern, '');
   }
+  // Also clean up any remaining ** markers throughout the text
+  cleanResult = cleanResult.replace(/\*\*/g, '');
   return { content: cleanResult.trim(), fallback: isFallback };
+}
+
+function cleanCaption(text: string): string {
+  const patterns = [
+    /^Here is the post:\s*/i,
+    /^Here's the post:\s*/i,
+    /^Post:\s*/i,
+    /^LinkedIn post:\s*/i,
+    /^Text post:\s*/i,
+    /^Here's the output for.*:\s*/i,
+    /^Here's a.*post.*about.*trend:\s*/i,
+    /^Here's a.*LinkedIn.*:\s*/i,
+    /^Here's the.*:\s*/i,
+    /^Here's a.*viral.*:\s*/i,
+    /^Sure,.*:\s*/i,
+    /^Below is.*:\s*/i,
+    /^Attached is.*:\s*/i,
+    /^Here's your.*:\s*/i,
+    /^\*\*(.+?)\*\*/g,               // Remove **bold** markers
+    /^#+\s*/gm,                       // Remove # heading markers
+    /^[*-]\s+/gm,                     // Remove list markers
+  ];
+  let cleaned = text;
+  for (const pattern of patterns) {
+    cleaned = cleaned.replace(pattern, '');
+  }
+  // Also clean up any remaining ** markers throughout the text
+  cleaned = cleaned.replace(/\*\*/g, '');
+  return cleaned.trim();
 }
 
 function getUserKey(user: IUser, provider: string): string | undefined {
@@ -127,8 +229,7 @@ async function generateWithProvider(
   }
 }
 
-function buildSystemPrompt(user: IUser): string {
-  const voice = user.voiceProfile;
+function buildSystemPrompt(user: IUser, voice?: { tone: { primary: string; secondary: string[]; confidence: number }; writingStyle: { description: string; avgSentenceLength: number; avgParagraphLength: number }; engagement: { cta: string; emoji: string }; brandSummary: string }): string {
 
   let prompt = `You are a world-class LinkedIn content strategist and ghostwriter. Your posts sound like a sharp tech leader sharing genuine insight — never like AI-generated content.
 
@@ -217,10 +318,11 @@ What's your current indexing setup, and what's the biggest pain point?
   if (voice) {
     prompt += `
 VOICE PROFILE (match this style):
-- Tone: ${voice.tone}
-- Average sentence length: ${voice.avgSentenceLength} words
-- CTA style: ${voice.ctaStyle}
-- Emoji frequency: ${voice.emojiFrequency > 0.5 ? 'heavy (2-3 per post)' : voice.emojiFrequency > 0.2 ? 'moderate (1-2 per post)' : 'minimal (0-1 per post)'}
+- Tone: ${voice.tone.primary}${voice.tone.secondary.length > 0 ? ` (${voice.tone.secondary.join(', ')})` : ''}
+- Writing Style: ${voice.writingStyle.description}
+- CTA Style: ${voice.engagement.cta}
+- Emoji Usage: ${voice.engagement.emoji}
+- Brand Voice: ${voice.brandSummary}
 `;
   }
 
@@ -382,4 +484,23 @@ function parseCarouselFallback(text: string): Record<string, unknown>[] {
     body: slide.trim(),
     imagePrompt: 'Tech illustration with warm colors',
   }));
+}
+
+function generateCarouselCaption(slides: Record<string, unknown>[]): string {
+  if (slides.length === 0) return '';
+
+  const parts: string[] = [];
+
+  for (const slide of slides) {
+    const heading = slide.heading as string;
+    const body = slide.body as string;
+    if (heading) parts.push(heading);
+    if (body) parts.push(body);
+  }
+
+  return parts.join('\n\n');
+}
+
+function generateFallbackCarouselCaption(): string {
+  return 'Check out this carousel for more insights. Swipe through to see the full breakdown.';
 }
