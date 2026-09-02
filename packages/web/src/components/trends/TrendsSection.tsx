@@ -28,7 +28,7 @@ interface TrendsSectionProps {
   className?: string;
 }
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 6;
 
 export function TrendsSection({
   title = 'TRENDING IN TECH',

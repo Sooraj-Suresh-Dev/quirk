@@ -35,6 +35,7 @@ interface Post {
 export function Dashboard() {
   const navigate = useNavigate();
   const [trends, setTrends] = useState<Trend[]>([]);
+  const [trendsTotal, setTrendsTotal] = useState(0);
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,10 +43,11 @@ export function Dashboard() {
     const fetchData = async () => {
       try {
         const [trendsRes, postsRes] = await Promise.all([
-          api.get<{ trends: Trend[] }>('/trends'),
+          api.get<{ trends: Trend[]; total: number }>('/trends'),
           api.get<{ posts: Post[] }>('/posts'),
         ]);
         setTrends(trendsRes.trends);
+        setTrendsTotal(trendsRes.total);
         setPosts(postsRes.posts);
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);
@@ -87,7 +89,7 @@ export function Dashboard() {
         {isLoading ? (
           <Skeleton className="h-12 w-24" />
         ) : (
-          <p className="font-mono text-4xl font-bold text-mint">{trends.length}</p>
+          <p className="font-mono text-4xl font-bold text-mint">{trendsTotal}</p>
         )}
         <p className="font-serif text-xs text-warm-gray mt-1">across all sources</p>
       </div>
