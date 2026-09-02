@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import { config } from '../config/env.js';
 import { User } from '../models/User.js';
 import { MagicLink } from '../models/MagicLink.js';
+import { Voice } from '../models/Voice.js';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
 import { logError, logWarn } from '../config/logger.js';
 import { sendMagicLinkEmail } from '../services/emailSender.js';
@@ -112,8 +113,11 @@ router.post('/set-password', async (req, res) => {
 
     setAuthCookies(res, dbUser._id.toString(), dbUser.email);
 
+    const voice = await Voice.findOne({ userId: dbUser._id });
+
     res.json({
-      user: { id: dbUser._id, email: dbUser.email, preferences: dbUser.preferences, voiceProfile: dbUser.voiceProfile },
+      user: { id: dbUser._id, email: dbUser.email, preferences: dbUser.preferences },
+      voice: voice ? { samples: voice.samples, profile: voice.profile, isActive: voice.isActive, createdAt: voice.createdAt, updatedAt: voice.updatedAt } : null,
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -144,8 +148,11 @@ router.post('/login', async (req, res) => {
 
     setAuthCookies(res, dbUser._id.toString(), dbUser.email);
 
+    const voice = await Voice.findOne({ userId: dbUser._id });
+
     res.json({
-      user: { id: dbUser._id, email: dbUser.email, preferences: dbUser.preferences, voiceProfile: dbUser.voiceProfile },
+      user: { id: dbUser._id, email: dbUser.email, preferences: dbUser.preferences },
+      voice: voice ? { samples: voice.samples, profile: voice.profile, isActive: voice.isActive, createdAt: voice.createdAt, updatedAt: voice.updatedAt } : null,
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -158,14 +165,18 @@ router.post('/login', async (req, res) => {
 });
 
 // GET /api/auth/session — Get current session
-router.get('/session', requireAuth, (req: AuthRequest, res) => {
+router.get('/session', requireAuth, async (req: AuthRequest, res) => {
   const user = req.user;
   if (!user) {
     res.status(401).json({ error: 'Not authenticated' });
     return;
   }
+
+  const voice = await Voice.findOne({ userId: user._id });
+
   res.json({
-    user: { id: user._id, email: user.email, preferences: user.preferences, voiceProfile: user.voiceProfile },
+    user: { id: user._id, email: user.email, preferences: user.preferences },
+    voice: voice ? { samples: voice.samples, profile: voice.profile, isActive: voice.isActive, createdAt: voice.createdAt, updatedAt: voice.updatedAt } : null,
   });
 });
 

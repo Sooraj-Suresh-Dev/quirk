@@ -1,15 +1,51 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { api } from './api';
 
+interface VoiceProfile {
+  tone: {
+    primary: string;
+    secondary: string[];
+    confidence: number;
+  };
+  writingStyle: {
+    description: string;
+    avgSentenceLength: number;
+    avgParagraphLength: number;
+  };
+  personality: {
+    traits: string[];
+    description: string;
+  };
+  structure: {
+    description: string;
+    pattern: string[];
+  };
+  engagement: {
+    cta: 'None' | 'Soft' | 'Direct';
+    questions: 'None' | 'Rare' | 'Occasional' | 'Frequent';
+    emoji: 'None' | 'Low' | 'Medium' | 'High';
+    emojiFrequency: number;
+  };
+  signaturePatterns: string[];
+  brandSummary: string;
+  trainingQuality: {
+    score: number;
+    consistency: string;
+    limitations: string[];
+  };
+}
+
+interface Voice {
+  samples: string[];
+  profile: VoiceProfile;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface User {
   id: string;
   email: string;
-  voiceProfile?: {
-    tone: string;
-    avgSentenceLength: number;
-    ctaStyle: string;
-    emojiFrequency: number;
-  };
   preferences: {
     sources: string[];
     digestTime: string;
@@ -24,7 +60,9 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  voice: Voice | null;
   isLoading: boolean;
+  refreshVoice: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string) => Promise<void>;
   setPassword: (token: string, password: string) => Promise<void>;
@@ -35,19 +73,23 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [voice, setVoice] = useState<Voice | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    api.get<{ user: User }>('/auth/session')
-      .then(res => setUser(res.user))
+    api.get<{ user: User; voice: Voice | null }>('/auth/session')
+      .then(res => {
+        setUser(res.user);
+        setVoice(res.voice);
+      })
       .catch(async (err) => {
         if (err.status === 401) {
           try {
             await api.post('/auth/refresh');
-            const res = await api.get<{ user: User }>('/auth/session');
+            const res = await api.get<{ user: User; voice: Voice | null }>('/auth/session');
             setUser(res.user);
+            setVoice(res.voice);
           } catch {
-            // Refresh failed — user stays logged out
           }
         }
       })
@@ -57,8 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await api.post<{ user: User }>('/auth/login', { email, password });
+      const res = await api.post<{ user: User; voice: Voice | null }>('/auth/login', { email, password });
       setUser(res.user);
+      setVoice(res.voice);
     } finally {
       setIsLoading(false);
     }
@@ -76,8 +119,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setPassword = useCallback(async (magicToken: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await api.post<{ user: User }>('/auth/set-password', { token: magicToken, password });
+      const res = await api.post<{ user: User; voice: Voice | null }>('/auth/set-password', { token: magicToken, password });
       setUser(res.user);
+      setVoice(res.voice);
     } finally {
       setIsLoading(false);
     }
@@ -86,10 +130,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await api.post('/auth/logout');
     setUser(null);
+    setVoice(null);
+  }, []);
+
+  const refreshVoice = useCallback(async () => {
+    try {
+      const res = await api.get<{ voice: Voice | null }>('/users/voice');
+      setVoice(res.voice);
+    } catch {
+    }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, setPassword, logout }}>
+    <AuthContext.Provider value={{ user, voice, isLoading, refreshVoice, login, signup, setPassword, logout }}>
       {children}
     </AuthContext.Provider>
   );
