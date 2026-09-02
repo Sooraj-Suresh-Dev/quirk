@@ -1,0 +1,90 @@
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IVoice extends Document {
+  userId: mongoose.Types.ObjectId;
+  samples: string[];
+  profile: {
+    tone: {
+      primary: string;
+      secondary: string[];
+      confidence: number;
+    };
+    writingStyle: {
+      description: string;
+      avgSentenceLength: number;
+      avgParagraphLength: number;
+    };
+    personality: {
+      traits: string[];
+      description: string;
+    };
+    structure: {
+      description: string;
+      pattern: string[];
+    };
+    engagement: {
+      cta: 'None' | 'Soft' | 'Direct';
+      questions: 'None' | 'Rare' | 'Occasional' | 'Frequent';
+      emoji: 'None' | 'Low' | 'Medium' | 'High';
+      emojiFrequency: number;
+    };
+    signaturePatterns: string[];
+    brandSummary: string;
+    trainingQuality: {
+      score: number;
+      consistency: string;
+      limitations: string[];
+    };
+  };
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const voiceSchema = new Schema<IVoice>({
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true, index: true },
+  samples: [{ type: String }],
+  profile: {
+    tone: {
+      primary: { type: String },
+      secondary: [{ type: String }],
+      confidence: { type: Number },
+    },
+    writingStyle: {
+      description: { type: String },
+      avgSentenceLength: { type: Number },
+      avgParagraphLength: { type: Number },
+    },
+    personality: {
+      traits: [{ type: String }],
+      description: { type: String },
+    },
+    structure: {
+      description: { type: String },
+      pattern: [{ type: String }],
+    },
+    engagement: {
+      cta: { type: String, enum: ['None', 'Soft', 'Direct'] },
+      questions: { type: String, enum: ['None', 'Rare', 'Occasional', 'Frequent'] },
+      emoji: { type: String, enum: ['None', 'Low', 'Medium', 'High'] },
+      emojiFrequency: { type: Number },
+    },
+    signaturePatterns: [{ type: String }],
+    brandSummary: { type: String },
+    trainingQuality: {
+      score: { type: Number },
+      consistency: { type: String },
+      limitations: [{ type: String }],
+    },
+  },
+  isActive: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});
+
+voiceSchema.pre('save', function (next) {
+  this.updatedAt = new Date();
+  next();
+});
+
+export const Voice = mongoose.model<IVoice>('Voice', voiceSchema);
