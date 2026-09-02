@@ -1,107 +1,181 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui/Card';
+import { PreviewCard } from './PreviewCard';
 import { Button } from '@/components/ui/Button';
-import { Copy, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Copy, ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
 
-interface Slide {
-  heading: string;
-  body: string;
-  imagePrompt: string;
+interface CarouselContent {
+  caption: string;
+  imagePrompts: string[];
 }
 
 interface CarouselPreviewProps {
-  slides: Slide[] | string | unknown;
+  slides?: CarouselContent | string | unknown;
+  onCopy?: () => void;
+  onRegenerate?: () => void;
+  isCopying?: boolean;
 }
 
-function normalizeSlides(input: Slide[] | string | unknown): Slide[] {
-  if (!input) return [];
+function parseContent(input: CarouselContent | string | unknown): CarouselContent | null {
+  if (!input) return null;
 
-  // If it's a string, try to parse it
   if (typeof input === 'string') {
     try {
       const parsed = JSON.parse(input);
-      if (Array.isArray(parsed)) return parsed as Slide[];
-      return [];
+      if (parsed.caption !== undefined && parsed.imagePrompts !== undefined) {
+        return parsed as CarouselContent;
+      }
     } catch {
-      return [];
+    }
+    return null;
+  }
+
+  if (typeof input === 'object' && input !== null) {
+    const obj = input as unknown as CarouselContent;
+    if (obj.caption !== undefined && Array.isArray(obj.imagePrompts)) {
+      return obj;
     }
   }
 
-  // If it's already an array, use it
-  if (Array.isArray(input)) {
-    return input as Slide[];
-  }
-
-  return [];
+  return null;
 }
 
-export function CarouselPreview({ slides: rawSlides }: CarouselPreviewProps) {
+export function CarouselPreview({
+  slides: rawSlides,
+  onCopy,
+  onRegenerate,
+  isCopying,
+}: CarouselPreviewProps) {
   const [current, setCurrent] = useState(0);
-  const [copiedAll, setCopiedAll] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
-  const slides = normalizeSlides(rawSlides);
+  const content = parseContent(rawSlides);
 
-  const handleCopyAll = async () => {
-    const text = slides.map((s, i) => `SLIDE ${i + 1}\n${s.heading}\n\n${s.body}`).join('\n\n---\n\n');
-    await navigator.clipboard.writeText(text);
-    setCopiedAll(true);
-    setTimeout(() => setCopiedAll(false), 2000);
+  if (!content) {
+    return (
+      <PreviewCard
+        label="CAROUSEL"
+        onCopy={onCopy || (() => {})}
+        onRegenerate={onRegenerate || (() => {})}
+        isCopying={isCopying}
+      >
+        <div className="text-center py-8">
+          <p className="font-mono text-sm text-warm-gray">No carousel content available</p>
+        </div>
+      </PreviewCard>
+    );
+  }
+
+  const validPrompts = content.imagePrompts.filter(Boolean);
+  const currentPrompt = validPrompts[current] || '';
+
+  const handleCopyCaption = () => {
+    if (content?.caption) {
+      navigator.clipboard.writeText(content.caption);
+    }
+    onCopy?.();
   };
 
-  if (slides.length === 0) return null;
-
-  const safeIndex = Math.min(current, slides.length - 1);
-  const slide = slides[safeIndex];
-
-  if (!slide) return null;
+  const handleCopyPrompt = async () => {
+    if (currentPrompt) {
+      await navigator.clipboard.writeText(currentPrompt);
+      onCopy?.();
+    }
+  };
 
   return (
-    <Card>
-      <div className="flex items-center justify-between mb-4">
-        <p className="font-mono text-xs text-warm-gray">CAROUSEL ({slides.length} SLIDES)</p>
-        <Button variant="ghost" onClick={handleCopyAll} className="text-xs">
-          {copiedAll ? <Check size={14} /> : <Copy size={14} />}
-          {copiedAll ? 'COPIED' : 'COPY ALL'}
-        </Button>
+    <PreviewCard
+      label="CAROUSEL"
+      count={`${validPrompts.length} IMAGES`}
+      onCopy={handleCopyCaption}
+      onRegenerate={onRegenerate || (() => {})}
+      isCopying={isCopying}
+    >
+      <div className="mb-4 p-4 bg-cream rounded-lg">
+        <p className="font-serif text-charcoal whitespace-pre-wrap text-sm leading-relaxed">
+          {content.caption}
+        </p>
       </div>
 
-      <div className="bg-cream rounded-card p-4 mb-4">
-        <p className="font-mono text-xs text-warm-gray mb-1">SLIDE {safeIndex + 1} / {slides.length}</p>
-        <h4 className="font-mono text-sm font-bold text-charcoal mb-2">{slide.heading || 'Untitled'}</h4>
-        <p className="font-serif text-sm text-charcoal">{slide.body || ''}</p>
-      </div>
+      {validPrompts.length > 0 ? (
+        <div className="flex flex-col items-center">
+          <div
+            className="relative w-full max-w-md mx-auto aspect-video mb-4 rounded-lg overflow-hidden cursor-pointer bg-gradient-to-br from-coral/20 to-mint/20"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+          >
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
+              <div
+                className={`transition-opacity duration-200 ${hovered ? 'opacity-0' : 'opacity-100'}`}
+              >
+                <ImageIcon size={48} className="text-warm-gray/50 mb-2 mx-auto" />
+                <p className="font-mono text-xs text-warm-gray text-center">
+                  Slide {current + 1} - Hover to see prompt
+                </p>
+              </div>
 
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          onClick={() => setCurrent(c => Math.max(0, c - 1))}
-          disabled={safeIndex === 0}
-          className="p-2"
-        >
-          <ChevronLeft size={16} />
-        </Button>
+              <div
+                className={`absolute inset-0 p-6 bg-deep-black/95 overflow-y-auto transition-opacity duration-200 flex flex-col ${
+                  hovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+              >
+                <p className="font-mono text-xs text-soft-white whitespace-pre-wrap leading-relaxed flex-1">
+                  {currentPrompt}
+                </p>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopyPrompt();
+                  }}
+                  className="mt-3 flex items-center justify-center gap-2 w-full py-2 rounded bg-coral/20 text-coral hover:bg-coral/30 transition-colors"
+                >
+                  <Copy size={14} />
+                  <span className="font-mono text-xs">Copy prompt</span>
+                </button>
+              </div>
+            </div>
 
-        <div className="flex gap-1">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                i === safeIndex ? 'bg-coral' : 'bg-warm-gray'
-              }`}
-            />
-          ))}
+            <div className="absolute top-3 right-3 bg-coral text-soft-white font-mono text-xs px-2 py-1 rounded">
+              {current + 1} / {validPrompts.length}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              onClick={() => setCurrent(c => Math.max(0, c - 1))}
+              disabled={current === 0}
+              className="p-2 hover:bg-cream rounded-full"
+            >
+              <ChevronLeft size={20} className="text-charcoal" />
+            </Button>
+
+            <div className="flex gap-2">
+              {validPrompts.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrent(i)}
+                  className={`h-2 w-2 rounded-full transition-all ${
+                    i === current ? 'bg-coral scale-125' : 'bg-warm-gray/40 hover:bg-warm-gray/60'
+                  }`}
+                />
+              ))}
+            </div>
+
+            <Button
+              variant="ghost"
+              onClick={() => setCurrent(c => Math.min(validPrompts.length - 1, c + 1))}
+              disabled={current === validPrompts.length - 1}
+              className="p-2 hover:bg-cream rounded-full"
+            >
+              <ChevronRight size={20} className="text-charcoal" />
+            </Button>
+          </div>
         </div>
-
-        <Button
-          variant="ghost"
-          onClick={() => setCurrent(c => Math.min(slides.length - 1, c + 1))}
-          disabled={safeIndex === slides.length - 1}
-          className="p-2"
-        >
-          <ChevronRight size={16} />
-        </Button>
-      </div>
-    </Card>
+      ) : (
+        <div className="text-center py-8 bg-cream rounded-lg">
+          <p className="font-mono text-sm text-warm-gray">No image prompts available</p>
+        </div>
+      )}
+    </PreviewCard>
   );
 }
