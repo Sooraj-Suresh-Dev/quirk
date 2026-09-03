@@ -1,86 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { TrendGrid } from '@/components/trends/TrendGrid';
-import { TrendModal } from '@/components/trends/TrendModal';
 import { TrendFilters } from '@/components/trends/TrendFilters';
+import { TrendGridFetcher } from '@/components/trends/TrendGridFetcher';
 import { Input } from '@/components/ui/Input';
-import { api } from '@/lib/api';
 import { Search, ArrowUp } from 'lucide-react';
 
-interface Trend {
-  _id: string;
-  source: 'github' | 'producthunt';
-  title: string;
-  url: string;
-  summary: string;
-  tags: string[];
-  thumbnailUrl?: string;
-  stars?: number;
-  forks?: number;
-  votes?: number;
-  website?: string;
-  makers?: string[];
-  author?: string;
-  createdAt?: string;
-}
-
-const PAGE_SIZE = 20;
-
-export function Discover() {
-  const [trends, setTrends] = useState<Trend[]>([]);
-  const [selectedTrend, setSelectedTrend] = useState<Trend | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+export const Discover = memo(function Discover() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [search, setSearch] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-
-  const fetchTrends = useCallback(async (currentOffset: number, append: boolean) => {
-    const filterParam = activeFilter !== 'all' ? `&source=${activeFilter}` : '';
-    const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
-    const data = await api.get<{ trends: Trend[]; total: number; hasMore: boolean }>(
-      `/trends?limit=${PAGE_SIZE}&offset=${currentOffset}${filterParam}${searchParam}`
-    );
-    if (append) {
-      setTrends(prev => [...prev, ...data.trends]);
-    } else {
-      setTrends(data.trends);
-    }
-    setOffset(currentOffset + data.trends.length);
-    setHasMore(data.hasMore);
-  }, [activeFilter, search]);
-
-  useEffect(() => {
-    setIsLoading(true);
-    setOffset(0);
-    setHasMore(true);
-    fetchTrends(0, false).finally(() => setIsLoading(false));
-  }, [fetchTrends]);
-
-  const loadMore = useCallback(async () => {
-    if (isLoadingMore || !hasMore) return;
-    setIsLoadingMore(true);
-    await fetchTrends(offset, true);
-    setIsLoadingMore(false);
-  }, [isLoadingMore, hasMore, offset, fetchTrends]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !isLoading) {
-          loadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    const sentinel = sentinelRef.current;
-    if (sentinel) observer.observe(sentinel);
-    return () => { if (sentinel) observer.unobserve(sentinel); };
-  }, [hasMore, isLoadingMore, isLoading, loadMore]);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -99,11 +27,6 @@ export function Discover() {
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleSelect = (trend: Trend) => {
-    setSelectedTrend(trend);
-    setModalOpen(true);
   };
 
   return (
@@ -129,24 +52,10 @@ export function Discover() {
           <TrendFilters active={activeFilter} onChange={setActiveFilter} />
 
           <div className="mt-6">
-            <TrendGrid
-              trends={trends}
-              selectedId={selectedTrend?._id}
-              isLoading={isLoading}
-              isLoadingMore={isLoadingMore}
-              onSelect={handleSelect}
-              onGenerate={handleSelect}
-            />
-            <div ref={sentinelRef} className="h-4" />
+            <TrendGridFetcher activeFilter={activeFilter} search={search} />
           </div>
         </div>
       </main>
-
-      <TrendModal
-        trend={selectedTrend}
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
 
       {showScrollTop && (
         <button
@@ -158,4 +67,4 @@ export function Discover() {
       )}
     </div>
   );
-}
+});

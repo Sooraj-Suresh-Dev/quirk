@@ -5,24 +5,9 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PostCard } from '@/components/posts/PostCard';
 import { api } from '@/lib/api';
-import { Compass, FileText, Layers, Image, ArrowRight, BarChart3 } from 'lucide-react';
-
-interface Trend {
-  _id: string;
-  source: 'github' | 'producthunt';
-  title: string;
-  url: string;
-  summary: string;
-  tags: string[];
-  thumbnailUrl?: string;
-  stars?: number;
-  forks?: number;
-  votes?: number;
-  website?: string;
-  makers?: string[];
-  author?: string;
-  createdAt?: string;
-}
+import { useAuth } from '@/lib/auth';
+import { Compass, FileText, Layers, ArrowRight, BarChart3 } from 'lucide-react';
+import { Trend } from '@/types/trend';
 
 interface Post {
   _id: string;
@@ -34,21 +19,26 @@ interface Post {
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const [trends, setTrends] = useState<Trend[]>([]);
+  const { user } = useAuth();
   const [trendsTotal, setTrendsTotal] = useState(0);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [postsTotal, setPostsTotal] = useState(0);
+  const [postsThisWeek, setPostsThisWeek] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const sources = user?.preferences?.sources;
+        const sourceParam = sources?.length ? `?source=${sources.join(',')}` : '';
         const [trendsRes, postsRes] = await Promise.all([
-          api.get<{ trends: Trend[]; total: number }>('/trends'),
-          api.get<{ posts: Post[] }>('/posts'),
+          api.get<{ trends: Trend[]; total: number }>(`/trends${sourceParam}`),
+          api.get<{ posts: Post[]; total: number; thisWeek: number }>('/posts'),
         ]);
-        setTrends(trendsRes.trends);
         setTrendsTotal(trendsRes.total);
         setPosts(postsRes.posts);
+        setPostsTotal(postsRes.total);
+        setPostsThisWeek(postsRes.thisWeek);
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);
       } finally {
@@ -56,29 +46,37 @@ export function Dashboard() {
       }
     };
     fetchData();
-  }, []);
+  }, [user?.preferences?.sources]);
 
   const recentPosts = posts.slice(0, 3);
-  const postsThisWeek = posts.filter(p => {
-    const d = new Date(p.createdAt);
-    const now = new Date();
-    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    return d >= weekAgo;
-  }).length;
 
   return (
     <DashboardLayout>
       <div className="bento-card">
-        <div className="flex items-center gap-3 mb-2">
-          <BarChart3 size={20} className="text-coral" />
-          <h2 className="font-mono text-sm font-bold text-charcoal">POSTS THIS WEEK</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <BarChart3 size={18} className="text-coral" />
+            <h2 className="font-mono text-xs font-bold text-charcoal uppercase tracking-wide">POSTS THIS WEEK</h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <BarChart3 size={18} className="text-coral" />
+            <h2 className="font-mono text-xs font-bold text-charcoal uppercase tracking-wide">TOTAL</h2>
+          </div>
         </div>
-        {isLoading ? (
-          <Skeleton className="h-12 w-24" />
-        ) : (
-          <p className="font-mono text-4xl font-bold text-coral">{postsThisWeek}</p>
-        )}
-        <p className="font-serif text-xs text-warm-gray mt-1">of {posts.length} total</p>
+        <div className="border-t border-warm-gray/20 mb-4" />
+        <div className="flex items-center justify-between">
+          {isLoading ? (
+            <Skeleton className="h-14 w-20" />
+          ) : (
+            <p className="font-mono text-5xl font-bold text-coral">{postsThisWeek}</p>
+          )}
+          <div className="border-l border-warm-gray/20 h-14 mx-4" />
+          {isLoading ? (
+            <Skeleton className="h-14 w-20" />
+          ) : (
+            <p className="font-mono text-5xl font-bold text-coral">{postsTotal}</p>
+          )}
+        </div>
       </div>
 
       <div className="bento-card">
@@ -119,17 +117,6 @@ export function Dashboard() {
             <div className="flex-1">
               <p className="font-mono text-xs font-bold text-charcoal">CAROUSEL</p>
               <p className="font-serif text-xs text-warm-gray">5-slide framework</p>
-            </div>
-            <ArrowRight size={14} className="text-warm-gray group-hover:text-coral transition-colors" />
-          </button>
-          <button
-            onClick={() => navigate('/discover')}
-            className="w-full flex items-center gap-3 p-3 rounded-card border-2 border-deep-black bg-soft-white hover:bg-cream transition-all text-left group"
-          >
-            <Image size={18} className="text-coral" />
-            <div className="flex-1">
-              <p className="font-mono text-xs font-bold text-charcoal">IMAGE PROMPT</p>
-              <p className="font-serif text-xs text-warm-gray">AI image prompt</p>
             </div>
             <ArrowRight size={14} className="text-warm-gray group-hover:text-coral transition-colors" />
           </button>

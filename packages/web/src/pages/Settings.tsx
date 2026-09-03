@@ -12,7 +12,7 @@ import { useToast } from '@/lib/toast';
 import { Key, Clock, Bell, Save, Trash2 } from 'lucide-react';
 
 export function Settings() {
-  const { user, logout } = useAuth();
+  const { user, logout, updatePreferences } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [openaiKey, setOpenaiKey] = useState('');
@@ -33,9 +33,24 @@ export function Settings() {
   }, [user]);
 
   const toggleSource = (source: string) => {
-    setSources(prev =>
-      prev.includes(source) ? prev.filter(s => s !== source) : [...prev, source]
-    );
+    setSources(prev => {
+      const newSources = prev.includes(source) ? prev.filter(s => s !== source) : [...prev, source];
+      
+      api.put('/users/preferences', {
+        sources: newSources,
+        digestTime,
+        emailDigest,
+        openaiKey: openaiKey || undefined,
+        anthropicKey: anthropicKey || undefined,
+      }).then(() => {
+        updatePreferences({ sources: newSources, digestTime, emailDigest });
+      }).catch(err => {
+        console.error('Failed to auto-save source preferences:', err);
+        toast('error', 'Failed to save preferences.');
+      });
+
+      return newSources;
+    });
   };
 
   const handleSave = async () => {
@@ -48,6 +63,7 @@ export function Settings() {
         openaiKey: openaiKey || undefined,
         anthropicKey: anthropicKey || undefined,
       });
+      updatePreferences({ sources, digestTime, emailDigest });
       toast('success', 'Settings saved successfully!');
     } catch (err) {
       console.error('Failed to save settings:', err);
@@ -120,6 +136,9 @@ export function Settings() {
                 </Pill>
                 <Pill active={sources.includes('producthunt')} onClick={() => toggleSource('producthunt')}>
                   PRODUCT HUNT
+                </Pill>
+                <Pill active={sources.includes('hackernews')} onClick={() => toggleSource('hackernews')}>
+                  HACKER NEWS
                 </Pill>
               </div>
             </Card>

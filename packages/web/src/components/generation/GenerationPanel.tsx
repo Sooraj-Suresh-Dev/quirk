@@ -8,20 +8,7 @@ import { api } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { useAuth } from '@/lib/auth';
 import { Sparkles, Mic, Loader2 } from 'lucide-react';
-
-interface Trend {
-  _id: string;
-  title: string;
-  summary: string;
-  source: string;
-  thumbnailUrl?: string;
-  stars?: number;
-  forks?: number;
-  points?: number;
-  comments?: number;
-  author?: string;
-  createdAt?: string;
-}
+import { Trend } from '@/types/trend';
 
 interface GenerationPanelProps {
   trend: Trend | null;

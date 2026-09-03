@@ -10,23 +10,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { timeAgo } from '@/lib/timeAgo';
 import { api } from '@/lib/api';
 import { ArrowLeft, Star, Heart, Clock, User, ExternalLink, Github, Rocket } from 'lucide-react';
-
-interface Trend {
-  _id: string;
-  source: 'github' | 'producthunt';
-  title: string;
-  url: string;
-  summary: string;
-  tags: string[];
-  thumbnailUrl?: string;
-  stars?: number;
-  forks?: number;
-  votes?: number;
-  website?: string;
-  makers?: string[];
-  author?: string;
-  createdAt?: string;
-}
+import { Trend } from '@/types/trend';
 
 export function Generate() {
   const { trendId } = useParams<{ trendId: string }>();

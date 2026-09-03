@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/Card';
-import { Type, Layers, Image } from 'lucide-react';
+import { Type, Layers } from 'lucide-react';
 
 interface PostTypeSelectorProps {
   selected: 'text' | 'carousel' | 'image-prompt';
@@ -9,12 +9,11 @@ interface PostTypeSelectorProps {
 const types = [
   { value: 'text' as const, label: 'TEXT POST', icon: Type, description: 'Hook + body + CTA' },
   { value: 'carousel' as const, label: 'CAROUSEL', icon: Layers, description: '5-slide framework' },
-  { value: 'image-prompt' as const, label: 'IMAGE PROMPT', icon: Image, description: 'AI image prompt' },
 ];
 
 export function PostTypeSelector({ selected, onChange }: PostTypeSelectorProps) {
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-2 gap-3">
       {types.map(({ value, label, icon: Icon, description }) => (
         <Card
           key={value}
