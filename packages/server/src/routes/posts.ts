@@ -60,10 +60,21 @@ function hasApiKeyForProvider(providerId: string, user?: any): boolean {
 // GET /api/posts — List user's posts
 router.get('/', requireAuth, async (req: AuthRequest, res) => {
   try {
-    const posts = await Post.find({ userId: req.userId })
-      .sort({ createdAt: -1 })
-      .limit(20);
-    res.json({ posts });
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - ((dayOfWeek + 6) % 7));
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const [posts, total, thisWeek] = await Promise.all([
+      Post.find({ userId: req.userId })
+        .sort({ createdAt: -1 })
+        .limit(20),
+      Post.countDocuments({ userId: req.userId }),
+      Post.countDocuments({ userId: req.userId, createdAt: { $gte: startOfWeek } }),
+    ]);
+
+    res.json({ posts, total, thisWeek });
   } catch (err) {
     logError('POSTS list failed', { err });
     res.status(500).json({ error: 'Failed to fetch posts' });
