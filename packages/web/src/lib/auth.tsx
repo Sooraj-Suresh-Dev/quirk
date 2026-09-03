@@ -63,6 +63,7 @@ interface AuthContextType {
   voice: Voice | null;
   isLoading: boolean;
   refreshVoice: () => Promise<void>;
+  updatePreferences: (prefs: Partial<User['preferences']>) => void;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string) => Promise<void>;
   setPassword: (token: string, password: string) => Promise<void>;
@@ -141,8 +142,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const updatePreferences = useCallback((prefs: Partial<User['preferences']>) => {
+    setUser(prev => prev ? { ...prev, preferences: { ...prev.preferences, ...prefs } } : prev);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, voice, isLoading, refreshVoice, login, signup, setPassword, logout }}>
+    <AuthContext.Provider value={{ user, voice, isLoading, refreshVoice, updatePreferences, login, signup, setPassword, logout }}>
       {children}
     </AuthContext.Provider>
   );
