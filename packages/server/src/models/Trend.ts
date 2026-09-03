@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ITrend extends Document {
-  source: 'github' | 'producthunt';
+  source: 'github' | 'producthunt' | 'hackernews';
   title: string;
   url: string;
   summary: string;
@@ -10,6 +10,8 @@ export interface ITrend extends Document {
   stars?: number;
   forks?: number;
   votes?: number;
+  points?: number;
+  comments?: number;
   website?: string;
   makers?: string[];
   author?: string;
@@ -19,7 +21,7 @@ export interface ITrend extends Document {
 }
 
 const trendSchema = new Schema<ITrend>({
-  source: { type: String, enum: ['github', 'producthunt'], required: true },
+  source: { type: String, enum: ['github', 'producthunt', 'hackernews'], required: true },
   title: { type: String, required: true },
   url: { type: String, required: true },
   summary: { type: String, default: '' },
@@ -28,6 +30,8 @@ const trendSchema = new Schema<ITrend>({
   stars: { type: Number },
   forks: { type: Number },
   votes: { type: Number },
+  points: { type: Number },
+  comments: { type: Number },
   website: { type: String },
   makers: [{ type: String }],
   author: { type: String },
