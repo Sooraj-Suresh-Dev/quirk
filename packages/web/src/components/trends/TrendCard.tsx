@@ -3,24 +3,9 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { timeAgo } from '@/lib/timeAgo';
-import { ExternalLink, Github, Rocket, Heart, Sparkles, Star, Clock } from 'lucide-react';
-
-interface Trend {
-  _id: string;
-  source: 'github' | 'producthunt';
-  title: string;
-  url: string;
-  summary: string;
-  tags: string[];
-  thumbnailUrl?: string;
-  stars?: number;
-  forks?: number;
-  votes?: number;
-  website?: string;
-  makers?: string[];
-  author?: string;
-  createdAt?: string;
-}
+import { ExternalLink, Heart, Sparkles, Star, Clock, ArrowUp } from 'lucide-react';
+import { Trend } from '@/types/trend';
+import { SOURCES } from '@/config/sources';
 
 interface TrendCardProps {
   trend: Trend;
@@ -42,6 +27,9 @@ export function TrendCard({ trend, selected, onClick, onBookmark, onGenerate }: 
     }
   });
 
+  const config = SOURCES[trend.source];
+  const Icon = config?.icon;
+
   const toggleBookmark = (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
@@ -60,6 +48,34 @@ export function TrendCard({ trend, selected, onClick, onBookmark, onGenerate }: 
   const handleGenerate = (e: React.MouseEvent) => {
     e.stopPropagation();
     onGenerate?.(trend);
+  };
+
+  const renderMetric = (metric: string) => {
+    if (metric === 'stars' && trend.stars != null) {
+      return (
+        <span key="stars" className="inline-flex items-center gap-0.5 text-xs font-mono text-warm-gray">
+          <Star size={10} className="text-coral" />
+          {trend.stars >= 1000 ? `${(trend.stars / 1000).toFixed(1)}k` : trend.stars}
+        </span>
+      );
+    }
+    if (metric === 'votes' && trend.votes != null) {
+      return (
+        <span key="votes" className="inline-flex items-center gap-0.5 text-xs font-mono text-warm-gray">
+          <Heart size={10} className="text-[#DA553F]" />
+          {trend.votes}
+        </span>
+      );
+    }
+    if (metric === 'points' && trend.points != null) {
+      return (
+        <span key="points" className="inline-flex items-center gap-0.5 text-xs font-mono text-warm-gray">
+          <ArrowUp size={10} className="text-[#F5A623]" />
+          {trend.points}
+        </span>
+      );
+    }
+    return null;
   };
 
   return (
@@ -86,17 +102,15 @@ export function TrendCard({ trend, selected, onClick, onBookmark, onGenerate }: 
                 setImageError(true);
               }}
             />
-            <div className="absolute bottom-2 left-2 w-7 h-7 rounded-full bg-soft-white border-2 border-deep-black flex items-center justify-center">
-              {trend.source === 'github' ? <Github size={14} /> : <Rocket size={14} />}
-            </div>
+            {Icon && (
+              <div className="absolute bottom-2 left-2 w-7 h-7 rounded-full bg-soft-white border-2 border-deep-black flex items-center justify-center">
+                <Icon size={14} />
+              </div>
+            )}
           </div>
         ) : (
           <div className="aspect-[3/1] bg-cream flex items-center justify-center">
-            {trend.source === 'github' ? (
-              <Github size={20} className="text-warm-gray" />
-            ) : (
-              <Rocket size={20} className="text-warm-gray" />
-            )}
+            {Icon && <Icon size={20} className="text-warm-gray" />}
           </div>
         )}
       </div>
@@ -104,18 +118,7 @@ export function TrendCard({ trend, selected, onClick, onBookmark, onGenerate }: 
       <div className="p-4">
         <div className="flex items-center gap-2 mb-2">
           <Badge source={trend.source} />
-          {trend.source === 'github' && trend.stars != null && (
-            <span className="inline-flex items-center gap-0.5 text-xs font-mono text-warm-gray">
-              <Star size={10} className="text-coral" />
-              {trend.stars >= 1000 ? `${(trend.stars / 1000).toFixed(1)}k` : trend.stars}
-            </span>
-          )}
-          {trend.source === 'producthunt' && trend.votes != null && (
-            <span className="inline-flex items-center gap-0.5 text-xs font-mono text-warm-gray">
-              <Heart size={10} className="text-[#DA553F]" />
-              {trend.votes}
-            </span>
-          )}
+          {config?.metrics.map(renderMetric)}
           {trend.createdAt && (
             <span className="inline-flex items-center gap-0.5 text-xs font-mono text-warm-gray ml-auto">
               <Clock size={10} />

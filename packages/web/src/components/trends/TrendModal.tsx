@@ -2,24 +2,9 @@ import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { timeAgo } from '@/lib/timeAgo';
-import { ExternalLink, Github, Rocket, X, Star, GitFork, Heart, Clock, User, Sparkles, Globe } from 'lucide-react';
-
-interface Trend {
-  _id: string;
-  source: 'github' | 'producthunt';
-  title: string;
-  url: string;
-  summary: string;
-  tags: string[];
-  thumbnailUrl?: string;
-  stars?: number;
-  forks?: number;
-  votes?: number;
-  website?: string;
-  makers?: string[];
-  author?: string;
-  createdAt?: string;
-}
+import { ExternalLink, X, Star, GitFork, Heart, Clock, User, Sparkles, Globe, ArrowUp, MessageSquare } from 'lucide-react';
+import { Trend } from '@/types/trend';
+import { SOURCES } from '@/config/sources';
 
 interface TrendModalProps {
   trend: Trend | null;
@@ -59,6 +44,53 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
 
   if (!trend) return null;
   if (!isOpen) return null;
+
+  const config = SOURCES[trend.source];
+  const Icon = config?.icon;
+
+  const renderMetric = (metric: string) => {
+    if (metric === 'stars' && trend.stars != null) {
+      return (
+        <span key="stars" className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
+          <Star size={12} className="text-coral" />
+          {trend.stars.toLocaleString()} stars
+        </span>
+      );
+    }
+    if (metric === 'forks' && trend.forks != null) {
+      return (
+        <span key="forks" className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
+          <GitFork size={12} />
+          {trend.forks.toLocaleString()} forks
+        </span>
+      );
+    }
+    if (metric === 'votes' && trend.votes != null) {
+      return (
+        <span key="votes" className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
+          <Heart size={12} className="text-[#DA553F]" />
+          {trend.votes.toLocaleString()} votes
+        </span>
+      );
+    }
+    if (metric === 'points' && trend.points != null) {
+      return (
+        <span key="points" className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
+          <ArrowUp size={12} className="text-[#F5A623]" />
+          {trend.points.toLocaleString()} points
+        </span>
+      );
+    }
+    if (metric === 'comments' && trend.comments != null) {
+      return (
+        <span key="comments" className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
+          <MessageSquare size={12} />
+          {trend.comments.toLocaleString()} comments
+        </span>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="fixed inset-0 z-50">
@@ -102,11 +134,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
                   </div>
                 ) : (
                   <div className="h-full min-h-[200px] bg-cream rounded-card flex items-center justify-center">
-                    {trend.source === 'github' ? (
-                      <Github size={48} className="text-warm-gray" />
-                    ) : (
-                      <Rocket size={48} className="text-warm-gray" />
-                    )}
+                    {Icon && <Icon size={48} className="text-warm-gray" />}
                   </div>
                 )}
               </div>
@@ -115,7 +143,6 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
               <div className="flex-1 flex flex-col">
                 <div className="flex items-center gap-2 mb-2">
                   <Badge source={trend.source} />
-                  
                 </div>
 
                 <h2 className="font-mono text-lg font-bold text-charcoal">{trend.title}</h2>
@@ -130,48 +157,23 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
                   </a>
 
                 <div className="flex flex-wrap items-center gap-3 mt-3">
-                  {trend.source === 'github' && (
-                    <>
-                      {trend.stars != null && (
-                        <span className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
-                          <Star size={12} className="text-coral" />
-                          {trend.stars.toLocaleString()} stars
-                        </span>
-                      )}
-                      {trend.forks != null && (
-                        <span className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
-                          <GitFork size={12} />
-                          {trend.forks.toLocaleString()} forks
-                        </span>
-                      )}
-                    </>
+                  {config?.metrics.map(renderMetric)}
+                  {trend.source === 'producthunt' && trend.makers && trend.makers.length > 0 && (
+                    <span className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
+                      <User size={12} />
+                      {trend.makers.join(', ')}
+                    </span>
                   )}
-                  {trend.source === 'producthunt' && (
-                    <>
-                      {trend.votes != null && (
-                        <span className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
-                          <Heart size={12} className="text-[#DA553F]" />
-                          {trend.votes.toLocaleString()} votes
-                        </span>
-                      )}
-                      {trend.makers && trend.makers.length > 0 && (
-                        <span className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
-                          <User size={12} />
-                          {trend.makers.join(', ')}
-                        </span>
-                      )}
-                      {trend.website && (
-                        <a
-                          href={trend.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs font-mono text-coral hover:text-coral-hover"
-                        >
-                          <Globe size={12} />
-                          Website
-                        </a>
-                      )}
-                    </>
+                  {trend.source === 'producthunt' && trend.website && (
+                    <a
+                      href={trend.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-mono text-coral hover:text-coral-hover"
+                    >
+                      <Globe size={12} />
+                      Website
+                    </a>
                   )}
                   {trend.author && (
                     <span className="inline-flex items-center gap-1 text-xs font-mono text-warm-gray">
@@ -203,7 +205,6 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
                   <Button onClick={handleGenerate}>
                     <Sparkles size={16} /> GENERATE POST
                   </Button>
-                  
                 </div>
               </div>
             </div>

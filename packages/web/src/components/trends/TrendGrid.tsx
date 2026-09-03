@@ -1,22 +1,7 @@
+import { memo } from 'react';
 import { TrendCard } from './TrendCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-
-interface Trend {
-  _id: string;
-  source: 'github' | 'producthunt';
-  title: string;
-  url: string;
-  summary: string;
-  tags: string[];
-  thumbnailUrl?: string;
-  stars?: number;
-  forks?: number;
-  votes?: number;
-  website?: string;
-  makers?: string[];
-  author?: string;
-  createdAt?: string;
-}
+import { Trend } from '@/types/trend';
 
 interface TrendGridProps {
   trends: Trend[];
@@ -28,7 +13,7 @@ interface TrendGridProps {
   onGenerate?: (trend: Trend) => void;
 }
 
-export function TrendGrid({ trends, selectedId, isLoading, isLoadingMore, onSelect, onBookmark, onGenerate }: TrendGridProps) {
+export const TrendGrid = memo(function TrendGrid({ trends, selectedId, isLoading, isLoadingMore, onSelect, onBookmark, onGenerate }: TrendGridProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -80,4 +65,4 @@ export function TrendGrid({ trends, selectedId, isLoading, isLoadingMore, onSele
       )}
     </div>
   );
-}
+});

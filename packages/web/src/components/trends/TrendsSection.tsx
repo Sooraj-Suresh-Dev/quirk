@@ -4,23 +4,8 @@ import { TrendModal } from '@/components/trends/TrendModal';
 import { Pill } from '@/components/ui/Pill';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
-
-interface Trend {
-  _id: string;
-  source: 'github' | 'producthunt';
-  title: string;
-  url: string;
-  summary: string;
-  tags: string[];
-  thumbnailUrl?: string;
-  stars?: number;
-  forks?: number;
-  votes?: number;
-  website?: string;
-  makers?: string[];
-  author?: string;
-  createdAt?: string;
-}
+import { Trend } from '@/types/trend';
+import { SOURCES, SOURCE_KEYS } from '@/config/sources';
 
 interface TrendsSectionProps {
   title?: string;
@@ -82,8 +67,15 @@ export function TrendsSection({
         <p className="font-serif text-warm-gray mb-8">{subtitle}</p>
         <div className="flex gap-2 mb-8">
           <Pill active={activeFilter === 'all'} onClick={() => setActiveFilter('all')}>ALL</Pill>
-          <Pill active={activeFilter === 'github'} onClick={() => setActiveFilter('github')}>GITHUB</Pill>
-          <Pill active={activeFilter === 'producthunt'} onClick={() => setActiveFilter('producthunt')}>PRODUCT HUNT</Pill>
+          {SOURCE_KEYS.map(key => (
+            <Pill
+              key={key}
+              active={activeFilter === key}
+              onClick={() => setActiveFilter(key)}
+            >
+              {SOURCES[key].filterLabel}
+            </Pill>
+          ))}
         </div>
 
         <TrendGrid
