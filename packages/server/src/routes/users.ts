@@ -234,9 +234,16 @@ router.put('/preferences', requireAuth, async (req: AuthRequest, res) => {
   try {
     const updates = preferencesSchema.parse(req.body);
 
+    const setFields: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(updates)) {
+      if (value !== undefined) {
+        setFields[`preferences.${key}`] = value;
+      }
+    }
+
     const user = await User.findByIdAndUpdate(
       req.userId,
-      { $set: { preferences: updates } },
+      { $set: setFields },
       { new: true }
     );
 

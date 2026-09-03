@@ -229,7 +229,15 @@ async function generateWithProvider(
   }
 }
 
-function buildSystemPrompt(user: IUser, voice?: { tone: { primary: string; secondary: string[]; confidence: number }; writingStyle: { description: string; avgSentenceLength: number; avgParagraphLength: number }; engagement: { cta: string; emoji: string }; brandSummary: string }): string {
+function buildSystemPrompt(user: IUser, voice?: {
+  tone: { primary: string; secondary: string[]; confidence: number };
+  writingStyle: { description: string; avgSentenceLength: number; avgParagraphLength: number };
+  personality: { traits: string[]; description: string };
+  structure: { description: string; pattern: string[] };
+  engagement: { cta: string; questions: string; emoji: string };
+  signaturePatterns: string[];
+  brandSummary: string;
+}): string {
 
   let prompt = `You are a world-class LinkedIn content strategist and ghostwriter. Your posts sound like a sharp tech leader sharing genuine insight — never like AI-generated content.
 
@@ -317,12 +325,39 @@ What's your current indexing setup, and what's the biggest pain point?
 
   if (voice) {
     prompt += `
-VOICE PROFILE (match this style):
-- Tone: ${voice.tone.primary}${voice.tone.secondary.length > 0 ? ` (${voice.tone.secondary.join(', ')})` : ''}
-- Writing Style: ${voice.writingStyle.description}
-- CTA Style: ${voice.engagement.cta}
-- Emoji Usage: ${voice.engagement.emoji}
-- Brand Voice: ${voice.brandSummary}
+VOICE PROFILE (follow these rules EXACTLY):
+
+TONE: ${voice.tone.primary}
+${voice.tone.secondary.length > 0 ? `Secondary tones: ${voice.tone.secondary.join(', ')}` : ''}
+
+PERSONALITY: ${voice.personality.description}
+${voice.personality.traits.length > 0 ? `Key traits: ${voice.personality.traits.join(', ')}` : ''}
+
+WRITING STYLE:
+- ${voice.writingStyle.description}
+- Average sentence length: ${voice.writingStyle.avgSentenceLength} words
+- Average paragraph length: ${voice.writingStyle.avgParagraphLength} words
+
+STRUCTURE: ${voice.structure.description}
+${voice.structure.pattern.length > 0 ? `Pattern: ${voice.structure.pattern.join(' → ')}` : ''}
+
+ENGAGEMENT:
+- CTA: ${voice.engagement.cta}
+- Questions: ${voice.engagement.questions}
+- Emoji: ${voice.engagement.emoji}
+
+${voice.signaturePatterns.length > 0 ? `SIGNATURE PATTERNS:\n${voice.signaturePatterns.map((p: string) => `- ${p}`).join('\n')}` : ''}
+
+MANDATORY RULES FOR VOICE MATCHING:
+1. Use personal experience — write from "I" perspective, share real observations or lessons learned. Do not just describe the product.
+2. Show humility — avoid words like "revolutionizing", "game-changing", "disrupting", "changes the game". Let the insight speak for itself.
+3. Include empathy — acknowledge the reader's challenges or perspective before offering your view.
+4. Reflect genuinely — don't just describe the product/trend, share what it means to you or what you learned from it.
+5. Follow the structure pattern exactly as listed above.
+6. End with a meaningful takeaway or insight, NOT a promotional statement or engagement-focused CTA.
+7. CTA style is ${voice.engagement.cta} — if "None", do NOT include any call-to-action or question at the end.
+8. Question frequency is ${voice.engagement.questions} — if "None", do NOT include any questions.
+9. Emoji usage is ${voice.engagement.emoji} — follow this level strictly.
 `;
   }
 

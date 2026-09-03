@@ -82,7 +82,20 @@ const voiceSchema = new Schema<IVoice>({
   updatedAt: { type: Date, default: Date.now },
 });
 
-voiceSchema.pre('save', function (next) {
+voiceSchema.pre('validate', function (next) {
+  // Normalize enum values to proper case
+  if (this.profile?.engagement) {
+    const capitalize = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
+    if (this.profile.engagement.cta) {
+      (this.profile as any).engagement.cta = capitalize((this.profile.engagement as any).cta);
+    }
+    if (this.profile.engagement.emoji) {
+      (this.profile as any).engagement.emoji = capitalize((this.profile.engagement as any).emoji);
+    }
+    if (this.profile.engagement.questions) {
+      (this.profile as any).engagement.questions = capitalize((this.profile.engagement as any).questions);
+    }
+  }
   this.updatedAt = new Date();
   next();
 });
