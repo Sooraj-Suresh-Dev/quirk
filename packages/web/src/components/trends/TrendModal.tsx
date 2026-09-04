@@ -5,6 +5,8 @@ import { timeAgo } from '@/lib/timeAgo';
 import { ExternalLink, X, Star, GitFork, Heart, Clock, User, Sparkles, Globe, ArrowUp, MessageSquare } from 'lucide-react';
 import { Trend } from '@/types/trend';
 import { SOURCES } from '@/config/sources';
+import { useAuth } from '@/lib/auth';
+import { useAuthModal } from '@/lib/auth-modal';
 
 interface TrendModalProps {
   trend: Trend | null;
@@ -13,6 +15,8 @@ interface TrendModalProps {
 }
 
 export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
+  const { user } = useAuth();
+  const { openSignup } = useAuthModal();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -35,6 +39,13 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
   };
 
   const handleGenerate = () => {
+    if (!user) {
+      handleClose();
+      setTimeout(() => {
+        openSignup();
+      }, 300);
+      return;
+    }
     const trendId = trend?._id;
     handleClose();
     setTimeout(() => {
