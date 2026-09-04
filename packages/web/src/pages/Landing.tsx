@@ -243,12 +243,15 @@ function useInView(threshold = 0.1) {
 
 export function Landing() {
   const { openSignup } = useAuthModal();
-  const featuresRef = useInView(0.3);
-  const ctaRef = useInView(0.3);
+  const featuresRef = useInView(0.4);
+  const ctaRef = useInView(0.4);
 
   return (
     <MarketingLayout>
       <main>
+        <noscript>
+          <style>{`.animate-fade-in-up { opacity: 1 !important; }`}</style>
+        </noscript>
         {/* Hero Section */}
         <section className="max-w-6xl mx-auto px-8 pt-20 pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -284,18 +287,18 @@ export function Landing() {
 
         {/* Trend Sources Marquee */}
         <section className="border-y-3 border-deep-black bg-soft-white py-6 overflow-hidden">
-          <div className="animate-marquee flex whitespace-nowrap">
-            {[...marqueeSources, ...marqueeSources, ...marqueeSources, ...marqueeSources].map((source, i) => (
-              <span key={i} className="mx-8 font-mono text-sm flex items-center gap-2">
-                <source.icon size={16} className={source.color} />
-                <span className="text-warm-gray">{source.label}</span>
-              </span>
-            ))}
+            <div className="animate-marquee flex whitespace-nowrap">
+              {[...marqueeSources, ...marqueeSources, ...marqueeSources, ...marqueeSources].map((source, i) => (
+                <span key={i} className="mx-8 font-mono text-base flex items-center gap-2">
+                  <source.icon size={18} className={source.color} />
+                  <span className="text-warm-gray">{source.label}</span>
+                </span>
+              ))}
           </div>
         </section>
 
         {/* Features Section */}
-        <section id="features" className="max-w-6xl mx-auto px-8 py-20">
+        <section id="features" className="max-w-6xl mx-auto px-8 pt-20 pb-12">
           <div ref={featuresRef.ref}>
             <div className="text-center mb-16">
               <h2 className={`font-mono text-3xl font-bold text-charcoal mb-4 ${featuresRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
@@ -336,16 +339,16 @@ export function Landing() {
         </div>
 
         {/* Final CTA */}
-        <section id="cta" className="border-t-3 border-deep-black bg-soft-white py-20">
-          <div ref={ctaRef.ref} className="max-w-3xl mx-auto px-8 text-center">
-            <h2 className={`font-mono text-3xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+        <section id="cta" className="bg-cream py-16">
+          <div ref={ctaRef.ref} className="max-w-4xl mx-auto px-8 text-center">
+            <h2 className={`font-mono text-4xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
               READY TO FIND YOUR QUIRK?
             </h2>
-            <p className={`font-serif text-xl text-warm-gray mb-8 max-w-xl mx-auto ${ctaRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
+            <p className={`font-serif text-xl text-charcoal mb-8 max-w-xl mx-auto ${ctaRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
               Join the beta and start creating LinkedIn content that actually
               sounds like you.
             </p>
-            <div className={ctaRef.inView ? 'animate-fade-in-up stagger-2' : 'opacity-0'}>
+            <div className={`flex flex-wrap justify-center gap-4 ${ctaRef.inView ? 'animate-fade-in-up stagger-2' : 'opacity-0'}`}>
               <Button className="text-lg px-8 py-4" onClick={openSignup}>
                 START CREATING <ArrowRight size={20} />
               </Button>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useInView } from '@/hooks/useInView';
 import { TrendGrid } from '@/components/trends/TrendGrid';
 import { TrendModal } from '@/components/trends/TrendModal';
 import { Pill } from '@/components/ui/Pill';
@@ -30,12 +31,13 @@ export function TrendsSection({
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const sectionRef = useInView(0.1);
 
   const fetchTrends = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await api.get<{ trends: Trend[] }>('/trends');
+      const data = await api.get<{ trends: Trend[] }>('/trends?limit=50');
       setTrends(data.trends);
     } catch (err) {
       console.error('Failed to fetch trends:', err);
@@ -68,19 +70,23 @@ export function TrendsSection({
     setModalOpen(true);
   };
 
+  const scrollToTop = () => {
+    sectionRef.ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <section className={`py-24 px-8 ${className}`}>
-      <div className="max-w-6xl mx-auto">
-        <h2 className="font-mono text-3xl font-bold text-charcoal mb-2">{title}</h2>
-        <p className="font-serif text-warm-gray mb-8">{subtitle}</p>
+      <div className="max-w-6xl mx-auto" ref={sectionRef.ref}>
+        <h2 className={`font-mono text-3xl font-bold text-charcoal mb-2 ${sectionRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>{title}</h2>
+        <p className={`font-serif text-warm-gray mb-8 ${sectionRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>{subtitle}</p>
         {showFilters && (
           <div className="flex gap-2 mb-8">
-            <Pill active={activeFilter === 'all'} onClick={() => setActiveFilter('all')}>ALL</Pill>
+            <Pill active={activeFilter === 'all'} onClick={() => { setActiveFilter('all'); scrollToTop(); }}>ALL</Pill>
             {SOURCE_KEYS.map(key => (
               <Pill
                 key={key}
                 active={activeFilter === key}
-                onClick={() => setActiveFilter(key)}
+                onClick={() => { setActiveFilter(key); scrollToTop(); }}
               >
                 {SOURCES[key].filterLabel}
               </Pill>
@@ -88,6 +94,7 @@ export function TrendsSection({
           </div>
         )}
 
+        <div className={sectionRef.inView ? 'animate-fade-in-up stagger-2' : 'opacity-0'}>
         <TrendGrid
           trends={paginatedTrends}
           selectedId={selectedTrend?._id}
@@ -111,7 +118,7 @@ export function TrendsSection({
           <div className="flex items-center justify-center gap-4 mt-8">
             <Button
               variant="secondary"
-              onClick={() => setCurrentPage(p => p - 1)}
+              onClick={() => { setCurrentPage(p => p - 1); scrollToTop(); }}
               disabled={currentPage === 1}
             >
               PREVIOUS
@@ -121,13 +128,14 @@ export function TrendsSection({
             </span>
             <Button
               variant="secondary"
-              onClick={() => setCurrentPage(p => p + 1)}
+              onClick={() => { setCurrentPage(p => p + 1); scrollToTop(); }}
               disabled={currentPage === totalPages}
             >
               NEXT
             </Button>
           </div>
         )}
+        </div>
       </div>
 
       <TrendModal

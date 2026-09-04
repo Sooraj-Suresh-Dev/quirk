@@ -1,64 +1,103 @@
+import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Github, Linkedin } from 'lucide-react';
 
 export function MarketingFooter() {
+  const footerRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = footerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const reveal = (stagger?: number) => {
+    if (!isVisible) return 'opacity-0';
+    const base = 'animate-footer-reveal';
+    if (stagger === 1) return `${base} stagger-1`;
+    if (stagger === 2) return `${base} stagger-2`;
+    return base;
+  };
+
+  const links = [
+    { to: '/features', label: 'Features' },
+    { to: '/pricing', label: 'Pricing' },
+    { to: '/about', label: 'About' },
+    { to: '/faq', label: 'FAQ' },
+    { to: '/privacy', label: 'Privacy' },
+    { to: '/terms', label: 'Terms' },
+  ];
+
   return (
-    <footer className="border-t-3 border-deep-black bg-cream">
-      <div className="max-w-6xl mx-auto px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <span className="font-mono text-2xl font-bold text-coral">QUIRK</span>
-            <p className="font-serif text-warm-gray mt-2 text-sm">
-              Your LinkedIn, your quirk
-            </p>
-          </div>
-
-          <div>
-            <h4 className="font-mono text-xs uppercase text-charcoal mb-4 tracking-wider">
-              Product
-            </h4>
-            <div className="flex flex-col gap-2">
-              <Link
-                to="/features"
-                className="font-serif text-sm text-warm-gray hover:text-charcoal transition-colors">
-                Features
-              </Link>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="font-mono text-xs uppercase text-charcoal mb-4 tracking-wider">
-              Company
-            </h4>
-            <div className="flex flex-col gap-2">
-              <span className="font-serif text-sm text-warm-gray">
-                Coming soon
-              </span>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="font-mono text-xs uppercase text-charcoal mb-4 tracking-wider">
-              Legal
-            </h4>
-            <div className="flex flex-col gap-2">
-              <Link
-                to="/privacy"
-                className="font-serif text-sm text-warm-gray hover:text-charcoal transition-colors"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                to="/terms"
-                className="font-serif text-sm text-warm-gray hover:text-charcoal transition-colors"
-              >
-                Terms of Service
-              </Link>
-            </div>
-          </div>
+    <footer ref={footerRef} className="border-t-3 border-deep-black bg-cream">
+      <noscript>
+        <style>{`.animate-footer-reveal { opacity: 1 !important; }`}</style>
+      </noscript>
+      <div className="max-w-6xl mx-auto px-8 py-10">
+        <div className={`mb-6 ${reveal()}`}>
+          <span className="font-mono text-3xl font-bold text-coral">QUIRK</span>
+          <p className="font-serif text-charcoal mt-2 text-sm">
+            Your LinkedIn, your quirk
+          </p>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-deep-black/10">
-          <p className="font-serif text-xs text-warm-gray">
+        <div className={`flex flex-col gap-4 mb-8 ${reveal(1)}`}>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+            {links.map((link, i) => (
+              <span key={link.to} className="flex items-center gap-2">
+                <Link
+                  to={link.to}
+                  className="font-mono text-sm text-charcoal hover:text-coral focus:outline-none focus:text-coral focus:ring-2 focus:ring-coral/50 rounded transition-colors"
+                >
+                  {link.label}
+                </Link>
+                {i < links.length - 1 && (
+                  <span className="text-deep-black/40 select-none">·</span>
+                )}
+              </span>
+            ))}
+            <div className="flex gap-2 sm:ml-auto">
+            <a
+              href="https://github.com/Sooraj-Suresh-Dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-pill border-2 border-deep-black bg-soft-white text-warm-gray shadow-button hover:shadow-button-hover hover:text-[#24292E] hover:border-[#24292E] focus:outline-none focus:text-charcoal focus:ring-2 focus:ring-coral/50 transition-all duration-150"
+              title="GitHub"
+              aria-label="GitHub"
+            >
+              <Github size={16} />
+            </a>
+            <a
+              href="https://linkedin.com/in/sooraj2004"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-pill border-2 border-deep-black bg-soft-white text-warm-gray shadow-button hover:shadow-button-hover hover:text-[#0A66C2] hover:border-[#0A66C2] focus:outline-none focus:text-charcoal focus:ring-2 focus:ring-coral/50 transition-all duration-150"
+              title="LinkedIn"
+              aria-label="LinkedIn"
+            >
+              <Linkedin size={16} />
+            </a>
+          </div>
+          </div>
+
+          
+        </div>
+
+        <div className={`pt-6 border-t-2 border-deep-black/20 ${reveal(2)}`}>
+          <p className="font-mono text-xs text-charcoal">
             &copy; 2026 Quirk. All rights reserved.
           </p>
         </div>

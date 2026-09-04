@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -12,6 +12,7 @@ export function MarketingNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = [
+    { to: '/', label: 'Home', end: true },
     { to: '/features', label: 'Features' },
     { to: '/pricing', label: 'Pricing' },
     { to: '/about', label: 'About' },
@@ -29,14 +30,19 @@ export function MarketingNav() {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
-          {navLinks.map(({ to, label }) => (
-            <Link
+          {navLinks.map(({ to, label, end }) => (
+            <NavLink
               key={to}
               to={to}
-              className="font-mono text-sm uppercase text-warm-gray hover:text-charcoal transition-colors"
+              end={end}
+              className={({ isActive }) =>
+                `font-mono text-sm uppercase transition-all duration-150 ${
+                  isActive ? 'text-coral' : 'text-warm-gray hover:text-charcoal hover:scale-110'
+                }`
+              }
             >
               {label}
-            </Link>
+            </NavLink>
           ))}
         </div>
 
@@ -59,15 +65,20 @@ export function MarketingNav() {
       {mobileOpen && (
         <div className="md:hidden border-b-3 border-deep-black bg-soft-white px-8 pb-6">
           <div className="flex flex-col gap-4">
-            {navLinks.map(({ to, label }) => (
-              <Link
+            {navLinks.map(({ to, label, end }) => (
+              <NavLink
                 key={to}
                 to={to}
-                className="font-mono text-sm uppercase text-charcoal hover:text-coral transition-colors py-2"
+                end={end}
                 onClick={() => setMobileOpen(false)}
+                className={({ isActive }) =>
+                  `font-mono text-sm uppercase py-2 transition-all duration-150 ${
+                    isActive ? 'text-coral' : 'text-charcoal hover:text-coral hover:scale-110'
+                  }`
+                }
               >
                 {label}
-              </Link>
+              </NavLink>
             ))}
             <div className="flex gap-4 pt-2 border-t border-deep-black/10">
               <Button variant="ghost" onClick={() => { openLogin(); setMobileOpen(false); }}>LOG IN</Button>
