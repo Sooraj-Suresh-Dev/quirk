@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown, Mail } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MarketingLayout } from '@/components/layout/MarketingLayout';
@@ -39,7 +39,7 @@ const faqs = [
   {
     question: 'What trend sources do you support?',
     answer:
-      'Quirk currently tracks GitHub Trending, Product Hunt, and TechCrunch. Trends are updated every hour and cached for efficiency.',
+      'Quirk currently tracks GitHub Trending, Product Hunt, Hacker News, and TechCrunch. Trends are updated every hour and cached for efficiency.',
   },
   {
     question: 'How many posts can I generate?',
@@ -54,53 +54,70 @@ export function FAQ() {
 
   return (
     <MarketingLayout>
-      <main className="max-w-3xl mx-auto px-8 py-16">
-        <div className="text-center mb-12">
-          <h1 className="font-mono text-4xl font-bold text-charcoal mb-4">
+      <main>
+        {/* Hero */}
+        <section className="max-w-3xl mx-auto px-8 pt-16 pb-8 text-center">
+          <p className="font-mono text-sm uppercase text-coral mb-4 tracking-wider">Support</p>
+          <h1 className="font-mono text-4xl font-bold text-charcoal mb-4 tracking-tight">
             FREQUENTLY ASKED QUESTIONS
           </h1>
           <p className="font-serif text-xl text-warm-gray">
             Everything you need to know about Quirk
           </p>
-        </div>
+        </section>
 
-        <div className="space-y-4 mb-16">
-          {faqs.map((faq, idx) => (
-            <Card key={idx}>
-              <button
-                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                className="w-full flex items-center justify-between text-left cursor-pointer"
+        {/* FAQ Accordion */}
+        <section className="max-w-3xl mx-auto px-8 py-12">
+          <div className="space-y-3">
+            {faqs.map((faq, idx) => (
+              <Card key={idx}>
+                <button
+                  onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                  className="w-full flex items-center justify-between text-left cursor-pointer"
+                >
+                  <h3 className="font-mono text-lg font-bold text-charcoal pr-4">
+                    {faq.question}
+                  </h3>
+                  <ChevronDown
+                    size={20}
+                    className={`text-warm-gray shrink-0 transition-transform duration-200 ${
+                      openIndex === idx ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                {openIndex === idx && (
+                  <div className="mt-4 pt-4 border-t border-deep-black/10">
+                    <p className="font-serif text-warm-gray leading-relaxed">{faq.answer}</p>
+                  </div>
+                )}
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Dual CTA — signup + support */}
+        <section className="border-t-3 border-deep-black bg-soft-white py-16">
+          <div className="max-w-3xl mx-auto px-8 text-center">
+            <h2 className="font-mono text-2xl font-bold text-charcoal mb-4">
+              STILL HAVE QUESTIONS?
+            </h2>
+            <p className="font-serif text-warm-gray mb-8">
+              We're here to help. Reach out directly or get started and see for yourself.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button className="text-lg px-8 py-4" onClick={openSignup}>
+                GET STARTED <ArrowRight size={20} />
+              </Button>
+              <a
+                href="mailto:support@tryquirk.com"
+                className="inline-flex items-center gap-2 font-mono text-sm uppercase tracking-wider px-6 py-3 rounded-button border-2 border-deep-black bg-soft-white text-charcoal shadow-button hover:shadow-button-hover active:shadow-button-active transition-all duration-150"
               >
-                <h3 className="font-mono text-lg font-bold text-charcoal pr-4">
-                  {faq.question}
-                </h3>
-                <ChevronDown
-                  size={20}
-                  className={`text-warm-gray shrink-0 transition-transform duration-200 ${
-                    openIndex === idx ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-              {openIndex === idx && (
-                <div className="mt-4 pt-4 border-t border-deep-black/10">
-                  <p className="font-serif text-warm-gray">{faq.answer}</p>
-                </div>
-              )}
-            </Card>
-          ))}
-        </div>
-
-        <div className="text-center">
-          <h2 className="font-mono text-2xl font-bold text-charcoal mb-4">
-            STILL HAVE QUESTIONS?
-          </h2>
-          <p className="font-serif text-warm-gray mb-8">
-            We're here to help. Reach out and we'll get back to you.
-          </p>
-          <Button className="text-lg px-8 py-4" onClick={openSignup}>
-              GET STARTED <ArrowRight size={20} />
-            </Button>
-        </div>
+                <Mail size={16} />
+                EMAIL SUPPORT
+              </a>
+            </div>
+          </div>
+        </section>
       </main>
     </MarketingLayout>
   );

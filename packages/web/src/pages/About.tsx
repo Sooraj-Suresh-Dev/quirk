@@ -29,86 +29,117 @@ export function About() {
   const { openSignup } = useAuthModal();
   return (
     <MarketingLayout>
-      <main className="max-w-7xl mx-auto px-8 py-16">
-        <div className="text-center mb-16">
-          <h1 className="font-mono text-5xl font-bold text-charcoal mb-4 tracking-tight">
-            BUILT FOR CREATORS WHO SHOW UP
-          </h1>
-          <p className="font-serif text-xl text-warm-gray max-w-2xl mx-auto">
-            Quirk was born from a simple observation: the hardest part of
-            building a personal brand on LinkedIn isn't writing — it's
-            showing up consistently with content that sounds like you.
-          </p>
-        </div>
-
-        <div className="mb-16">
-          <Card className="max-w-3xl mx-auto">
-            <h2 className="font-mono text-2xl font-bold text-charcoal mb-4">
-              OUR MISSION
-            </h2>
-            <p className="font-serif text-lg text-warm-gray leading-relaxed">
-              We believe everyone deserves to have a voice on LinkedIn — not
-              just the people who can afford ghostwriters or have hours to
-              spend crafting each post. Quirk combines AI-powered content
-              generation with personal voice training, so every post you
-              publish sounds authentically like you.
+      <main>
+        {/* Hero — editorial statement */}
+        <section className="max-w-4xl mx-auto px-8 pt-20 pb-16">
+          <div className="max-w-3xl">
+            <p className="font-mono text-sm uppercase text-coral mb-4 tracking-wider">Our Story</p>
+            <h1 className="font-mono text-5xl font-bold text-charcoal mb-8 tracking-tight leading-tight">
+              BUILT FOR CREATORS
+              <br />
+              WHO SHOW UP
+            </h1>
+            <p className="font-serif text-2xl text-warm-gray leading-relaxed">
+              The hardest part of building a personal brand on LinkedIn isn't writing —
+              it's showing up consistently with content that sounds like you.
             </p>
-          </Card>
-        </div>
+          </div>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          {pillars.map(({ icon: Icon, title, description }) => (
-            <Card key={title} hover>
-              <Icon size={32} className="text-coral mb-4" />
-              <h3 className="font-mono text-lg font-bold text-charcoal mb-2">
-                {title}
-              </h3>
-              <p className="font-serif text-warm-gray">{description}</p>
-            </Card>
-          ))}
-        </div>
+        {/* Mission — editorial pull-quote */}
+        <section className="border-y-3 border-deep-black bg-soft-white">
+          <div className="max-w-4xl mx-auto px-8 py-16">
+            <blockquote className="font-serif text-3xl text-charcoal leading-relaxed italic max-w-3xl">
+              "Everyone deserves to have a voice on LinkedIn — not just the people
+              who can afford ghostwriters or have hours to spend crafting each post."
+            </blockquote>
+            <div className="mt-6 font-mono text-sm uppercase text-warm-gray tracking-wider">
+              — The Quirk Mission
+            </div>
+          </div>
+        </section>
 
-        <div className="text-center">
-          <h2 className="font-mono text-2xl font-bold text-charcoal mb-4">
-            WHY QUIRK?
+        {/* Pillars — three-column */}
+        <section className="max-w-6xl mx-auto px-8 py-20">
+          <p className="font-mono text-sm uppercase text-coral mb-4 tracking-wider text-center">What We Believe</p>
+          <h2 className="font-mono text-3xl font-bold text-charcoal mb-12 text-center">
+            THREE PILLARS
           </h2>
-          <ul className="font-serif text-warm-gray max-w-2xl mx-auto text-left space-y-4 mb-8">
-            <li className="flex items-start gap-3">
-              <span className="text-coral mt-1">&#9679;</span>
-              <span>
-                <strong className="text-charcoal">Trend detection</strong> from
-                GitHub, Product Hunt, and TechCrunch — automatically
-                updated every hour.
-              </span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-coral mt-1">&#9679;</span>
-              <span>
-                <strong className="text-charcoal">Voice training</strong> that
-                extracts your tone, sentence structure, and CTA style from sample
-                posts.
-              </span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-coral mt-1">&#9679;</span>
-              <span>
-                <strong className="text-charcoal">Multiple post formats</strong> —
-                text posts, carousel frameworks, and image prompts for every
-                trend.
-              </span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-coral mt-1">&#9679;</span>
-              <span>
-                <strong className="text-charcoal">Daily digest</strong> with
-                ready-to-post content delivered to your inbox every morning.
-              </span>
-            </li>
-          </ul>
-          <Button className="text-lg px-8 py-4" onClick={openSignup}>
-              START CREATING <ArrowRight size={20} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {pillars.map(({ icon: Icon, title, description }) => (
+              <Card key={title} hover>
+                <Icon size={32} className="text-coral mb-4" />
+                <h3 className="font-mono text-lg font-bold text-charcoal mb-2">
+                  {title}
+                </h3>
+                <p className="font-serif text-warm-gray">{description}</p>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Why Quirk — editorial list */}
+        <section className="max-w-4xl mx-auto px-8 pb-20">
+          <h2 className="font-mono text-2xl font-bold text-charcoal mb-8">
+            WHY QUIRK EXISTS
+          </h2>
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <span className="text-coral mt-1 text-2xl">●</span>
+              <div>
+                <h3 className="font-mono text-lg font-bold text-charcoal mb-1">
+                  Trend detection
+                </h3>
+                <p className="font-serif text-warm-gray">
+                  From GitHub, Product Hunt, Hacker News, and TechCrunch — automatically
+                  updated every hour. No more feed-scrolling.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <span className="text-mint mt-1 text-2xl">●</span>
+              <div>
+                <h3 className="font-mono text-lg font-bold text-charcoal mb-1">
+                  Voice training
+                </h3>
+                <p className="font-serif text-warm-gray">
+                  Extracts your tone, sentence structure, and CTA style from sample posts.
+                  Every generation sounds like you.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <span className="text-coral mt-1 text-2xl">●</span>
+              <div>
+                <h3 className="font-mono text-lg font-bold text-charcoal mb-1">
+                  Multiple post formats
+                </h3>
+                <p className="font-serif text-warm-gray">
+                  Text posts, carousel frameworks, and image prompts for every trend.
+                  Choose the format that fits your strategy.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <span className="text-mint mt-1 text-2xl">●</span>
+              <div>
+                <h3 className="font-mono text-lg font-bold text-charcoal mb-1">
+                  Daily digest
+                </h3>
+                <p className="font-serif text-warm-gray">
+                  Ready-to-post content delivered to your inbox every morning.
+                  Wake up, copy, post.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-12">
+            <Button className="text-lg px-8 py-4" onClick={openSignup}>
+              JOIN THE BETA <ArrowRight size={20} />
             </Button>
-        </div>
+          </div>
+        </section>
       </main>
     </MarketingLayout>
   );
