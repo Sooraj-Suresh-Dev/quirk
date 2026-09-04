@@ -1,5 +1,7 @@
 ref1.jpg
 ref2.jpg
+.impeccable/
+
 # Dependencies
 node_modules/
 .pnpm-store/
