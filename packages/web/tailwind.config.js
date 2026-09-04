@@ -21,7 +21,7 @@ export default {
       },
       fontFamily: {
         mono: ['"Space Mono"', 'monospace'],
-        serif: ['"DM Sans"', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif'],
       },
       borderRadius: {
         card: '12px',
