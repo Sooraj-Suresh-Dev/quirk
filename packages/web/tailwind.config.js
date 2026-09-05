@@ -15,13 +15,14 @@ export default {
         },
         cream: '#F5F0E8',
         'soft-white': '#FDFBF7',
-        charcoal: '#2D2D2D',
-        'warm-gray': '#6B6B6B',
+        charcoal: '#1d1d1dff',
+        'warm-gray': '#3D3D3D',
         'deep-black': '#1A1A1A',
       },
       fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
         mono: ['"Space Mono"', 'monospace'],
-        serif: ['"Playfair Display"', 'serif'],
+        serif: ['"Lora"', 'serif'],
       },
       borderRadius: {
         card: '12px',

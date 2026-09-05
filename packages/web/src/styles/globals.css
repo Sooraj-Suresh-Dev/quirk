@@ -26,7 +26,7 @@
 
 @layer base {
   body {
-    @apply bg-cream text-charcoal font-serif text-lg antialiased;
+    @apply bg-cream text-charcoal font-sans text-base antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -173,7 +173,7 @@
   }
 
   .input {
-    @apply bg-soft-white text-charcoal font-serif
+    @apply bg-soft-white text-charcoal font-sans
            px-4 py-3 rounded-button border-2 border-deep-black
            shadow-input focus:border-coral focus:outline-none
            transition-all duration-150 w-full;

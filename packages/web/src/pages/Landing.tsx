@@ -339,7 +339,7 @@ export function Landing() {
         </div>
 
         {/* Final CTA */}
-        <section id="cta" className="bg-cream py-16">
+        <section id="cta" className="py-16">
           <div ref={ctaRef.ref} className="max-w-4xl mx-auto px-8 text-center">
             <h2 className={`font-mono text-4xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
               READY TO FIND YOUR QUIRK?
