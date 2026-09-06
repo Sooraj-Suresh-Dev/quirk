@@ -66,15 +66,19 @@ router.get('/', requireAuth, async (req: AuthRequest, res) => {
     startOfWeek.setDate(now.getDate() - ((dayOfWeek + 6) % 7));
     startOfWeek.setHours(0, 0, 0, 0);
 
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
+    const offset = parseInt(req.query.offset as string) || 0;
+
     const [posts, total, thisWeek] = await Promise.all([
       Post.find({ userId: req.userId })
         .sort({ createdAt: -1 })
-        .limit(20),
+        .skip(offset)
+        .limit(limit),
       Post.countDocuments({ userId: req.userId }),
       Post.countDocuments({ userId: req.userId, createdAt: { $gte: startOfWeek } }),
     ]);
 
-    res.json({ posts, total, thisWeek });
+    res.json({ posts, total, thisWeek, hasMore: offset + posts.length < total });
   } catch (err) {
     logError('POSTS list failed', { err });
     res.status(500).json({ error: 'Failed to fetch posts' });

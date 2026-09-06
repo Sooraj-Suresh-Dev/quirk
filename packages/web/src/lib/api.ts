@@ -49,3 +49,11 @@ export const api = {
   delete: <T>(endpoint: string) =>
     request<T>(endpoint, { method: 'DELETE' }),
 };
+
+export interface Post {
+  _id: string;
+  type: 'text' | 'carousel' | 'image-prompt';
+  content: string;
+  status: 'generated' | 'copied' | 'posted';
+  createdAt: string;
+}
