@@ -2,14 +2,7 @@ import { useState, useEffect } from 'react';
 import { PostCard } from './PostCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { api } from '@/lib/api';
-
-interface Post {
-  _id: string;
-  type: 'text' | 'carousel' | 'image-prompt';
-  content: string;
-  status: 'generated' | 'copied' | 'posted';
-  createdAt: string;
-}
+import { Post } from '@/lib/api';
 
 export function PostHistory() {
   const [posts, setPosts] = useState<Post[]>([]);

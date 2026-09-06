@@ -27,7 +27,7 @@ export function Modal({ isOpen, onClose, children, className = '' }: ModalProps)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-deep-black/50 backdrop-blur-sm"
+        className="absolute -inset-12 bg-deep-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
       <div className={`relative bg-soft-white rounded-card border-3 border-deep-black shadow-card p-8 max-w-md w-full ${className}`}>

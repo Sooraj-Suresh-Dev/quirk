@@ -106,7 +106,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
   return (
     <div className="fixed inset-0 z-50">
       <div
-        className={`absolute inset-0 bg-deep-black/50 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`absolute -inset-12 bg-deep-black/50 backdrop-blur-sm transition-opacity duration-300 ${
           visible ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={handleClose}
