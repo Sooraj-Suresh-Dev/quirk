@@ -9,11 +9,9 @@ interface TrendGridProps {
   isLoading?: boolean;
   isLoadingMore?: boolean;
   onSelect: (trend: Trend) => void;
-  onBookmark?: (trend: Trend) => void;
-  onGenerate?: (trend: Trend) => void;
 }
 
-export const TrendGrid = memo(function TrendGrid({ trends, selectedId, isLoading, isLoadingMore, onSelect, onBookmark, onGenerate }: TrendGridProps) {
+export const TrendGrid = memo(function TrendGrid({ trends, selectedId, isLoading, isLoadingMore, onSelect }: TrendGridProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -42,8 +40,6 @@ export const TrendGrid = memo(function TrendGrid({ trends, selectedId, isLoading
             trend={trend}
             selected={selectedId === trend._id}
             onClick={() => onSelect(trend)}
-            onBookmark={onBookmark}
-            onGenerate={onGenerate}
           />
         ))}
       </div>

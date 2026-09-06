@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { timeAgo } from '@/lib/timeAgo';
-import { ExternalLink, Heart, Sparkles, Star, Clock, ArrowUp } from 'lucide-react';
+import { Heart, Star, Clock, ArrowUp } from 'lucide-react';
 import { Trend } from '@/types/trend';
 import { SOURCES } from '@/config/sources';
 
@@ -11,44 +10,14 @@ interface TrendCardProps {
   trend: Trend;
   selected?: boolean;
   onClick?: () => void;
-  onBookmark?: (trend: Trend) => void;
-  onGenerate?: (trend: Trend) => void;
 }
 
-export function TrendCard({ trend, selected, onClick, onBookmark, onGenerate }: TrendCardProps) {
+export function TrendCard({ trend, selected, onClick }: TrendCardProps) {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
-  const [bookmarked, setBookmarked] = useState(() => {
-    try {
-      const saved = localStorage.getItem('bookmarkedTrends');
-      return saved ? JSON.parse(saved).includes(trend._id) : false;
-    } catch {
-      return false;
-    }
-  });
 
   const config = SOURCES[trend.source];
   const Icon = config?.icon;
-
-  const toggleBookmark = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      const saved = JSON.parse(localStorage.getItem('bookmarkedTrends') || '[]');
-      const next = bookmarked
-        ? saved.filter((id: string) => id !== trend._id)
-        : [...saved, trend._id];
-      localStorage.setItem('bookmarkedTrends', JSON.stringify(next));
-    } catch {
-      // ignore
-    }
-    setBookmarked(!bookmarked);
-    onBookmark?.(trend);
-  };
-
-  const handleGenerate = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onGenerate?.(trend);
-  };
 
   const renderMetric = (metric: string) => {
     if (metric === 'stars' && trend.stars != null) {
@@ -137,25 +106,7 @@ export function TrendCard({ trend, selected, onClick, onBookmark, onGenerate }: 
             ))}
           </div>
         )}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-cream">
-          <div className="flex gap-1">
-            <Button variant="ghost" className="p-1.5" onClick={toggleBookmark}>
-              <Heart size={14} className={bookmarked ? 'fill-coral text-coral' : ''} />
-            </Button>
-            <Button variant="ghost" className="p-1.5" onClick={handleGenerate}>
-              <Sparkles size={14} />
-            </Button>
-          </div>
-          <a
-            href={trend.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="text-warm-gray hover:text-coral"
-          >
-            <ExternalLink size={14} />
-          </a>
-        </div>
+
       </div>
     </div>
   );

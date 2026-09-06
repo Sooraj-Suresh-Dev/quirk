@@ -1,5 +1,6 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { BlueprintGridBg } from '@/components/layout/BlueprintGridBg';
 import { TrendFilters } from '@/components/trends/TrendFilters';
 import { TrendGridFetcher } from '@/components/trends/TrendGridFetcher';
 import { Input } from '@/components/ui/Input';
@@ -9,6 +10,11 @@ export const Discover = memo(function Discover() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [globalMouse, setGlobalMouse] = useState({ x: -999, y: -999 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    setGlobalMouse({ x: e.clientX, y: e.clientY });
+  }, []);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -30,32 +36,35 @@ export const Discover = memo(function Discover() {
   };
 
   return (
-    <div className="min-h-screen bg-cream">
-      <Sidebar />
-      <main className="ml-[60px] p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-6">
-            <h1 className="font-mono text-3xl font-bold text-charcoal">DISCOVER</h1>
-            <p className="font-serif text-warm-gray mt-1">Find trending topics and generate content</p>
-          </div>
+    <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
+      <BlueprintGridBg mouse={globalMouse} />
+      <div className="relative z-10">
+        <Sidebar />
+        <main className="ml-[60px] p-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-6">
+              <h1 className="font-mono text-3xl font-bold text-charcoal">DISCOVER</h1>
+              <p className="font-serif text-warm-gray mt-1">Find trending topics and generate content</p>
+            </div>
 
-          <div className="relative mb-6">
-            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-warm-gray" />
-            <Input
-              placeholder="Search trends..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-12"
-            />
-          </div>
+            <div className="relative mb-6">
+              <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-warm-gray" />
+              <Input
+                placeholder="Search trends..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-12"
+              />
+            </div>
 
-          <TrendFilters active={activeFilter} onChange={setActiveFilter} />
+            <TrendFilters active={activeFilter} onChange={setActiveFilter} />
 
-          <div className="mt-6">
-            <TrendGridFetcher activeFilter={activeFilter} search={search} />
+            <div className="mt-6">
+              <TrendGridFetcher activeFilter={activeFilter} search={search} />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
       {showScrollTop && (
         <button

@@ -23,8 +23,9 @@ export function MarketingNav() {
     <>
       <nav className="flex items-center px-8 py-6 relative">
         <div className="flex-1">
-          <Link to="/" className="font-mono text-2xl font-bold text-coral">
-            QUIRK
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/logo.svg" alt="Quirk" className="h-12 w-auto" />
+            <span className="font-mono text-2xl font-bold text-coral">QUIRK</span>
           </Link>
         </div>
 

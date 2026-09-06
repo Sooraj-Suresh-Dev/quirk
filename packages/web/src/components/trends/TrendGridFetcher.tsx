@@ -90,7 +90,6 @@ export const TrendGridFetcher = memo(function TrendGridFetcher({ activeFilter, s
         isLoading={isLoading}
         isLoadingMore={isLoadingMore}
         onSelect={handleSelect}
-        onGenerate={handleSelect}
       />
       <div ref={sentinelRef} className="h-4" />
       <TrendModal

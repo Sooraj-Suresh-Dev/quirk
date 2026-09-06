@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { BlueprintGridBg } from '@/components/layout/BlueprintGridBg';
 import { TrendGrid } from '@/components/trends/TrendGrid';
 import { TrendModal } from '@/components/trends/TrendModal';
 import { TrendFilters } from '@/components/trends/TrendFilters';
@@ -19,6 +20,11 @@ export function Trends() {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [globalMouse, setGlobalMouse] = useState({ x: -999, y: -999 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    setGlobalMouse({ x: e.clientX, y: e.clientY });
+  }, []);
 
   useEffect(() => {
     const fetchTrends = async () => {
@@ -57,57 +63,59 @@ export function Trends() {
   };
 
   return (
-    <div className="min-h-screen bg-cream">
-      <Sidebar />
-      <main className="ml-[60px] p-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="font-mono text-3xl font-bold text-charcoal mb-6">TRENDS</h1>
+    <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
+      <BlueprintGridBg mouse={globalMouse} />
+      <div className="relative z-10">
+        <Sidebar />
+        <main className="ml-[60px] p-8">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="font-mono text-3xl font-bold text-charcoal mb-6">TRENDS</h1>
 
-          <div className="relative mb-6">
-            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-warm-gray" />
-            <Input
-              placeholder="Search trends..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-12"
-            />
-          </div>
-
-          <TrendFilters active={activeFilter} onChange={setActiveFilter} />
-
-          <div className="mt-6">
-            <TrendGrid
-              trends={paginatedTrends}
-              selectedId={selectedTrend?._id}
-              isLoading={isLoading}
-              onSelect={handleSelect}
-              onGenerate={handleSelect}
-            />
-          </div>
-
-          {!isLoading && totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 mt-8">
-              <Button
-                variant="secondary"
-                onClick={() => setCurrentPage(p => p - 1)}
-                disabled={currentPage === 1}
-              >
-                PREVIOUS
-              </Button>
-              <span className="font-mono text-sm text-warm-gray">
-                {currentPage} / {totalPages}
-              </span>
-              <Button
-                variant="secondary"
-                onClick={() => setCurrentPage(p => p + 1)}
-                disabled={currentPage === totalPages}
-              >
-                NEXT
-              </Button>
+            <div className="relative mb-6">
+              <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-warm-gray" />
+              <Input
+                placeholder="Search trends..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-12"
+              />
             </div>
-          )}
-        </div>
-      </main>
+
+            <TrendFilters active={activeFilter} onChange={setActiveFilter} />
+
+            <div className="mt-6">
+              <TrendGrid
+                trends={paginatedTrends}
+                selectedId={selectedTrend?._id}
+                isLoading={isLoading}
+                onSelect={handleSelect}
+              />
+            </div>
+
+            {!isLoading && totalPages > 1 && (
+              <div className="flex items-center justify-center gap-4 mt-8">
+                <Button
+                  variant="secondary"
+                  onClick={() => setCurrentPage(p => p - 1)}
+                  disabled={currentPage === 1}
+                >
+                  PREVIOUS
+                </Button>
+                <span className="font-mono text-sm text-warm-gray">
+                  {currentPage} / {totalPages}
+                </span>
+                <Button
+                  variant="secondary"
+                  onClick={() => setCurrentPage(p => p + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  NEXT
+                </Button>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
 
       <TrendModal
         trend={selectedTrend}

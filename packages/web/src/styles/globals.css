@@ -165,14 +165,17 @@
   .btn-secondary {
     @apply bg-soft-white text-charcoal font-mono text-sm uppercase tracking-wider
            px-6 py-3 rounded-button border-2 border-deep-black
-           shadow-button hover:shadow-button-hover active:shadow-button-active
+           shadow-button hover:bg-charcoal hover:text-soft-white hover:shadow-button-hover
+           active:bg-charcoal active:shadow-button-active
            transition-all duration-150 cursor-pointer;
   }
 
   .btn-ghost {
     @apply bg-transparent text-warm-gray font-mono text-sm uppercase tracking-wider
-           px-6 py-3 rounded-button cursor-pointer
-           hover:bg-cream transition-all duration-150;
+           px-6 py-3 rounded-button border-2 border-transparent cursor-pointer
+           shadow-none hover:bg-cream hover:shadow-button-hover
+           active:bg-cream/80 active:shadow-button-active
+           transition-all duration-150;
   }
 
   .card {

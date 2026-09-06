@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { BlueprintGridBg } from '@/components/layout/BlueprintGridBg';
 import { VoiceSamples } from '@/components/voice/VoiceSamples';
 import { VoiceProfile, VoiceProfileData } from '@/components/voice/VoiceProfile';
 import { Button } from '@/components/ui/Button';
@@ -34,6 +35,11 @@ export function Voice() {
   const [showRetrainModal, setShowRetrainModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [globalMouse, setGlobalMouse] = useState({ x: -999, y: -999 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    setGlobalMouse({ x: e.clientX, y: e.clientY });
+  }, []);
 
   useEffect(() => {
     loadVoice();
@@ -136,83 +142,86 @@ export function Voice() {
   };
 
   return (
-    <div className="min-h-screen bg-cream">
-      <Sidebar />
-      <main className="ml-[60px] p-8">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="font-mono text-3xl font-bold text-charcoal mb-2">VOICE TRAINING</h1>
-          <p className="font-serif text-warm-gray mb-8">
-            Paste 3-5 of your best LinkedIn posts. We&apos;ll analyze your writing style and use it for all future generations.
-          </p>
+    <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
+      <BlueprintGridBg mouse={globalMouse} />
+      <div className="relative z-10">
+        <Sidebar />
+        <main className="ml-[60px] p-8">
+          <div className="max-w-6xl mx-auto">
+            <h1 className="font-mono text-3xl font-bold text-charcoal mb-2">VOICE TRAINING</h1>
+            <p className="font-serif text-warm-gray mb-8">
+              Paste 3-5 of your best LinkedIn posts. We&apos;ll analyze your writing style and use it for all future generations.
+            </p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
-              <h2 className="font-mono text-lg font-bold text-charcoal mb-4">YOUR SAMPLES</h2>
-              <VoiceSamples samples={samples} onChange={setSamples} disabled={!!previewVoice || !!savedVoice} />
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center gap-4">
-                  <Button
-                    onClick={handleAnalyze}
-                    disabled={readyCount < 3 || !!previewVoice || !!savedVoice}
-                    isLoading={isAnalyzing}
-                  >
-                    {isAnalyzing ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                    {isAnalyzing ? 'ANALYZING...' : savedVoice ? 'RE-ANALYZE' : previewVoice ? 'ANALYZING...' : 'ANALYZE VOICE'}
-                  </Button>
-                  <span className={`font-serif text-sm ${readyCount < 3 ? 'text-warm-gray' : 'text-green-600'}`}>
-                    {readyCount < 3
-                      ? `Add ${3 - readyCount} more sample${3 - readyCount > 1 ? 's' : ''} to analyze`
-                      : `${readyCount}/5 samples ready`
-                    }
-                  </span>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <h2 className="font-mono text-lg font-bold text-charcoal mb-4">YOUR SAMPLES</h2>
+                <VoiceSamples samples={samples} onChange={setSamples} disabled={!!previewVoice || !!savedVoice} />
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center gap-4">
+                    <Button
+                      onClick={handleAnalyze}
+                      disabled={readyCount < 3 || !!previewVoice || !!savedVoice}
+                      isLoading={isAnalyzing}
+                    >
+                      {isAnalyzing ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                      {isAnalyzing ? 'ANALYZING...' : savedVoice ? 'RE-ANALYZE' : previewVoice ? 'ANALYZING...' : 'ANALYZE VOICE'}
+                    </Button>
+                    <span className={`font-serif text-sm ${readyCount < 3 ? 'text-warm-gray' : 'text-green-600'}`}>
+                      {readyCount < 3
+                        ? `Add ${3 - readyCount} more sample${3 - readyCount > 1 ? 's' : ''} to analyze`
+                        : `${readyCount}/5 samples ready`
+                      }
+                    </span>
+                  </div>
+                  {isAnalyzing && analyzeStep && (
+                    <p className="font-mono text-xs text-coral animate-pulse">
+                      {analyzeStep}
+                    </p>
+                  )}
                 </div>
-                {isAnalyzing && analyzeStep && (
-                  <p className="font-mono text-xs text-coral animate-pulse">
-                    {analyzeStep}
-                  </p>
+              </div>
+
+              <div>
+                <h2 className="font-mono text-lg font-bold text-charcoal mb-4">VOICE PROFILE</h2>
+
+                {previewVoice ? (
+                  <div className="space-y-4">
+                    
+                    <VoiceProfile
+                      profile={previewVoice.profile}
+                      samples={previewVoice.samples}
+                      isPreview
+                    />
+                    <div className="flex gap-3">
+                      <Button onClick={handleSaveVoice} isLoading={isSaving}>
+                        <Check size={16} /> SAVE VOICE
+                      </Button>
+                      <Button variant="ghost" onClick={handleDiscardPreview}>
+                        <X size={16} /> DISCARD
+                      </Button>
+                    </div>
+                  </div>
+                ) : savedVoice ? (
+                  <div className="space-y-4">
+                    <VoiceProfile
+                      profile={savedVoice.profile}
+                      samples={savedVoice.samples}
+                      onDelete={() => setShowDeleteModal(true)}
+                    />
+                  </div>
+                ) : (
+                  <div className="bg-soft-white rounded-card border-3 border-deep-black shadow-card p-6">
+                    <p className="font-serif text-warm-gray text-center py-8">
+                      Add at least 3 samples and click &quot;Analyze Voice&quot; to see your profile
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
-
-            <div>
-              <h2 className="font-mono text-lg font-bold text-charcoal mb-4">VOICE PROFILE</h2>
-
-              {previewVoice ? (
-                <div className="space-y-4">
-                  
-                  <VoiceProfile
-                    profile={previewVoice.profile}
-                    samples={previewVoice.samples}
-                    isPreview
-                  />
-                  <div className="flex gap-3">
-                    <Button onClick={handleSaveVoice} isLoading={isSaving}>
-                      <Check size={16} /> SAVE VOICE
-                    </Button>
-                    <Button variant="ghost" onClick={handleDiscardPreview}>
-                      <X size={16} /> DISCARD
-                    </Button>
-                  </div>
-                </div>
-              ) : savedVoice ? (
-                <div className="space-y-4">
-                  <VoiceProfile
-                    profile={savedVoice.profile}
-                    samples={savedVoice.samples}
-                    onDelete={() => setShowDeleteModal(true)}
-                  />
-                </div>
-              ) : (
-                <div className="bg-soft-white rounded-card border-3 border-deep-black shadow-card p-6">
-                  <p className="font-serif text-warm-gray text-center py-8">
-                    Add at least 3 samples and click &quot;Analyze Voice&quot; to see your profile
-                  </p>
-                </div>
-              )}
-            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
       <Modal isOpen={showRetrainModal} onClose={() => setShowRetrainModal(false)}>
         <div className="p-6 max-w-md">

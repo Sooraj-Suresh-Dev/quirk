@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { BlueprintGridBg } from '@/components/layout/BlueprintGridBg';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -23,6 +24,11 @@ export function Settings() {
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [globalMouse, setGlobalMouse] = useState({ x: -999, y: -999 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    setGlobalMouse({ x: e.clientX, y: e.clientY });
+  }, []);
 
   useEffect(() => {
     if (user?.preferences) {
@@ -88,116 +94,119 @@ export function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-cream">
-      <Sidebar />
-      <main className="ml-[60px] p-8">
-          <div className="max-w-3xl mx-auto">
-          <h1 className="font-mono text-3xl font-bold text-charcoal mb-8">SETTINGS</h1>
+    <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
+      <BlueprintGridBg mouse={globalMouse} />
+      <div className="relative z-10">
+        <Sidebar />
+        <main className="ml-[60px] p-8">
+            <div className="max-w-3xl mx-auto">
+            <h1 className="font-mono text-3xl font-bold text-charcoal mb-8">SETTINGS</h1>
 
-          <div className="space-y-6">
-            <Card>
-              <div className="flex items-center gap-3 mb-4">
-                <Key size={20} className="text-coral" />
-                <h2 className="font-mono text-lg font-bold text-charcoal">API KEYS</h2>
-              </div>
-              <p className="font-serif text-sm text-warm-gray mb-4">
-                Bring your own API key for better generation quality. If you don't have one, we'll use our default model.
-              </p>
-              <div className="space-y-4">
-                <div>
-                  <label className="font-mono text-sm text-charcoal mb-1 block">OPENAI API KEY</label>
-                  <Input
-                    type="password"
-                    placeholder="sk-..."
-                    value={openaiKey}
-                    onChange={(e) => setOpenaiKey(e.target.value)}
-                  />
+            <div className="space-y-6">
+              <Card>
+                <div className="flex items-center gap-3 mb-4">
+                  <Key size={20} className="text-coral" />
+                  <h2 className="font-mono text-lg font-bold text-charcoal">API KEYS</h2>
                 </div>
-                <div>
-                  <label className="font-mono text-sm text-charcoal mb-1 block">ANTHROPIC API KEY</label>
-                  <Input
-                    type="password"
-                    placeholder="sk-ant-..."
-                    value={anthropicKey}
-                    onChange={(e) => setAnthropicKey(e.target.value)}
-                  />
-                </div>
-              </div>
-            </Card>
-
-            <Card>
-              <div className="flex items-center gap-3 mb-4">
-                <Bell size={20} className="text-coral" />
-                <h2 className="font-mono text-lg font-bold text-charcoal">TREND SOURCES</h2>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Pill active={sources.includes('github')} onClick={() => toggleSource('github')}>
-                  GITHUB
-                </Pill>
-                <Pill active={sources.includes('producthunt')} onClick={() => toggleSource('producthunt')}>
-                  PRODUCT HUNT
-                </Pill>
-                <Pill active={sources.includes('hackernews')} onClick={() => toggleSource('hackernews')}>
-                  HACKER NEWS
-                </Pill>
-              </div>
-            </Card>
-
-            <Card>
-              <div className="flex items-center gap-3 mb-4">
-                <Clock size={20} className="text-coral" />
-                <h2 className="font-mono text-lg font-bold text-charcoal">DAILY DIGEST</h2>
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="emailDigest"
-                    checked={emailDigest}
-                    onChange={(e) => setEmailDigest(e.target.checked)}
-                    className="w-5 h-5 accent-coral"
-                  />
-                  <label htmlFor="emailDigest" className="font-serif text-charcoal">
-                    Send me a daily digest email
-                  </label>
-                </div>
-                {emailDigest && (
+                <p className="font-serif text-sm text-warm-gray mb-4">
+                  Bring your own API key for better generation quality. If you don't have one, we'll use our default model.
+                </p>
+                <div className="space-y-4">
                   <div>
-                    <label className="font-mono text-sm text-charcoal mb-1 block">DELIVERY TIME</label>
+                    <label className="font-mono text-sm text-charcoal mb-1 block">OPENAI API KEY</label>
                     <Input
-                      type="time"
-                      value={digestTime}
-                      onChange={(e) => setDigestTime(e.target.value)}
-                      className="w-40"
+                      type="password"
+                      placeholder="sk-..."
+                      value={openaiKey}
+                      onChange={(e) => setOpenaiKey(e.target.value)}
                     />
                   </div>
-                )}
-              </div>
-            </Card>
+                  <div>
+                    <label className="font-mono text-sm text-charcoal mb-1 block">ANTHROPIC API KEY</label>
+                    <Input
+                      type="password"
+                      placeholder="sk-ant-..."
+                      value={anthropicKey}
+                      onChange={(e) => setAnthropicKey(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </Card>
 
-            <Button onClick={handleSave} isLoading={isSaving} className="w-full">
-              <Save size={16} /> SAVE SETTINGS
-            </Button>
+              <Card>
+                <div className="flex items-center gap-3 mb-4">
+                  <Bell size={20} className="text-coral" />
+                  <h2 className="font-mono text-lg font-bold text-charcoal">TREND SOURCES</h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Pill active={sources.includes('github')} onClick={() => toggleSource('github')}>
+                    GITHUB
+                  </Pill>
+                  <Pill active={sources.includes('producthunt')} onClick={() => toggleSource('producthunt')}>
+                    PRODUCT HUNT
+                  </Pill>
+                  <Pill active={sources.includes('hackernews')} onClick={() => toggleSource('hackernews')}>
+                    HACKER NEWS
+                  </Pill>
+                </div>
+              </Card>
 
-            <Card className="border-red-500">
-              <div className="flex items-center gap-3 mb-4">
-                <Trash2 size={20} className="text-red-500" />
-                <h2 className="font-mono text-lg font-bold text-charcoal">DANGER ZONE</h2>
-              </div>
-              <p className="font-serif text-sm text-warm-gray mb-4">
-                Permanently delete your account and all associated data. This action cannot be undone.
-              </p>
-              <Button
-                variant="secondary"
-                onClick={() => setShowDeleteModal(true)}
-                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-soft-white"
-              >
-                <Trash2 size={16} /> DELETE ACCOUNT
+              <Card>
+                <div className="flex items-center gap-3 mb-4">
+                  <Clock size={20} className="text-coral" />
+                  <h2 className="font-mono text-lg font-bold text-charcoal">DAILY DIGEST</h2>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="emailDigest"
+                      checked={emailDigest}
+                      onChange={(e) => setEmailDigest(e.target.checked)}
+                      className="w-5 h-5 accent-coral"
+                    />
+                    <label htmlFor="emailDigest" className="font-serif text-charcoal">
+                      Send me a daily digest email
+                    </label>
+                  </div>
+                  {emailDigest && (
+                    <div>
+                      <label className="font-mono text-sm text-charcoal mb-1 block">DELIVERY TIME</label>
+                      <Input
+                        type="time"
+                        value={digestTime}
+                        onChange={(e) => setDigestTime(e.target.value)}
+                        className="w-40"
+                      />
+                    </div>
+                  )}
+                </div>
+              </Card>
+
+              <Button onClick={handleSave} isLoading={isSaving} className="w-full">
+                <Save size={16} /> SAVE SETTINGS
               </Button>
-            </Card>
+
+              <Card className="border-red-500">
+                <div className="flex items-center gap-3 mb-4">
+                  <Trash2 size={20} className="text-red-500" />
+                  <h2 className="font-mono text-lg font-bold text-charcoal">DANGER ZONE</h2>
+                </div>
+                <p className="font-serif text-sm text-warm-gray mb-4">
+                  Permanently delete your account and all associated data. This action cannot be undone.
+                </p>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowDeleteModal(true)}
+                  className="border-red-500 text-red-500 hover:bg-red-500 hover:text-soft-white"
+                >
+                  <Trash2 size={16} /> DELETE ACCOUNT
+                </Button>
+              </Card>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
       <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
         <div className="p-6">

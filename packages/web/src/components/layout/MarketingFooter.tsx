@@ -48,7 +48,10 @@ export function MarketingFooter() {
       </noscript>
       <div className="max-w-6xl mx-auto px-8 py-10">
         <div className={`mb-6 ${reveal()}`}>
-          <span className="font-mono text-3xl font-bold text-coral">QUIRK</span>
+          <div className="flex items-center gap-2">
+            <img src="/logo.svg" alt="Quirk" className="h-12 w-auto" />
+            <span className="font-mono text-3xl font-bold text-coral">QUIRK</span>
+          </div>
           <p className="font-serif text-charcoal mt-2 text-sm">
             Your LinkedIn, your quirk
           </p>

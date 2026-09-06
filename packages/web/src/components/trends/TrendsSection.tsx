@@ -100,7 +100,6 @@ export function TrendsSection({
           selectedId={selectedTrend?._id}
           isLoading={isLoading}
           onSelect={handleSelect}
-          onGenerate={handleSelect}
         />
 
         {error && !isLoading && (

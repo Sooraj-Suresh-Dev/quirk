@@ -12,8 +12,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary: 'bg-coral text-soft-white shadow-button hover:shadow-button-hover active:shadow-button-active',
-      secondary: 'bg-soft-white text-charcoal shadow-button hover:shadow-button-hover active:shadow-button-active',
-      ghost: 'bg-transparent text-warm-gray hover:bg-cream shadow-none',
+      secondary: 'bg-soft-white text-charcoal shadow-button hover:bg-charcoal hover:text-soft-white hover:shadow-button-hover active:bg-charcoal active:shadow-button-active',
+      ghost: 'bg-transparent text-warm-gray shadow-none hover:bg-cream hover:shadow-button-hover active:bg-cream/80 active:shadow-button-active',
     };
 
     return (

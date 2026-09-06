@@ -16,7 +16,7 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-screen w-[60px] bg-cream border-r-3 border-deep-black flex flex-col items-center py-4 z-50">
       <div className="mb-8">
-        <span className="font-mono text-coral font-bold text-lg">Q</span>
+        <img src="/logo.svg" alt="Quirk" className="h-11 w-auto" />
       </div>
 
       <nav className="flex-1 flex flex-col gap-2">
