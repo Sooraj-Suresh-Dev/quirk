@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { ChevronDown, ChevronUp, Sparkles, ArrowRight, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Sparkles, Trash2 } from 'lucide-react';
 
 export interface VoiceProfileData {
   tone: {
@@ -42,177 +41,239 @@ interface VoiceProfileProps {
   profile: VoiceProfileData;
   samples: string[];
   isPreview?: boolean;
+  isReadOnly?: boolean;
   onDelete?: () => void;
 }
 
-function QualityBadge({ score, consistency }: { score: number; consistency: string }) {
+function ConfidenceBadge({ score, consistency }: { score: number; consistency: string }) {
   const percentage = Math.round(score * 100);
   const label = percentage >= 80 ? 'High' : percentage >= 60 ? 'Good' : percentage >= 40 ? 'Moderate' : 'Low';
-  const color = percentage >= 80 ? 'bg-green-100 text-green-700' : percentage >= 60 ? 'bg-blue-100 text-blue-700' : percentage >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600';
+  const color =
+    percentage >= 80
+      ? 'bg-mint text-soft-white'
+      : percentage >= 60
+        ? 'bg-coral text-soft-white'
+        : percentage >= 40
+          ? 'bg-[#F5A623] text-soft-white'
+          : 'bg-charcoal text-soft-white';
+
   return (
-    <div className="flex items-center gap-2">
-      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono ${color}`}>
-        {label} ({percentage}%)
-      </span>
-      <span className="text-xs text-warm-gray">
-        {consistency} consistency
-      </span>
+    <div className="space-y-2">
+      <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider">Confidence Level</p>
+      <div className="flex items-center gap-3">
+        <span
+          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono border-2 border-deep-black ${color}`}
+        >
+          {label} ({percentage}%)
+        </span>
+        <span className="font-mono text-xs text-warm-gray">{consistency} consistency</span>
+      </div>
+      <p className="font-serif text-xs text-warm-gray leading-relaxed">
+        How well we can replicate your voice when generating new posts.
+      </p>
+      {percentage < 60 && (
+        <div className="mt-2 p-3 bg-cream rounded-card border-2 border-deep-black/10">
+          <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1">Try this</p>
+          <p className="font-serif text-xs text-charcoal leading-relaxed">
+            {percentage < 40
+              ? 'Add 2 more posts that feel like your natural writing voice. The more consistent your samples, the better we can match you.'
+              : 'For a stronger match, add posts that all sound like your natural voice — not different styles for different audiences.'}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
 
 function EnumBadge({ value }: { value: string }) {
   const colors: Record<string, string> = {
-    None: 'bg-gray-100 text-gray-600',
-    Soft: 'bg-blue-100 text-blue-700',
-    Direct: 'bg-green-100 text-green-700',
-    Rare: 'bg-gray-100 text-gray-600',
-    Occasional: 'bg-yellow-100 text-yellow-700',
-    Frequent: 'bg-orange-100 text-orange-700',
-    Low: 'bg-gray-100 text-gray-600',
-    Medium: 'bg-yellow-100 text-yellow-700',
-    High: 'bg-green-100 text-green-700',
+    None: 'bg-cream text-warm-gray border border-deep-black/20',
+    Soft: 'bg-cream text-charcoal border border-deep-black/20',
+    Direct: 'bg-coral text-soft-white border-2 border-deep-black',
+    Rare: 'bg-cream text-warm-gray border border-deep-black/20',
+    Occasional: 'bg-cream text-charcoal border border-deep-black/20',
+    Frequent: 'bg-mint text-soft-white border-2 border-deep-black',
+    Low: 'bg-cream text-warm-gray border border-deep-black/20',
+    Medium: 'bg-cream text-charcoal border border-deep-black/20',
+    High: 'bg-mint text-soft-white border-2 border-deep-black',
   };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-mono ${colors[value] || 'bg-gray-100 text-gray-600'}`}>
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-mono ${colors[value] || 'bg-cream text-warm-gray'}`}
+    >
       {value}
     </span>
   );
 }
 
-export function VoiceProfile({ profile, samples, isPreview, onDelete }: VoiceProfileProps) {
-  const navigate = useNavigate();
-  const [expandedSample, setExpandedSample] = useState<number | null>(null);
+export function VoiceProfile({ profile, isPreview, isReadOnly, onDelete }: VoiceProfileProps) {
+  const [showMore, setShowMore] = useState(false);
 
-  const toneDisplay = profile.tone.secondary.length > 0
-    ? `${profile.tone.primary} (${profile.tone.secondary.join(', ')})`
-    : profile.tone.primary;
+  const toneDisplay =
+    profile.tone.secondary.length > 0
+      ? `${profile.tone.primary} (${profile.tone.secondary.join(', ')})`
+      : profile.tone.primary;
+
+  const borderAccent = isPreview ? 'border-coral' : 'border-deep-black';
 
   return (
     <div className="space-y-4">
-      <Card>
-        <div className="flex items-center justify-between mb-4">
+      <Card className={`border-3 ${borderAccent}`}>
+        <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <Sparkles size={16} className="text-coral" />
             <h3 className="font-mono text-sm font-bold text-charcoal">YOUR VOICE PROFILE</h3>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <QualityBadge score={profile.trainingQuality.score} consistency={profile.trainingQuality.consistency} />
-            {profile.trainingQuality.limitations.length > 0 && (
-              <span className="text-xs text-warm-gray">
-                ({profile.trainingQuality.limitations.join(', ')})
+            {isPreview && (
+              <span className="font-mono text-[10px] text-coral bg-coral/10 px-2 py-0.5 rounded border border-coral">
+                PREVIEW
               </span>
             )}
           </div>
+        </div>
 
-          <div className="bg-cream rounded-card p-4">
-            <p className="font-mono text-xs text-warm-gray mb-2">BRAND VOICE</p>
+        <div className="space-y-5">
+          <ConfidenceBadge
+            score={profile.trainingQuality.score}
+            consistency={profile.trainingQuality.consistency}
+          />
+
+          {profile.trainingQuality.limitations.length > 0 && (
+            <p className="font-mono text-[10px] text-warm-gray italic">
+              Note: {profile.trainingQuality.limitations.join(', ')}
+            </p>
+          )}
+
+          <div className="bg-cream rounded-card p-4 border-2 border-deep-black/10">
+            <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-2">
+              Brand Voice
+            </p>
             <p className="font-serif text-charcoal leading-relaxed">{profile.brandSummary}</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-cream rounded-card p-3">
-              <p className="font-mono text-xs text-warm-gray mb-1">TONE</p>
-              <p className="font-serif text-charcoal text-sm">{toneDisplay}</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-cream rounded-card p-4 border-2 border-deep-black/10">
+              <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">Tone</p>
+              <p className="font-serif text-charcoal text-sm leading-snug">{toneDisplay}</p>
             </div>
-            <div className="bg-cream rounded-card p-3">
-              <p className="font-mono text-xs text-warm-gray mb-1">CTA</p>
+            <div className="bg-cream rounded-card p-4 border-2 border-deep-black/10">
+              <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">CTA</p>
               <EnumBadge value={profile.engagement.cta} />
             </div>
-            <div className="bg-cream rounded-card p-3">
-              <p className="font-mono text-xs text-warm-gray mb-1">QUESTIONS</p>
+            <div className="bg-cream rounded-card p-4 border-2 border-deep-black/10">
+              <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">
+                Questions
+              </p>
               <EnumBadge value={profile.engagement.questions} />
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-cream rounded-card p-3">
-              <p className="font-mono text-xs text-warm-gray mb-1">EMOJI</p>
+            <div className="bg-cream rounded-card p-4 border-2 border-deep-black/10">
+              <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">Emoji</p>
               <EnumBadge value={profile.engagement.emoji} />
             </div>
-            <div className="bg-cream rounded-card p-3">
-              <p className="font-mono text-xs text-warm-gray mb-1">PERSONALITY</p>
-              <div className="flex flex-wrap gap-1">
-                {profile.personality.traits.slice(0, 3).map((trait, i) => (
-                  <span key={i} className="text-xs font-serif text-charcoal">{trait}</span>
-                ))}
-              </div>
-            </div>
           </div>
 
-          <div className="bg-cream rounded-card p-3">
-            <p className="font-mono text-xs text-warm-gray mb-1">WRITING STYLE</p>
-            <p className="font-serif text-sm text-charcoal">{profile.writingStyle.description}</p>
-            <p className="text-xs text-warm-gray mt-1">
-              Avg sentence: {profile.writingStyle.avgSentenceLength} words | Avg paragraph: {profile.writingStyle.avgParagraphLength} words
-            </p>
-          </div>
-
-          <div className="bg-cream rounded-card p-3">
-            <p className="font-mono text-xs text-warm-gray mb-1">STRUCTURE</p>
-            <p className="font-serif text-sm text-charcoal">{profile.structure.description}</p>
-            {profile.structure.pattern.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {profile.structure.pattern.map((p, i) => (
-                  <span key={i} className="text-xs bg-white px-2 py-0.5 rounded text-warm-gray">• {p}</span>
-                ))}
+          {showMore && (
+            <div className="space-y-3 animate-slide-up">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-cream rounded-card p-3 border-2 border-deep-black/10">
+                  <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">
+                    Emoji
+                  </p>
+                  <EnumBadge value={profile.engagement.emoji} />
+                </div>
+                <div className="bg-cream rounded-card p-3 border-2 border-deep-black/10">
+                  <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">
+                    Personality
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {profile.personality.traits.slice(0, 3).map((trait, i) => (
+                      <span key={i} className="text-xs font-serif text-charcoal">
+                        {trait}
+                        {i < Math.min(profile.personality.traits.length, 3) - 1 && ','}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
 
-          {profile.signaturePatterns.length > 0 && (
-            <div className="bg-cream rounded-card p-3">
-              <p className="font-mono text-xs text-warm-gray mb-1">SIGNATURE PATTERNS</p>
-              <div className="flex flex-wrap gap-1">
-                {profile.signaturePatterns.map((p, i) => (
-                  <span key={i} className="text-xs font-serif text-charcoal">• {p}</span>
-                ))}
+              <div className="bg-cream rounded-card p-3 border-2 border-deep-black/10">
+                <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">
+                  Writing Style
+                </p>
+                <p className="font-serif text-sm text-charcoal">{profile.writingStyle.description}</p>
+                <p className="text-xs text-warm-gray mt-1.5 font-mono">
+                  Avg sentence: {profile.writingStyle.avgSentenceLength} words · Avg paragraph:{' '}
+                  {profile.writingStyle.avgParagraphLength} words
+                </p>
               </div>
+
+              {profile.structure.pattern.length > 0 && (
+                <div className="bg-cream rounded-card p-3 border-2 border-deep-black/10">
+                  <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">
+                    Structure
+                  </p>
+                  <p className="font-serif text-sm text-charcoal mb-2">{profile.structure.description}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {profile.structure.pattern.map((p, i) => (
+                      <span
+                        key={i}
+                        className="text-xs font-mono bg-soft-white px-2 py-0.5 rounded border border-deep-black/20 text-charcoal"
+                      >
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {profile.signaturePatterns.length > 0 && (
+                <div className="bg-cream rounded-card p-3 border-2 border-deep-black/10">
+                  <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">
+                    Signature Patterns
+                  </p>
+                  <ul className="space-y-1">
+                    {profile.signaturePatterns.map((p, i) => (
+                      <li key={i} className="text-xs font-serif text-charcoal">
+                        · {p}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
-          {!isPreview && (
-            <div className="flex gap-3">
-              <Button onClick={() => navigate('/generate')} className="flex-1">
-                <Sparkles size={16} /> START GENERATING
-                <ArrowRight size={16} />
+          <button
+            type="button"
+            onClick={() => setShowMore(!showMore)}
+            aria-expanded={showMore}
+            aria-controls="voice-profile-details"
+            className="font-mono text-xs text-coral hover:text-charcoal inline-flex items-center gap-1.5 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:ring-offset-2 px-1 py-0.5"
+          >
+            {showMore ? (
+              <>
+                <ChevronUp size={14} /> SHOW LESS
+              </>
+            ) : (
+              <>
+                <ChevronDown size={14} /> SHOW MORE DETAILS
+              </>
+            )}
+          </button>
+
+          {!isPreview && !isReadOnly && onDelete && (
+            <div className="flex justify-end pt-2">
+              <Button
+                variant="ghost"
+                onClick={onDelete}
+                className="text-charcoal hover:text-coral hover:bg-coral/10"
+              >
+                <Trash2 size={16} />
+                DELETE VOICE
               </Button>
-              {onDelete && (
-                <Button variant="ghost" onClick={onDelete} className="text-red-500 hover:text-red-600 hover:bg-red-50">
-                  <Trash2 size={16} />
-                </Button>
-              )}
             </div>
           )}
         </div>
       </Card>
-
-      {!isPreview && samples.length > 0 && (
-        <Card>
-          <h3 className="font-mono text-sm font-bold text-charcoal mb-3">YOUR SAMPLES</h3>
-          <div className="space-y-2">
-            {samples.map((sample, i) => (
-              <div key={i} className="bg-cream rounded-card p-3">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="font-mono text-xs text-warm-gray">SAMPLE {i + 1}</p>
-                  <button
-                    onClick={() => setExpandedSample(expandedSample === i ? null : i)}
-                    className="text-warm-gray hover:text-charcoal transition-colors"
-                  >
-                    {expandedSample === i ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  </button>
-                </div>
-                <p className={`font-serif text-sm text-charcoal ${expandedSample === i ? '' : 'line-clamp-3'}`}>
-                  {sample}
-                </p>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
     </div>
   );
 }

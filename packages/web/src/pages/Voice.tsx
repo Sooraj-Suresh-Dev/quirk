@@ -1,13 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { BlueprintGridBg } from '@/components/layout/BlueprintGridBg';
 import { VoiceSamples } from '@/components/voice/VoiceSamples';
 import { VoiceProfile, VoiceProfileData } from '@/components/voice/VoiceProfile';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { Modal } from '@/components/ui/Modal';
 import { api } from '@/lib/api';
 import { useToast } from '@/lib/toast';
-import { Sparkles, Loader2, AlertTriangle, Check, X } from 'lucide-react';
+import { Sparkles, Loader2, AlertTriangle, Check, X, Info, ArrowRight } from 'lucide-react';
 
 interface Voice {
   samples: string[];
@@ -17,21 +20,18 @@ interface Voice {
   updatedAt: string;
 }
 
-const ANALYZE_STEPS = [
-  'Analyzing your writing style...',
-  'Extracting tone patterns...',
-  'Measuring sentence structure...',
-  'Detecting engagement style...',
-  'Building your voice profile...',
-];
+const MIN_SAMPLES = 3;
+const MAX_SAMPLES = 5;
+const INITIAL_SAMPLES = 3;
 
 export function Voice() {
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [samples, setSamples] = useState<string[]>(['', '', '', '', '']);
+  const [samples, setSamples] = useState<string[]>(['', '', '']);
   const [savedVoice, setSavedVoice] = useState<Voice | null>(null);
   const [previewVoice, setPreviewVoice] = useState<{ samples: string[]; profile: VoiceProfileData } | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analyzeStep, setAnalyzeStep] = useState('');
+  const [isLoadingVoice, setIsLoadingVoice] = useState(true);
   const [showRetrainModal, setShowRetrainModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -45,20 +45,64 @@ export function Voice() {
     loadVoice();
   }, []);
 
+  useEffect(() => {
+    const hasUnsavedWork = samples.some(s => s.trim().length >= 10) || !!previewVoice;
+    if (!hasUnsavedWork) return;
+
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [samples, previewVoice]);
+
   const loadVoice = async () => {
+    setIsLoadingVoice(true);
     try {
       const result = await api.get<{ voice: Voice | null }>('/users/voice');
       setSavedVoice(result.voice);
+      if (result.voice) {
+        setSamples(result.voice.samples);
+      }
     } catch (err) {
       console.error('Failed to load voice:', err);
+      toast('error', 'Could not load your voice profile. Please refresh the page.');
+    } finally {
+      setIsLoadingVoice(false);
     }
   };
 
   const validSamples = samples.filter(s => s.trim().length >= 10);
   const readyCount = validSamples.length;
+  const canAnalyze = readyCount >= MIN_SAMPLES && !previewVoice && !savedVoice;
+  const isLocked = !!previewVoice || !!savedVoice;
+
+  const hasSavedVoice = !!savedVoice && !previewVoice;
+  const hasPreview = !!previewVoice;
+
+  const progressPercent = hasSavedVoice || hasPreview
+    ? 100
+    : Math.min(100, Math.round((readyCount / MIN_SAMPLES) * 100));
+
+  const progressColor = hasSavedVoice || hasPreview
+    ? 'bg-mint'
+    : readyCount >= MIN_SAMPLES
+      ? 'bg-mint'
+      : 'bg-coral';
+
+  const handleAddSample = () => {
+    if (samples.length >= MAX_SAMPLES) return;
+    setSamples([...samples, '']);
+  };
+
+  const handleRemoveSample = (index: number) => {
+    if (samples.length <= INITIAL_SAMPLES) return;
+    setSamples(samples.filter((_, i) => i !== index));
+  };
 
   const handleAnalyze = async () => {
-    if (readyCount < 3) return;
+    if (readyCount < MIN_SAMPLES) return;
 
     if (savedVoice) {
       setShowRetrainModal(true);
@@ -70,16 +114,7 @@ export function Voice() {
 
   const analyzeVoice = async () => {
     setIsAnalyzing(true);
-    setAnalyzeStep(ANALYZE_STEPS[0]);
     setPreviewVoice(null);
-
-    let stepIndex = 0;
-    const stepInterval = setInterval(() => {
-      stepIndex++;
-      if (stepIndex < ANALYZE_STEPS.length) {
-        setAnalyzeStep(ANALYZE_STEPS[stepIndex]);
-      }
-    }, 2000);
 
     try {
       const result = await api.post<{ preview: { samples: string[]; profile: VoiceProfileData } }>(
@@ -92,9 +127,7 @@ export function Voice() {
       const errorMessage = err?.message || 'Failed to analyze voice. Please try again.';
       toast('error', errorMessage);
     } finally {
-      clearInterval(stepInterval);
       setIsAnalyzing(false);
-      setAnalyzeStep('');
       setShowRetrainModal(false);
     }
   };
@@ -110,8 +143,7 @@ export function Voice() {
       );
       setSavedVoice(result.voice);
       setPreviewVoice(null);
-      setSamples(['', '', '', '', '']);
-      toast('success', 'Voice profile saved successfully!');
+      toast('success', 'Voice profile saved! Your future posts will match your style.');
     } catch (err: any) {
       console.error('Failed to save voice:', err);
       toast('error', 'Failed to save voice profile. Please try again.');
@@ -141,122 +173,288 @@ export function Voice() {
     analyzeVoice();
   };
 
-  return (
-    <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
-      <BlueprintGridBg mouse={globalMouse} />
-      <div className="relative z-10">
-        <Sidebar />
-        <main className="ml-[60px] p-8">
-          <div className="max-w-6xl mx-auto">
-            <h1 className="font-mono text-3xl font-bold text-charcoal mb-2">VOICE TRAINING</h1>
-            <p className="font-serif text-warm-gray mb-8">
-              Paste 3-5 of your best LinkedIn posts. We&apos;ll analyze your writing style and use it for all future generations.
-            </p>
+  const renderProfile = (
+    profile: VoiceProfileData,
+    sampleTexts: string[],
+    mode: 'saved' | 'preview' | 'readonly'
+  ) => (
+    <VoiceProfile
+      profile={profile}
+      samples={sampleTexts}
+      isPreview={mode === 'preview'}
+      isReadOnly={mode === 'readonly'}
+      onDelete={mode === 'saved' ? () => setShowDeleteModal(true) : undefined}
+    />
+  );
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
-                <h2 className="font-mono text-lg font-bold text-charcoal mb-4">YOUR SAMPLES</h2>
-                <VoiceSamples samples={samples} onChange={setSamples} disabled={!!previewVoice || !!savedVoice} />
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      onClick={handleAnalyze}
-                      disabled={readyCount < 3 || !!previewVoice || !!savedVoice}
-                      isLoading={isAnalyzing}
-                    >
-                      {isAnalyzing ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                      {isAnalyzing ? 'ANALYZING...' : savedVoice ? 'RE-ANALYZE' : previewVoice ? 'ANALYZING...' : 'ANALYZE VOICE'}
-                    </Button>
-                    <span className={`font-serif text-sm ${readyCount < 3 ? 'text-warm-gray' : 'text-green-600'}`}>
-                      {readyCount < 3
-                        ? `Add ${3 - readyCount} more sample${3 - readyCount > 1 ? 's' : ''} to analyze`
-                        : `${readyCount}/5 samples ready`
-                      }
-                    </span>
-                  </div>
-                  {isAnalyzing && analyzeStep && (
-                    <p className="font-mono text-xs text-coral animate-pulse">
-                      {analyzeStep}
-                    </p>
+  return (
+    <div className="h-screen flex flex-col bg-cream relative" onMouseMove={handleMouseMove}>
+      <BlueprintGridBg mouse={globalMouse} />
+      <div className="relative z-10 flex flex-col h-full">
+        <Sidebar />
+        <div className="ml-[60px] flex flex-col h-full">
+          <header className="h-16 shrink-0 flex items-center gap-6 px-6 border-b-2 border-deep-black/10 bg-cream/80 backdrop-blur-sm z-10">
+            <div className="flex items-center gap-3 min-w-0">
+              <h1 className="font-mono text-lg font-bold text-charcoal whitespace-nowrap">VOICE TRAINING</h1>
+              {hasSavedVoice && (
+                <span className="font-mono text-[10px] text-mint bg-mint/10 px-2 py-0.5 rounded border border-mint shrink-0">
+                  TRAINED
+                </span>
+              )}
+            </div>
+            <div className="flex-1 max-w-md">
+              <div
+                className="w-full h-1 bg-deep-black/10 rounded-full overflow-hidden"
+                role="progressbar"
+                aria-valuenow={progressPercent}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Voice training progress"
+              >
+                <div
+                  className={`h-full ${progressColor} transition-all duration-500 ease-out`}
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {hasSavedVoice && (
+                <Button variant="ghost" onClick={() => setShowDeleteModal(true)} className="text-xs">
+                  DELETE
+                </Button>
+              )}
+            </div>
+          </header>
+
+          <div className="flex-1 flex overflow-hidden">
+            <aside className="w-[340px] shrink-0 flex flex-col border-r-2 border-deep-black/10 bg-cream">
+              <div className="flex-1 overflow-y-auto p-5" data-walkthrough="voice-samples">
+                <div className="flex items-center gap-2 mb-1">
+                  <h2 className="font-mono text-sm font-bold text-charcoal">YOUR SAMPLES</h2>
+                  {!hasPreview && !hasSavedVoice && (
+                    <span className="font-mono text-[10px] text-coral">*REQUIRED</span>
                   )}
                 </div>
+                <p className="font-serif text-xs text-warm-gray mb-3">
+                  {hasSavedVoice
+                    ? 'Your analyzed samples.'
+                    : 'Pick posts that show the voice you want to keep.'}
+                </p>
+                <VoiceSamples
+                  samples={samples}
+                  onChange={setSamples}
+                  disabled={isLocked}
+                  compact={hasSavedVoice}
+                  onAdd={handleAddSample}
+                  onRemove={handleRemoveSample}
+                  canRemove={samples.length > INITIAL_SAMPLES}
+                  canAdd={samples.length < MAX_SAMPLES}
+                  minSamples={MIN_SAMPLES}
+                />
               </div>
-
-              <div>
-                <h2 className="font-mono text-lg font-bold text-charcoal mb-4">VOICE PROFILE</h2>
-
-                {previewVoice ? (
-                  <div className="space-y-4">
-                    
-                    <VoiceProfile
-                      profile={previewVoice.profile}
-                      samples={previewVoice.samples}
-                      isPreview
-                    />
-                    <div className="flex gap-3">
-                      <Button onClick={handleSaveVoice} isLoading={isSaving}>
-                        <Check size={16} /> SAVE VOICE
-                      </Button>
-                      <Button variant="ghost" onClick={handleDiscardPreview}>
-                        <X size={16} /> DISCARD
-                      </Button>
-                    </div>
-                  </div>
-                ) : savedVoice ? (
-                  <div className="space-y-4">
-                    <VoiceProfile
-                      profile={savedVoice.profile}
-                      samples={savedVoice.samples}
-                      onDelete={() => setShowDeleteModal(true)}
-                    />
-                  </div>
-                ) : (
-                  <div className="bg-soft-white rounded-card border-3 border-deep-black shadow-card p-6">
-                    <p className="font-serif text-warm-gray text-center py-8">
-                      Add at least 3 samples and click &quot;Analyze Voice&quot; to see your profile
+              <div className="shrink-0 p-5 border-t-2 border-deep-black/10" data-walkthrough="analyze-button">
+                {!hasPreview && !hasSavedVoice && (
+                  <>
+                    <Button
+                      onClick={handleAnalyze}
+                      disabled={!canAnalyze}
+                      isLoading={isAnalyzing}
+                      className="w-full"
+                    >
+                      {isAnalyzing ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          ANALYZING...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={16} />
+                          ANALYZE VOICE
+                        </>
+                      )}
+                    </Button>
+                    <p
+                      className="font-serif text-xs text-warm-gray mt-2 text-center"
+                      aria-live="polite"
+                    >
+                      {readyCount < MIN_SAMPLES
+                        ? `Add ${MIN_SAMPLES - readyCount} more sample${MIN_SAMPLES - readyCount > 1 ? 's' : ''}`
+                        : `${readyCount}/${samples.length} samples ready`}
                     </p>
+                  </>
+                )}
+                {hasPreview && (
+                  <div className="flex gap-2">
+                    <Button onClick={handleSaveVoice} isLoading={isSaving} className="flex-1">
+                      <Check size={14} />
+                      SAVE
+                    </Button>
+                    <Button variant="secondary" onClick={handleDiscardPreview}>
+                      <X size={14} />
+                      DISCARD
+                    </Button>
+                  </div>
+                )}
+                {hasSavedVoice && (
+                  <Button onClick={handleAnalyze} className="w-full">
+                    <Sparkles size={14} />
+                    RE-ANALYZE
+                  </Button>
+                )}
+                {isAnalyzing && (
+                  <p
+                    className="font-mono text-[10px] text-coral mt-2 text-center"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    Analyzing your voice — 10-20 seconds
+                  </p>
+                )}
+              </div>
+            </aside>
+
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-6">
+                {!hasPreview && !hasSavedVoice && !isAnalyzing && !isLoadingVoice && (
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <Card className="max-w-sm">
+                      <div className="flex items-start gap-3 p-2">
+                        <Info size={20} className="text-coral shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-mono text-sm font-bold text-charcoal mb-1">WHAT MAKES A GOOD SAMPLE?</p>
+                          <ul className="font-serif text-sm text-warm-gray space-y-1 list-disc list-inside">
+                            <li>Posts you&apos;d be proud to share again</li>
+                            <li>Posts that feel like &ldquo;you&rdquo; at your best</li>
+                            <li>Mix of lengths so we learn your range</li>
+                            <li>Avoid posts you wrote for a brand or client</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                )}
+
+                {isAnalyzing && (
+                  <Card>
+                    <div className="space-y-3">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-16 w-full" />
+                      <div className="grid grid-cols-2 gap-3 mt-4">
+                        <Skeleton className="h-16" />
+                        <Skeleton className="h-16" />
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {(hasPreview || hasSavedVoice) && !isAnalyzing && !isLoadingVoice && (
+                  <section className="mb-8 animate-fade-in-up" data-walkthrough="voice-profile">
+                    <h2 className="font-mono text-lg font-bold text-charcoal mb-1">YOUR VOICE PROFILE</h2>
+                    <p className="font-serif text-sm text-warm-gray mb-4">
+                      How Quirk sees your writing.
+                    </p>
+                    {hasPreview && savedVoice ? (
+                      <div className="space-y-6">
+                        <div>
+                          <span className="font-mono text-xs text-warm-gray uppercase tracking-wider">
+                            Current (will be replaced)
+                          </span>
+                          {renderProfile(savedVoice.profile, savedVoice.samples, 'readonly')}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 border-t-2 border-dashed border-deep-black/20" />
+                          <span className="font-mono text-xs text-coral">NEW PROFILE</span>
+                          <div className="flex-1 border-t-2 border-t-2 border-dashed border-coral" />
+                        </div>
+                        <div>
+                          {renderProfile(previewVoice.profile, previewVoice.samples, 'preview')}
+                        </div>
+                      </div>
+                    ) : hasPreview ? (
+                      renderProfile(previewVoice.profile, previewVoice.samples, 'preview')
+                    ) : (
+                      savedVoice && renderProfile(savedVoice.profile, savedVoice.samples, 'saved')
+                    )}
+                  </section>
+                )}
+
+                {isLoadingVoice && !hasPreview && !hasSavedVoice && (
+                  <Card>
+                    <div className="space-y-3">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-16 w-full" />
+                      <div className="grid grid-cols-2 gap-3 mt-4">
+                        <Skeleton className="h-16" />
+                        <Skeleton className="h-16" />
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {hasSavedVoice && !hasPreview && !isLoadingVoice && (
+                  <div className="mt-8 p-4 bg-soft-white rounded-card border-3 border-deep-black shadow-card flex items-center justify-between gap-4" data-walkthrough="generate-cta">
+                    <div>
+                      <p className="font-mono text-sm font-bold text-charcoal">READY TO WRITE?</p>
+                      <p className="font-serif text-xs text-warm-gray">Generate a post in your voice.</p>
+                    </div>
+                    <Button onClick={() => navigate('/discover')} className="shrink-0">
+                      <Sparkles size={14} />
+                      GENERATE POST
+                      <ArrowRight size={14} />
+                    </Button>
                   </div>
                 )}
               </div>
             </div>
           </div>
-        </main>
+        </div>
       </div>
 
-      <Modal isOpen={showRetrainModal} onClose={() => setShowRetrainModal(false)}>
+      <Modal
+        isOpen={showRetrainModal}
+        onClose={() => setShowRetrainModal(false)}
+        ariaLabelledBy="retrain-modal-title"
+      >
         <div className="p-6 max-w-md">
           <div className="flex items-center gap-3 mb-4">
-            <AlertTriangle className="text-orange-500" size={24} />
-            <h3 className="font-mono text-lg font-bold text-charcoal">Re-analyze Voice Profile?</h3>
+            <AlertTriangle className="text-[#F5A623]" size={24} />
+            <h3 id="retrain-modal-title" className="font-mono text-lg font-bold text-charcoal">Re-analyze Voice Profile?</h3>
           </div>
+          <p className="font-serif text-warm-gray mb-2">
+            This will replace your current voice profile with a new analysis.
+          </p>
           <p className="font-serif text-warm-gray mb-6">
-            This will replace your current voice profile with a new analysis. Your previous profile will be lost.
+            You&apos;ll see both versions side by side before deciding.
           </p>
           <div className="flex gap-3 justify-end">
             <Button variant="ghost" onClick={() => setShowRetrainModal(false)}>
               CANCEL
             </Button>
             <Button onClick={confirmRetrain}>
-              <Sparkles size={14} /> RE-ANALYZE
+              <Sparkles size={14} /> CONTINUE
             </Button>
           </div>
         </div>
       </Modal>
 
-      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        ariaLabelledBy="delete-modal-title"
+      >
         <div className="p-6 max-w-md">
           <div className="flex items-center gap-3 mb-4">
-            <AlertTriangle className="text-red-500" size={24} />
-            <h3 className="font-mono text-lg font-bold text-charcoal">Delete Voice Profile?</h3>
+            <AlertTriangle className="text-[#D94848]" size={24} />
+            <h3 id="delete-modal-title" className="font-mono text-lg font-bold text-charcoal">Delete Voice Profile?</h3>
           </div>
           <p className="font-serif text-warm-gray mb-6">
-            This will permanently delete your voice profile. You can create a new one later.
+            This will permanently delete your voice profile. Quirk will generate in default voice until you train again.
           </p>
           <div className="flex gap-3 justify-end">
             <Button variant="ghost" onClick={() => setShowDeleteModal(false)}>
               CANCEL
             </Button>
-            <Button onClick={handleDeleteVoice} className="bg-red-500 hover:bg-red-600">
+            <Button onClick={handleDeleteVoice} className="bg-[#D94848] hover:bg-[#B83A3A]">
               DELETE
             </Button>
           </div>
