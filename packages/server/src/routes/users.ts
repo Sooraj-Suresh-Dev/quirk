@@ -1,5 +1,7 @@
 import { Router, Router as ExpressRouter } from 'express';
 import { z } from 'zod';
+import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
 import { analyzeVoice, VoiceProfile } from '../services/voiceAnalyzer.js';
 import { Voice } from '../models/Voice.js';
@@ -260,6 +262,40 @@ router.put('/preferences', requireAuth, async (req: AuthRequest, res) => {
     }
     logError('PREFERENCES update failed', { err });
     res.status(500).json({ error: 'Failed to update preferences' });
+  }
+});
+
+const verifyKeySchema = z.object({
+  provider: z.enum(['openai', 'anthropic']),
+  key: z.string().min(1),
+});
+
+// POST /api/users/verify-key — Verify an API key
+router.post('/verify-key', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const { provider, key } = verifyKeySchema.parse(req.body);
+
+    if (provider === 'openai') {
+      const openai = new OpenAI({ apiKey: key });
+      await openai.models.list();
+    } else {
+      const anthropic = new Anthropic({ apiKey: key });
+      await anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 1,
+        messages: [{ role: 'user', content: 'hi' }],
+      });
+    }
+
+    res.json({ valid: true });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ valid: false, error: 'Invalid request' });
+      return;
+    }
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    logError('Key verification failed', { error: message });
+    res.json({ valid: false, error: 'Key is invalid or expired' });
   }
 });
 
