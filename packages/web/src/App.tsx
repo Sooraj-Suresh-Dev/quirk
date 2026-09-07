@@ -47,7 +47,7 @@ function AppRoutes() {
       <Route path="/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
       <Route path="/generate/:trendId" element={<ProtectedRoute><Generate /></ProtectedRoute>} />
       <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
-      <Route path="/voice" element={<ProtectedRoute><Voice /></ProtectedRoute>} />
+      <Route path="/voice-training" element={<ProtectedRoute><Voice /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

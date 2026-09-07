@@ -173,7 +173,7 @@ export function Library() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
-              <div className="relative flex-1">
+              <div className="relative flex-1" data-walkthrough="library-search">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" aria-hidden="true" />
                 <label htmlFor="library-search" className="sr-only">Search posts</label>
                 <Input
@@ -184,7 +184,7 @@ export function Library() {
                   className="pl-10"
                 />
               </div>
-              <div className="flex items-center gap-2" ref={sortRef}>
+              <div className="flex items-center gap-2" ref={sortRef} data-walkthrough="sort-dropdown">
                 <ArrowUpDown size={14} className="text-warm-gray shrink-0" aria-hidden="true" />
                 <div className="relative">
                   <button
@@ -219,7 +219,7 @@ export function Library() {
             </div>
 
 
-            <div id="post-list" role="tabpanel" className="space-y-3">
+            <div id="post-list" role="tabpanel" className="space-y-3" data-walkthrough="posts-list">
               {isLoading ? (
                 <>
                   <Skeleton className="h-28" />
@@ -256,7 +256,7 @@ export function Library() {
                         ))}
                       </div>
                       <Button onClick={() => navigate('/discover')}>
-                        <Compass size={14} /> DISCOVER TRENDS
+                        <Compass size={14} /> VIEW TRENDS
                       </Button>
                     </>
                   ) : (

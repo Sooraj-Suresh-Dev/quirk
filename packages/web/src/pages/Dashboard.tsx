@@ -54,7 +54,7 @@ export function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="bento-card col-span-2 flex flex-col justify-between">
+      <div className="bento-card col-span-2 flex flex-col justify-between" data-walkthrough="trending-now">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <TrendingUp size={20} className="text-coral" />
@@ -104,7 +104,7 @@ export function Dashboard() {
         )}
       </div>
 
-      <div className="bento-card flex flex-col justify-between">
+      <div className="bento-card flex flex-col justify-between" data-walkthrough="your-voice">
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -156,7 +156,7 @@ export function Dashboard() {
         </div>
 
         <Button
-          onClick={() => navigate('/voice')}
+          onClick={() => navigate('/voice-training')}
           className="w-full mt-3"
           variant={voice ? 'secondary' : 'primary'}
         >
@@ -204,7 +204,7 @@ export function Dashboard() {
               ))}
             </div>
             <Button onClick={() => navigate('/discover')}>
-              <Compass size={14} /> DISCOVER TRENDS
+              <Compass size={14} /> VIEW TRENDS
             </Button>
           </div>
         ) : (
@@ -251,7 +251,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="bento-card">
+        <div className="bento-card" data-walkthrough="quick-create">
           <h2 className="font-mono text-sm font-bold text-charcoal mb-2">QUICK CREATE</h2>
           <p className="font-serif text-xs text-warm-gray mb-4">
             Pick a format and jump straight to Discover.
@@ -284,7 +284,7 @@ export function Dashboard() {
             onClick={() => navigate('/discover')}
             className="w-full mt-3"
           >
-            <Compass size={14} /> GO TO DISCOVER
+            <Compass size={14} /> GO TO TRENDS
           </Button>
         </div>
       </div>

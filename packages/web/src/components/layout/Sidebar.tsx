@@ -1,12 +1,13 @@
 import { NavLink } from 'react-router-dom';
 import { Home, Compass, BookOpen, Mic, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
+import { HelpButton } from '@/components/ui/HelpButton';
 
 const navItems = [
   { to: '/dashboard', icon: Home, label: 'Dashboard' },
-  { to: '/discover', icon: Compass, label: 'Discover' },
+  { to: '/discover', icon: Compass, label: 'Trends' },
   { to: '/library', icon: BookOpen, label: 'Library' },
-  { to: '/voice', icon: Mic, label: 'Voice' },
+  { to: '/voice-training', icon: Mic, label: 'Voice' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
@@ -24,6 +25,7 @@ export function Sidebar() {
           <NavLink
             key={to}
             to={to}
+            aria-label={label}
             className={({ isActive }) =>
               `w-10 h-10 flex items-center justify-center rounded-button transition-all duration-150 ${
                 isActive
@@ -38,13 +40,16 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <button
-        onClick={logout}
-        className="w-10 h-10 flex items-center justify-center rounded-button text-charcoal hover:bg-cream transition-all duration-150"
-        title="Sign out"
-      >
-        <LogOut size={20} />
-      </button>
+      <div className="flex flex-col gap-2">
+        <HelpButton />
+        <button
+          onClick={logout}
+          className="w-10 h-10 flex items-center justify-center rounded-button text-charcoal hover:bg-cream transition-all duration-150"
+          title="Sign out"
+        >
+          <LogOut size={20} />
+        </button>
+      </div>
     </aside>
   );
 }
