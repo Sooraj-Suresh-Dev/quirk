@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { timeAgo } from '@/lib/timeAgo';
@@ -17,7 +18,9 @@ interface TrendModalProps {
 export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
   const { user } = useAuth();
   const { openSignup } = useAuthModal();
+  const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -32,6 +35,30 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
       document.body.style.overflow = '';
     };
   }, [isOpen, onClose]);
+
+  // Focus trap
+  useEffect(() => {
+    if (!isOpen || !modalRef.current) return;
+    const modal = modalRef.current;
+    const focusable = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first?.focus();
+    const trap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last?.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first?.focus();
+      }
+    };
+    modal.addEventListener('keydown', trap);
+    return () => modal.removeEventListener('keydown', trap);
+  }, [isOpen]);
 
   const handleClose = () => {
     setVisible(false);
@@ -49,7 +76,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
     const trendId = trend?._id;
     handleClose();
     setTimeout(() => {
-      window.location.href = `/generate/${trendId}`;
+      navigate(`/generate/${trendId}`);
     }, 300);
   };
 
@@ -112,7 +139,11 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
         onClick={handleClose}
       />
       <div
-        className={`absolute bottom-0 left-0 right-0 bg-soft-white rounded-t-card border-t-3 border-deep-black shadow-card max-h-[85vh] flex flex-col transition-transform duration-300 ease-out ${
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="trend-modal-title"
+        className={`absolute bottom-0 left-0 right-0 bg-soft-white rounded-t-card border-t-3 border-deep-black shadow-card max-h-[85vh] w-full flex flex-col transition-transform duration-300 ease-out ${
           visible ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -122,6 +153,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
           </div>
           <button
             onClick={handleClose}
+            aria-label="Close"
             className="text-warm-gray hover:text-charcoal transition-colors"
           >
             <X size={20} />
@@ -156,8 +188,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
                   <Badge source={trend.source} />
                 </div>
 
-                <h2 className="font-mono text-lg font-bold text-charcoal">{trend.title}</h2>
-                <br/>
+                <h2 id="trend-modal-title" className="font-mono text-lg font-bold text-charcoal">{trend.title}</h2>
                 <a
                     href={trend.url}
                     target="_blank"

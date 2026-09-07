@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { timeAgo } from '@/lib/timeAgo';
-import { Heart, Star, Clock, ArrowUp } from 'lucide-react';
+import { Heart, Star, Clock, ArrowUp, GitFork } from 'lucide-react';
 import { Trend } from '@/types/trend';
 import { SOURCES } from '@/config/sources';
 
@@ -28,6 +28,14 @@ export function TrendCard({ trend, selected, onClick }: TrendCardProps) {
         </span>
       );
     }
+    if (metric === 'forks' && trend.forks != null) {
+      return (
+        <span key="forks" className="inline-flex items-center gap-0.5 text-xs font-mono text-warm-gray">
+          <GitFork size={10} />
+          {trend.forks >= 1000 ? `${(trend.forks / 1000).toFixed(1)}k` : trend.forks}
+        </span>
+      );
+    }
     if (metric === 'votes' && trend.votes != null) {
       return (
         <span key="votes" className="inline-flex items-center gap-0.5 text-xs font-mono text-warm-gray">
@@ -49,10 +57,18 @@ export function TrendCard({ trend, selected, onClick }: TrendCardProps) {
 
   return (
     <div
-      className={`bg-soft-white rounded-card border-3 border-deep-black shadow-card overflow-hidden transition-all duration-150 hover:shadow-card-hover cursor-pointer ${
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+      className={`bg-soft-white rounded-card border-3 border-deep-black shadow-card overflow-hidden transition-all duration-150 hover:shadow-card-hover cursor-pointer focus:outline-none focus:ring-2 focus:ring-coral ${
         selected ? 'ring-2 ring-coral shadow-card-hover' : ''
       }`}
-      onClick={onClick}
     >
       <div className="relative">
         {trend.thumbnailUrl && !imageError ? (

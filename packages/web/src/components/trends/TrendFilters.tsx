@@ -10,7 +10,9 @@ interface TrendFiltersProps {
 
 export const TrendFilters = memo(function TrendFilters({ active, onChange }: TrendFiltersProps) {
   const { user } = useAuth();
-  const userSources = user?.preferences?.sources ?? Object.keys(SOURCES);
+  const userSources = user?.preferences?.sources?.length
+    ? user.preferences.sources
+    : Object.keys(SOURCES);
 
   return (
     <div className="flex flex-wrap gap-2">
