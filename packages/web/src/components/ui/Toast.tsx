@@ -32,7 +32,7 @@ export function Toast({ type, message, onClose }: ToastProps) {
   }, [onClose]);
 
   return (
-    <div className={`fixed bottom-4 right-4 z-50 transition-all duration-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+    <div role="status" aria-live="polite" className={`fixed bottom-4 right-4 z-50 transition-all duration-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
       <div className={`bg-soft-white border-3 border-deep-black shadow-card rounded-card p-4 flex items-center gap-3 min-w-[300px] ${colors[type]}`}>
         <Icon size={20} className="text-charcoal" />
         <p className="font-serif text-charcoal flex-1">{message}</p>

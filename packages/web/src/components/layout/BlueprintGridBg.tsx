@@ -9,6 +9,7 @@ const GRID_SIZE = 60;
 export function BlueprintGridBg({ mouse }: BlueprintGridBgProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [localMouse, setLocalMouse] = useState({ x: -999, y: -999, active: false });
+  const rafRef = useRef<number>(0);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -19,14 +20,18 @@ export function BlueprintGridBg({ mouse }: BlueprintGridBgProps) {
       mouse.y >= rect.top &&
       mouse.y <= rect.bottom
     ) {
-      setLocalMouse({
-        x: Math.round(mouse.x - rect.left),
-        y: Math.round(mouse.y - rect.top),
-        active: true,
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        setLocalMouse({
+          x: Math.round(mouse.x - rect.left),
+          y: Math.round(mouse.y - rect.top),
+          active: true,
+        });
       });
     } else {
       setLocalMouse((prev) => ({ ...prev, active: false }));
     }
+    return () => cancelAnimationFrame(rafRef.current);
   }, [mouse]);
 
   const [dimensions, setDimensions] = useState({

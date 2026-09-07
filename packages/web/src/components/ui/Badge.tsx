@@ -10,7 +10,7 @@ export function Badge({ source, className = '' }: BadgeProps) {
   if (!config) return null;
 
   return (
-    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-mono border border-deep-black ${config.bgColor} text-soft-white ${className}`}>
+    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-mono border-2 border-deep-black ${config.bgColor} text-soft-white ${className}`}>
       {config.label}
     </span>
   );
