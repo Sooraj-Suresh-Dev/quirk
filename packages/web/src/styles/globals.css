@@ -152,6 +152,72 @@
   .stagger-2 { animation-delay: 0.4s; }
   .stagger-3 { animation-delay: 0.6s; }
   .stagger-4 { animation-delay: 0.8s; }
+
+  @keyframes generate-pulse {
+    0%, 100% { box-shadow: 3px 3px 0px #1A1A1A; }
+    50% { box-shadow: 3px 3px 0px #E8725C, 0 0 20px rgba(232, 114, 92, 0.3); }
+  }
+
+  @keyframes sparkle-float {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 1; }
+    50% { transform: translateY(-4px) scale(1.1); opacity: 0.8; }
+  }
+
+  @keyframes typewriter-line {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes result-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.98);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0px);
+    }
+  }
+
+  @keyframes dot-bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-6px); }
+  }
+
+  @keyframes message-cycle {
+    0%, 20% { opacity: 1; }
+    25%, 95% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  .animate-generate-pulse {
+    animation: generate-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-sparkle {
+    animation: sparkle-float 1.5s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(90deg, #F5F0E8 25%, #FDFBF7 50%, #F5F0E8 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
+  .animate-result-reveal {
+    animation: result-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .animate-dot-bounce {
+    animation: dot-bounce 1.4s ease-in-out infinite;
+  }
 }
 
 @layer components {
@@ -218,7 +284,7 @@
 
   .badge {
     @apply inline-flex items-center px-2 py-1 rounded text-xs
-           font-mono border border-deep-black;
+           font-mono border-2 border-deep-black;
   }
 
   .badge-github {
@@ -255,6 +321,34 @@
 
   .bento-card-hero {
     @apply col-span-2 row-span-2;
+  }
+
+  .walkthrough-bubble {
+    position: relative;
+  }
+
+  .walkthrough-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 24px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #F5F0E8;
+  }
+
+  .walkthrough-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    left: 22px;
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 12px solid #1a1a1a;
   }
 }
 
