@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { GeneratedPost } from './GeneratedPost';
@@ -9,6 +9,14 @@ import { useToast } from '@/lib/toast';
 import { useAuth } from '@/lib/auth';
 import { Sparkles, Mic, Loader2 } from 'lucide-react';
 import { Trend } from '@/types/trend';
+
+const GENERATING_MESSAGES = [
+  'Stirring your quirk...',
+  'Finding your voice...',
+  'Crafting your post...',
+  'Adding personality...',
+  'Almost there...',
+];
 
 interface GenerationPanelProps {
   trend: Trend | null;
@@ -22,19 +30,44 @@ export function GenerationPanel({ trend, type }: GenerationPanelProps) {
   const [isCopying, setIsCopying] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [generated, setGenerated] = useState<any>(null);
+  const [showResult, setShowResult] = useState(false);
+  const [messageIndex, setMessageIndex] = useState(0);
   const [modelConfig, setModelConfig] = useState({
     provider: 'openrouter',
     model: 'meta-llama/llama-3.1-70b-instruct',
     temperature: 0.7,
     hasApiKey: true,
   });
+  const messageTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const skeletonRef = useRef<HTMLDivElement>(null);
 
   const hasVoice = !!voice;
   const isVoiceActive = voice?.isActive === true;
 
+  useEffect(() => {
+    if (isGenerating) {
+      setMessageIndex(0);
+      messageTimerRef.current = setInterval(() => {
+        setMessageIndex(prev => (prev + 1) % GENERATING_MESSAGES.length);
+      }, 2000);
+    } else if (messageTimerRef.current) {
+      clearInterval(messageTimerRef.current);
+      messageTimerRef.current = null;
+    }
+    return () => {
+      if (messageTimerRef.current) clearInterval(messageTimerRef.current);
+    };
+  }, [isGenerating]);
+
   const handleGenerate = async () => {
     if (!trend) return;
     setIsGenerating(true);
+    setShowResult(false);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        skeletonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    });
     try {
       const result = await api.post<{ post: any; fallback?: boolean }>(
         '/posts/generate',
@@ -47,6 +80,11 @@ export function GenerationPanel({ trend, type }: GenerationPanelProps) {
         }
       );
       setGenerated(result.post);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setShowResult(true);
+        });
+      });
       if (result.fallback) {
         toast('info', 'Generated using fallback content. The AI provider may be unavailable — check your API key or try OpenRouter.');
       }
@@ -156,11 +194,18 @@ export function GenerationPanel({ trend, type }: GenerationPanelProps) {
       <div className="mt-4">
         <Button
           onClick={handleGenerate}
-          isLoading={isGenerating}
           disabled={generateDisabled}
-          className="w-full"
+          className={`w-full ${isGenerating ? 'animate-generate-pulse' : ''}`}
         >
-          <Sparkles size={16} /> GENERATE {type.toUpperCase().replace('-', ' ')}
+          {isGenerating ? (
+            <>
+              <Loader2 size={16} className="animate-spin" /> GENERATING...
+            </>
+          ) : (
+            <>
+              <Sparkles size={16} /> GENERATE {type.toUpperCase().replace('-', ' ')}
+            </>
+          )}
         </Button>
         {generateDisabled && (
           <p className="font-mono text-xs text-coral mt-2 text-center">
@@ -169,8 +214,31 @@ export function GenerationPanel({ trend, type }: GenerationPanelProps) {
         )}
       </div>
 
-      {generated && (
-        <div className="mt-4">
+      {isGenerating && (
+        <div ref={skeletonRef} className="mt-6 space-y-4 animate-fade-in-up">
+          <Card className="overflow-hidden">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-coral animate-dot-bounce" style={{ animationDelay: '0s' }} />
+                <span className="w-2 h-2 rounded-full bg-coral animate-dot-bounce" style={{ animationDelay: '0.2s' }} />
+                <span className="w-2 h-2 rounded-full bg-coral animate-dot-bounce" style={{ animationDelay: '0.4s' }} />
+              </div>
+              <span className="font-mono text-xs text-warm-gray tracking-wider">
+                {GENERATING_MESSAGES[messageIndex]}
+              </span>
+            </div>
+            <div className="space-y-3">
+              <div className="h-4 rounded-full animate-shimmer w-3/4" />
+              <div className="h-4 rounded-full animate-shimmer w-full" />
+              <div className="h-4 rounded-full animate-shimmer w-5/6" />
+              <div className="h-4 rounded-full animate-shimmer w-2/3" />
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {generated && showResult && (
+        <div className="mt-4 animate-result-reveal">
           {type === 'carousel' ? (
             <CarouselPreview
               slides={generated.content}

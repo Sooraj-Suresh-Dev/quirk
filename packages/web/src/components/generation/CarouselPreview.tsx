@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { PreviewCard } from './PreviewCard';
 import { Button } from '@/components/ui/Button';
-import { Copy, ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
+import { Copy, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 
 interface CarouselContent {
   caption: string;
@@ -90,7 +90,7 @@ export function CarouselPreview({
       onRegenerate={onRegenerate || (() => {})}
       isCopying={isCopying}
     >
-      <div className="mb-4 p-4 bg-cream rounded-lg">
+      <div className="mb-4 p-4 bg-cream rounded-lg animate-fade-in-up">
         <p className="font-serif text-charcoal whitespace-pre-wrap text-sm leading-relaxed">
           {content.caption}
         </p>
@@ -99,23 +99,23 @@ export function CarouselPreview({
       {validPrompts.length > 0 ? (
         <div className="flex flex-col items-center">
           <div
-            className="relative w-full max-w-md mx-auto aspect-video mb-4 rounded-lg overflow-hidden cursor-pointer bg-gradient-to-br from-coral/20 to-mint/20"
+            className="relative w-full max-w-md mx-auto aspect-video mb-4 rounded-lg overflow-hidden cursor-pointer bg-gradient-to-br from-coral/20 to-mint/20 transition-all duration-300 hover:shadow-card-hover"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
           >
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
               <div
-                className={`transition-opacity duration-200 ${hovered ? 'opacity-0' : 'opacity-100'}`}
+                className={`transition-all duration-300 ${hovered ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
               >
-                <ImageIcon size={48} className="text-warm-gray/50 mb-2 mx-auto" />
+                <Wand2 size={32} className="text-coral/60 mb-2 mx-auto" />
                 <p className="font-mono text-xs text-warm-gray text-center">
-                  Slide {current + 1} - Hover to see prompt
+                  Slide {current + 1} — Hover to reveal prompt
                 </p>
               </div>
 
               <div
-                className={`absolute inset-0 p-6 bg-deep-black/95 overflow-y-auto transition-opacity duration-200 flex flex-col ${
-                  hovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                className={`absolute inset-0 p-6 bg-deep-black/95 overflow-y-auto transition-all duration-300 flex flex-col ${
+                  hovered ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
                 }`}
               >
                 <p className="font-mono text-xs text-soft-white whitespace-pre-wrap leading-relaxed flex-1">
@@ -126,7 +126,7 @@ export function CarouselPreview({
                     e.stopPropagation();
                     handleCopyPrompt();
                   }}
-                  className="mt-3 flex items-center justify-center gap-2 w-full py-2 rounded bg-coral/20 text-coral hover:bg-coral/30 transition-colors"
+                  className="mt-3 flex items-center justify-center gap-2 w-full py-2 rounded bg-coral/20 text-coral hover:bg-coral/30 transition-all duration-200 hover:shadow-button"
                 >
                   <Copy size={14} />
                   <span className="font-mono text-xs">Copy prompt</span>
@@ -134,7 +134,7 @@ export function CarouselPreview({
               </div>
             </div>
 
-            <div className="absolute top-3 right-3 bg-coral text-soft-white font-mono text-xs px-2 py-1 rounded">
+            <div className="absolute top-3 right-3 bg-coral text-soft-white font-mono text-xs px-2 py-1 rounded shadow-button">
               {current + 1} / {validPrompts.length}
             </div>
           </div>
@@ -154,8 +154,8 @@ export function CarouselPreview({
                 <button
                   key={i}
                   onClick={() => setCurrent(i)}
-                  className={`h-2 w-2 rounded-full transition-all ${
-                    i === current ? 'bg-coral scale-125' : 'bg-warm-gray/40 hover:bg-warm-gray/60'
+                  className={`h-2.5 w-2.5 rounded-full transition-all duration-200 ${
+                    i === current ? 'bg-coral scale-125 shadow-button' : 'bg-warm-gray/30 hover:bg-warm-gray/50'
                   }`}
                 />
               ))}

@@ -68,7 +68,7 @@ export function Generate() {
             <div className="max-w-4xl mx-auto">
               <p className="font-serif text-warm-gray">Trend not found</p>
               <Button onClick={() => navigate('/discover')} className="mt-4">
-                <ArrowLeft size={16} /> BACK TO DISCOVER
+                <ArrowLeft size={16} /> BACK TO TRENDS
               </Button>
             </div>
           </main>
@@ -83,12 +83,12 @@ export function Generate() {
       <div className="relative z-10">
         <Sidebar />
         <main className="ml-[60px] p-8">
-          <div className="max-w-4xl mx-auto">
-            <Button variant="ghost" onClick={() => navigate('/discover')} className="mb-6">
-              <ArrowLeft size={16} /> BACK TO DISCOVER
+          <div className="max-w-7xl mx-auto">
+            <Button variant="ghost" onClick={() => navigate('/discover')} className="mb-6 animate-slide-up">
+              <ArrowLeft size={16} /> BACK TO TRENDS
             </Button>
 
-            <Card className="mb-6">
+            <Card className="mb-6 animate-slide-up" data-walkthrough="trend-preview">
               <div className="flex gap-4">
                 {trend.thumbnailUrl ? (
                   <img
@@ -140,16 +140,18 @@ export function Generate() {
                   href={trend.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-warm-gray hover:text-coral shrink-0"
+                  className="text-warm-gray hover:text-coral shrink-0 transition-colors duration-200"
                 >
                   <ExternalLink size={16} />
                 </a>
               </div>
             </Card>
 
-            <h2 className="font-mono text-xl font-bold text-charcoal mb-4">GENERATE</h2>
-            <PostTypeSelector selected={postType} onChange={setPostType} />
-            <div className="mt-6">
+            <h2 className="font-mono text-xl font-bold text-charcoal mb-4 animate-slide-up stagger-1">GENERATE</h2>
+            <div data-walkthrough="post-type-selector" className="animate-slide-up stagger-2">
+              <PostTypeSelector selected={postType} onChange={setPostType} />
+            </div>
+            <div className="mt-6 animate-slide-up stagger-3" data-walkthrough="generate-action">
               <GenerationPanel trend={trend} type={postType} />
             </div>
           </div>
