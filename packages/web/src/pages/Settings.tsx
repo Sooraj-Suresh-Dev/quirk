@@ -209,12 +209,12 @@ export function Settings() {
       <div className="relative z-10 flex flex-col flex-1">
       <Sidebar />
 
-      <main className="ml-[60px] flex-1 flex flex-col">
+      <main className="md:ml-[60px] pb-20 md:pb-0 flex-1 flex flex-col">
         {/* Header */}
-        <header className="shrink-0 px-8 pt-8 pb-6">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <header className="shrink-0 px-4 md:px-8 pt-8 pb-6">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
-              <h1 className="font-mono text-3xl font-bold text-charcoal">SETTINGS</h1>
+              <h1 className="font-mono text-2xl md:text-3xl font-bold text-charcoal">SETTINGS</h1>
               {isDirty && (
                 <span className="font-mono text-xs text-coral bg-coral/10 px-2 py-0.5 rounded border border-coral/30">
                   UNSAVED CHANGES
@@ -235,7 +235,7 @@ export function Settings() {
         </header>
 
         {/* Grid */}
-        <div className="flex-1 overflow-y-auto px-8 pb-8">
+          <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-8">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6" data-walkthrough="settings-form">
             {/* Left Column */}
             <div className="space-y-6">

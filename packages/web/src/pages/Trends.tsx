@@ -67,7 +67,7 @@ export function Trends() {
       <BlueprintGridBg mouse={globalMouse} />
       <div className="relative z-10">
         <Sidebar />
-        <main className="ml-[60px] p-8">
+        <main className="md:ml-[60px] p-4 pb-24 md:pb-8 md:p-8">
           <div className="max-w-4xl mx-auto">
             <h1 className="font-mono text-3xl font-bold text-charcoal mb-6">TRENDS</h1>
 
@@ -77,7 +77,7 @@ export function Trends() {
                 placeholder="Search trends..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-12"
+                className="pl-12 md:pl-14"
               />
             </div>
 

@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Modal } from '@/components/ui/Modal';
 import { api } from '@/lib/api';
 import { useToast } from '@/lib/toast';
-import { Sparkles, Loader2, AlertTriangle, Check, X, Info, ArrowRight } from 'lucide-react';
+import { Sparkles, Loader2, AlertTriangle, Check, X, Info, ArrowRight, ChevronDown } from 'lucide-react';
 
 interface Voice {
   samples: string[];
@@ -36,6 +36,8 @@ export function Voice() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [globalMouse, setGlobalMouse] = useState({ x: -999, y: -999 });
+  const [samplesOpen, setSamplesOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     setGlobalMouse({ x: e.clientX, y: e.clientY });
@@ -80,6 +82,10 @@ export function Voice() {
 
   const hasSavedVoice = !!savedVoice && !previewVoice;
   const hasPreview = !!previewVoice;
+
+  useEffect(() => {
+    if (hasPreview || hasSavedVoice) setProfileOpen(true);
+  }, [hasPreview, hasSavedVoice]);
 
   const progressPercent = hasSavedVoice || hasPreview
     ? 100
@@ -192,8 +198,8 @@ export function Voice() {
       <BlueprintGridBg mouse={globalMouse} />
       <div className="relative z-10 flex flex-col h-full">
         <Sidebar />
-        <div className="ml-[60px] flex flex-col h-full">
-          <header className="h-16 shrink-0 flex items-center gap-6 px-6 border-b-2 border-deep-black/10 bg-cream/80 backdrop-blur-sm z-10">
+        <div className="md:ml-[60px] pb-20 md:pb-0 flex flex-col h-full">
+          <header className="h-auto md:h-16 shrink-0 flex flex-wrap items-center gap-3 md:gap-6 px-4 md:px-6 py-3 md:py-0 border-b-2 border-deep-black/10 bg-cream/80 backdrop-blur-sm z-10">
             <div className="flex items-center gap-3 min-w-0">
               <h1 className="font-mono text-lg font-bold text-charcoal whitespace-nowrap">VOICE TRAINING</h1>
               {hasSavedVoice && (
@@ -202,7 +208,7 @@ export function Voice() {
                 </span>
               )}
             </div>
-            <div className="flex-1 max-w-md">
+            <div className="flex-1 max-w-md hidden md:block">
               <div
                 className="w-full h-1 bg-deep-black/10 rounded-full overflow-hidden"
                 role="progressbar"
@@ -226,95 +232,115 @@ export function Voice() {
             </div>
           </header>
 
-          <div className="flex-1 flex overflow-hidden">
-            <aside className="w-[340px] shrink-0 flex flex-col border-r-2 border-deep-black/10 bg-cream">
-              <div className="flex-1 overflow-y-auto p-5" data-walkthrough="voice-samples">
-                <div className="flex items-center gap-2 mb-1">
+          <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+            <aside className="w-full md:w-[340px] md:shrink-0 flex flex-col min-h-0 border-b-2 md:border-b-0 md:border-r-2 border-deep-black/10 bg-cream">
+              {/* Mobile toggle header */}
+              <button
+                type="button"
+                onClick={() => setSamplesOpen(!samplesOpen)}
+                className="md:hidden flex items-center justify-between w-full p-4 border-b-2 border-deep-black/10 bg-cream/80 hover:bg-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:ring-inset"
+                aria-expanded={samplesOpen}
+                aria-controls="voice-samples-content"
+              >
+                <div className="flex items-center gap-2">
                   <h2 className="font-mono text-sm font-bold text-charcoal">YOUR SAMPLES</h2>
                   {!hasPreview && !hasSavedVoice && (
                     <span className="font-mono text-[10px] text-coral">*REQUIRED</span>
                   )}
                 </div>
-                <p className="font-serif text-xs text-warm-gray mb-3">
-                  {hasSavedVoice
-                    ? 'Your analyzed samples.'
-                    : 'Pick posts that show the voice you want to keep.'}
-                </p>
-                <VoiceSamples
-                  samples={samples}
-                  onChange={setSamples}
-                  disabled={isLocked}
-                  compact={hasSavedVoice}
-                  onAdd={handleAddSample}
-                  onRemove={handleRemoveSample}
-                  canRemove={samples.length > INITIAL_SAMPLES}
-                  canAdd={samples.length < MAX_SAMPLES}
-                  minSamples={MIN_SAMPLES}
+                <ChevronDown
+                  size={18}
+                  className={`text-charcoal transition-transform duration-200 ${samplesOpen ? 'rotate-180' : ''}`}
                 />
-              </div>
-              <div className="shrink-0 p-5 border-t-2 border-deep-black/10" data-walkthrough="analyze-button">
-                {!hasPreview && !hasSavedVoice && (
-                  <>
-                    <Button
-                      onClick={handleAnalyze}
-                      disabled={!canAnalyze}
-                      isLoading={isAnalyzing}
-                      className="w-full"
-                    >
-                      {isAnalyzing ? (
-                        <>
-                          <Loader2 size={16} className="animate-spin" />
-                          ANALYZING...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles size={16} />
-                          ANALYZE VOICE
-                        </>
-                      )}
+              </button>
+
+              {/* Samples content */}
+              <div
+                id="voice-samples-content"
+                className={`${samplesOpen ? 'flex' : 'hidden'} md:flex flex-col flex-1 overflow-y-auto`}
+              >
+                <div className="p-4 md:p-5" data-walkthrough="voice-samples">
+                  <p className="font-serif text-xs text-warm-gray mb-3">
+                    {hasSavedVoice
+                      ? 'Your analyzed samples.'
+                      : 'Pick posts that show the voice you want to keep.'}
+                  </p>
+                  <VoiceSamples
+                    samples={samples}
+                    onChange={setSamples}
+                    disabled={isLocked}
+                    compact={hasSavedVoice}
+                    onAdd={handleAddSample}
+                    onRemove={handleRemoveSample}
+                    canRemove={samples.length > INITIAL_SAMPLES}
+                    canAdd={samples.length < MAX_SAMPLES}
+                    minSamples={MIN_SAMPLES}
+                  />
+                </div>
+                <div className="shrink-0 p-4 md:p-5 border-t-2 border-deep-black/10" data-walkthrough="analyze-button">
+                  {!hasPreview && !hasSavedVoice && (
+                    <>
+                      <Button
+                        onClick={handleAnalyze}
+                        disabled={!canAnalyze}
+                        isLoading={isAnalyzing}
+                        className="w-full"
+                      >
+                        {isAnalyzing ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" />
+                            ANALYZING...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles size={16} />
+                            ANALYZE VOICE
+                          </>
+                        )}
+                      </Button>
+                      <p
+                        className="font-serif text-xs text-warm-gray mt-2 text-center"
+                        aria-live="polite"
+                      >
+                        {readyCount < MIN_SAMPLES
+                          ? `Add ${MIN_SAMPLES - readyCount} more sample${MIN_SAMPLES - readyCount > 1 ? 's' : ''}`
+                          : `${readyCount}/${samples.length} samples ready`}
+                      </p>
+                    </>
+                  )}
+                  {hasPreview && (
+                    <div className="flex gap-2">
+                      <Button onClick={handleSaveVoice} isLoading={isSaving} className="flex-1">
+                        <Check size={14} />
+                        SAVE
+                      </Button>
+                      <Button variant="secondary" onClick={handleDiscardPreview}>
+                        <X size={14} />
+                        DISCARD
+                      </Button>
+                    </div>
+                  )}
+                  {hasSavedVoice && (
+                    <Button onClick={handleAnalyze} className="w-full">
+                      <Sparkles size={14} />
+                      RE-ANALYZE
                     </Button>
+                  )}
+                  {isAnalyzing && (
                     <p
-                      className="font-serif text-xs text-warm-gray mt-2 text-center"
+                      className="font-mono text-[10px] text-coral mt-2 text-center"
+                      role="status"
                       aria-live="polite"
                     >
-                      {readyCount < MIN_SAMPLES
-                        ? `Add ${MIN_SAMPLES - readyCount} more sample${MIN_SAMPLES - readyCount > 1 ? 's' : ''}`
-                        : `${readyCount}/${samples.length} samples ready`}
+                      Analyzing your voice — 10-20 seconds
                     </p>
-                  </>
-                )}
-                {hasPreview && (
-                  <div className="flex gap-2">
-                    <Button onClick={handleSaveVoice} isLoading={isSaving} className="flex-1">
-                      <Check size={14} />
-                      SAVE
-                    </Button>
-                    <Button variant="secondary" onClick={handleDiscardPreview}>
-                      <X size={14} />
-                      DISCARD
-                    </Button>
-                  </div>
-                )}
-                {hasSavedVoice && (
-                  <Button onClick={handleAnalyze} className="w-full">
-                    <Sparkles size={14} />
-                    RE-ANALYZE
-                  </Button>
-                )}
-                {isAnalyzing && (
-                  <p
-                    className="font-mono text-[10px] text-coral mt-2 text-center"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    Analyzing your voice — 10-20 seconds
-                  </p>
-                )}
+                  )}
+                </div>
               </div>
             </aside>
 
-            <div className="flex-1 overflow-y-auto">
-              <div className="p-6">
+            <div className="flex-1 overflow-y-auto min-h-0">
+              <div className="p-4 md:p-6">
                 {!hasPreview && !hasSavedVoice && !isAnalyzing && !isLoadingVoice && (
                   <div className="flex flex-col items-center justify-center py-16">
                     <Card className="max-w-sm">
@@ -349,11 +375,32 @@ export function Voice() {
 
                 {(hasPreview || hasSavedVoice) && !isAnalyzing && !isLoadingVoice && (
                   <section className="mb-8 animate-fade-in-up" data-walkthrough="voice-profile">
-                    <h2 className="font-mono text-lg font-bold text-charcoal mb-1">YOUR VOICE PROFILE</h2>
+                    {/* Mobile toggle header */}
+                    <button
+                      type="button"
+                      onClick={() => setProfileOpen(!profileOpen)}
+                      className="md:hidden flex items-center justify-between w-full mb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:ring-inset rounded px-1 py-0.5"
+                      aria-expanded={profileOpen}
+                      aria-controls="voice-profile-content"
+                    >
+                      <div className="flex items-center gap-2">
+                        <h2 className="font-mono text-lg font-bold text-charcoal">YOUR VOICE PROFILE</h2>
+                      </div>
+                      <ChevronDown
+                        size={18}
+                        className={`text-charcoal transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                    {/* Desktop header */}
+                    <h2 className="hidden md:block font-mono text-lg font-bold text-charcoal mb-1">YOUR VOICE PROFILE</h2>
                     <p className="font-serif text-sm text-warm-gray mb-4">
                       How Quirk sees your writing.
                     </p>
-                    {hasPreview && savedVoice ? (
+                    <div
+                      id="voice-profile-content"
+                      className={`${profileOpen ? 'block' : 'hidden'} md:block`}
+                    >
+                      {hasPreview && savedVoice ? (
                       <div className="space-y-6">
                         <div>
                           <span className="font-mono text-xs text-warm-gray uppercase tracking-wider">
@@ -374,7 +421,8 @@ export function Voice() {
                       renderProfile(previewVoice.profile, previewVoice.samples, 'preview')
                     ) : (
                       savedVoice && renderProfile(savedVoice.profile, savedVoice.samples, 'saved')
-                    )}
+                      )}
+                    </div>
                   </section>
                 )}
 

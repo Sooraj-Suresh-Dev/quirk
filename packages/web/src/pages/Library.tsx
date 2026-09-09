@@ -149,9 +149,9 @@ export function Library() {
       <BlueprintGridBg mouse={globalMouse} />
       <div className="relative z-10">
         <Sidebar />
-        <main className="ml-[60px] p-4 md:p-6 lg:p-8">
+        <main className="md:ml-[60px] p-4 pb-24 md:pb-6 md:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
+            <div className="flex flex-row items-center justify-between gap-3 mb-6">
               <div>
                 <h1 className="font-mono text-2xl md:text-3xl font-bold text-charcoal mb-1 uppercase">LIBRARY</h1>
                 <p className="font-serif text-sm text-warm-gray">
@@ -172,8 +172,8 @@ export function Library() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 mb-6">
-              <div className="relative flex-1" data-walkthrough="library-search">
+            <div className="flex flex-row gap-2 md:gap-3 mb-6">
+              <div className="relative flex-1 min-w-0" data-walkthrough="library-search">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" aria-hidden="true" />
                 <label htmlFor="library-search" className="sr-only">Search posts</label>
                 <Input
@@ -181,7 +181,7 @@ export function Library() {
                   placeholder="Search your posts..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 md:pl-12"
                 />
               </div>
               <div className="flex items-center gap-2" ref={sortRef} data-walkthrough="sort-dropdown">
@@ -192,7 +192,7 @@ export function Library() {
                     aria-expanded={isSortOpen}
                     aria-haspopup="listbox"
                     aria-label={`Sort by ${currentSort.label}`}
-                    className="bg-soft-white text-charcoal font-mono text-sm px-3 py-2 rounded-button border-2 border-deep-black shadow-input hover:shadow-button-hover focus:border-coral focus:outline-none transition-all duration-150 cursor-pointer flex items-center gap-2 min-w-[120px] justify-between"
+                    className="bg-soft-white text-charcoal font-mono text-xs md:text-sm px-2 py-1.5 md:px-3 md:py-2 rounded-button border-2 border-deep-black shadow-input hover:shadow-button-hover focus:border-coral focus:outline-none transition-all duration-150 cursor-pointer flex items-center gap-2 min-w-[100px] md:min-w-[120px] justify-between"
                   >
                     <span>{currentSort.label}</span>
                     <ChevronDown size={14} className={`text-warm-gray transition-transform duration-200 ${isSortOpen ? 'rotate-180' : ''}`} />
@@ -219,7 +219,7 @@ export function Library() {
             </div>
 
 
-            <div id="post-list" role="tabpanel" className="space-y-3" data-walkthrough="posts-list">
+            <div id="post-list" role="tabpanel" className="space-y-2 md:space-y-3" data-walkthrough="posts-list">
               {isLoading ? (
                 <>
                   <Skeleton className="h-28" />

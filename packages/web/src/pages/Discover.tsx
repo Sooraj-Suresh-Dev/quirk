@@ -48,20 +48,20 @@ export const Discover = memo(function Discover() {
       <BlueprintGridBg mouse={globalMouse} />
       <div className="relative z-10">
         <Sidebar />
-        <main className="ml-[60px] p-8">
+        <main className="md:ml-[60px] p-4 pb-24 md:pb-8 md:p-8">
           <div className="max-w-7xl mx-auto">
             <div className="mb-6">
               <h1 className="font-mono text-3xl font-bold text-charcoal">TRENDS</h1>
               <p className="font-serif text-warm-gray mt-1">Find trending topics and generate content</p>
             </div>
 
-            <div className="relative mb-6" data-walkthrough="search">
+            <div className="relative mb-4 md:mb-6" data-walkthrough="search">
               <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-warm-gray" />
               <Input
                 placeholder="Search trends..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-12"
+                className="pl-12 md:pl-14"
               />
               {search && (
                 <button
@@ -78,7 +78,7 @@ export const Discover = memo(function Discover() {
               <TrendFilters active={activeFilter} onChange={setActiveFilter} />
             </div>
 
-            <div className="mt-6" data-walkthrough="trend-grid">
+            <div className="mt-4 md:mt-6" data-walkthrough="trend-grid">
               <TrendGridFetcher
                 activeFilter={activeFilter}
                 search={search}

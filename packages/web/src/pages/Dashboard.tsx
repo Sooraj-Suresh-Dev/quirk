@@ -54,7 +54,7 @@ export function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="bento-card col-span-2 flex flex-col justify-between" data-walkthrough="trending-now">
+      <div className="bento-card md:col-span-2 flex flex-col justify-between" data-walkthrough="trending-now">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <TrendingUp size={20} className="text-coral" />
@@ -68,14 +68,14 @@ export function Dashboard() {
           </button>
         </div>
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-4 flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
             <Skeleton className="h-full min-h-[140px]" />
             <Skeleton className="h-full min-h-[140px]" />
           </div>
         ) : topTrends.length === 0 ? (
           <p className="font-serif text-sm text-warm-gray">No trends available yet</p>
         ) : (
-          <div className="grid grid-cols-2 gap-4 flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
             {topTrends.map(trend => (
               <button
                 key={trend._id}
@@ -104,7 +104,7 @@ export function Dashboard() {
         )}
       </div>
 
-      <div className="bento-card flex flex-col justify-between" data-walkthrough="your-voice">
+      <div className="bento-card flex flex-col justify-between order-3 md:order-none" data-walkthrough="your-voice">
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -172,7 +172,7 @@ export function Dashboard() {
         </Button>
       </div>
 
-      <div className="bento-card-wide">
+      <div className="bento-card-wide order-4 md:order-none">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-mono text-sm font-bold text-charcoal">RECENT POSTS</h2>
           <button
@@ -193,7 +193,7 @@ export function Dashboard() {
             <p className="font-serif text-xs text-warm-gray mb-4">
               Pick a trending topic, choose your format, and generate in your voice.
             </p>
-            <div className="flex items-center justify-center gap-6 mb-4">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-4">
               {['TREND', 'FORMAT', 'VOICE'].map((step, i) => (
                 <div key={step} className="flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full border-2 border-deep-black bg-coral text-soft-white font-mono text-xs flex items-center justify-center">
@@ -216,7 +216,7 @@ export function Dashboard() {
         )}
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 order-2 md:order-none">
         <div className="bento-card">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">

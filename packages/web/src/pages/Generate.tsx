@@ -45,7 +45,7 @@ export function Generate() {
         <BlueprintGridBg mouse={globalMouse} />
         <div className="relative z-10">
           <Sidebar />
-          <main className="ml-[60px] p-8">
+          <main className="md:ml-[60px] p-4 pb-24 md:pb-8 md:p-8">
             <div className="max-w-4xl mx-auto">
               <Skeleton className="h-8 w-48 mb-6" />
               <Skeleton className="h-48 mb-6" />
@@ -64,7 +64,7 @@ export function Generate() {
         <BlueprintGridBg mouse={globalMouse} />
         <div className="relative z-10">
           <Sidebar />
-          <main className="ml-[60px] p-8">
+          <main className="md:ml-[60px] p-4 pb-24 md:pb-8 md:p-8">
             <div className="max-w-4xl mx-auto">
               <p className="font-serif text-warm-gray">Trend not found</p>
               <Button onClick={() => navigate('/discover')} className="mt-4">
@@ -82,7 +82,7 @@ export function Generate() {
       <BlueprintGridBg mouse={globalMouse} />
       <div className="relative z-10">
         <Sidebar />
-        <main className="ml-[60px] p-8">
+        <main className="md:ml-[60px] p-4 pb-24 md:pb-8 md:p-8">
           <div className="max-w-7xl mx-auto">
             <Button variant="ghost" onClick={() => navigate('/discover')} className="mb-6 animate-slide-up">
               <ArrowLeft size={16} /> BACK TO TRENDS
