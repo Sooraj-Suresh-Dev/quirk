@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -10,6 +10,7 @@ import { useAuthModal } from '@/lib/auth-modal';
 export function MarketingNav() {
   const { activeModal, openLogin, openSignup, closeModal } = useAuthModal();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const navLinks = [
     { to: '/', label: 'Home', end: true },
@@ -18,6 +19,17 @@ export function MarketingNav() {
     { to: '/about', label: 'About' },
     { to: '/faq', label: 'FAQ' },
   ];
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMobileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [mobileOpen]);
 
   return (
     <>
@@ -52,42 +64,55 @@ export function MarketingNav() {
           <Button onClick={openSignup} className="hidden sm:inline-flex">GET STARTED</Button>
 
           {/* Mobile hamburger */}
-          <button
-            className="md:hidden p-2 text-charcoal"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-          >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </nav>
+          <div ref={menuRef} className="md:hidden relative">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="p-2 text-charcoal hover:text-coral transition-colors duration-150"
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            >
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
 
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="md:hidden border-b-3 border-deep-black bg-soft-white px-8 pb-6">
-          <div className="flex flex-col gap-4">
-            {navLinks.map(({ to, label, end }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                onClick={() => setMobileOpen(false)}
-                className={({ isActive }) =>
-                  `font-mono text-sm uppercase py-2 transition-all duration-150 ${
-                    isActive ? 'text-coral' : 'text-charcoal hover:text-coral hover:scale-110'
-                  }`
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
-            <div className="flex gap-4 pt-2 border-t border-deep-black/10">
-              <Button variant="ghost" onClick={() => { openLogin(); setMobileOpen(false); }}>LOG IN</Button>
-              <Button onClick={() => { openSignup(); setMobileOpen(false); }}>GET STARTED</Button>
+            {/* Dropdown */}
+            <div
+              className={`absolute right-0 top-full mt-2 w-96 bg-soft-white border-3 border-deep-black rounded-card shadow-card transition-all duration-200 ease-out origin-top-right z-50 ${
+                mobileOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'
+              }`}
+            >
+              <nav className="p-4">
+                {navLinks.map(({ to, label, end }, i) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={end}
+                    onClick={() => setMobileOpen(false)}
+                    className={({ isActive }) =>
+                      `font-mono text-sm uppercase py-3 px-3 block rounded-button transition-all duration-150 ${
+                        isActive
+                          ? 'bg-coral text-soft-white'
+                          : 'text-charcoal hover:bg-cream hover:text-coral'
+                      } ${mobileOpen ? `animate-slide-up stagger-${i}` : 'opacity-0'}`
+                    }
+                  >
+                    {label}
+                  </NavLink>
+                ))}
+              </nav>
+
+              <div className="mx-4 border-t-2 border-deep-black/10" />
+
+              <div className={`p-4 flex gap-3 ${mobileOpen ? 'animate-slide-up stagger-4' : 'opacity-0'}`}>
+                <Button variant="secondary" onClick={() => { openLogin(); setMobileOpen(false); }} className="flex-1">
+                  LOG IN
+                </Button>
+                <Button onClick={() => { openSignup(); setMobileOpen(false); }} className="flex-1">
+                  GET STARTED
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      )}
+      </nav>
 
       <Modal isOpen={activeModal === 'login'} onClose={closeModal}>
         <LoginForm onSwitchToSignup={openSignup} />

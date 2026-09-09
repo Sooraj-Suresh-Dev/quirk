@@ -10,7 +10,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="min-h-screen bg-cream">
       <div className="relative z-10">
         <Sidebar />
-        <main className="ml-[60px] p-6">
+        <main className="md:ml-[60px] p-4 pb-24 md:pb-6 md:p-6">
           <div className="bento-grid">
             {children}
           </div>

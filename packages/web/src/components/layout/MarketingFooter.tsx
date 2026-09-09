@@ -58,45 +58,45 @@ export function MarketingFooter() {
         </div>
 
         <div className={`flex flex-col gap-4 mb-8 ${reveal(1)}`}>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-            {links.map((link, i) => (
-              <span key={link.to} className="flex items-center gap-2">
-                <Link
-                  to={link.to}
-                  className="font-mono text-sm text-charcoal hover:text-coral focus:outline-none focus:text-coral focus:ring-2 focus:ring-coral/50 rounded transition-colors"
-                >
-                  {link.label}
-                </Link>
-                {i < links.length - 1 && (
-                  <span className="text-deep-black/40 select-none">·</span>
-                )}
-              </span>
-            ))}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-x-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+              {links.map((link, i) => (
+                <span key={link.to} className="flex items-center gap-2">
+                  <Link
+                    to={link.to}
+                    className="font-mono text-xs sm:text-sm text-charcoal hover:text-coral focus:outline-none focus:text-coral focus:ring-2 focus:ring-coral/50 rounded transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                  {i < links.length - 1 && (
+                    <span className="text-deep-black/40 select-none">·</span>
+                  )}
+                </span>
+              ))}
+            </div>
             <div className="flex gap-2 sm:ml-auto">
-            <a
-              href="https://github.com/Sooraj-Suresh-Dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center w-10 h-10 rounded-pill border-2 border-deep-black bg-soft-white text-warm-gray shadow-button hover:shadow-button-hover hover:text-[#24292E] hover:border-[#24292E] focus:outline-none focus:text-charcoal focus:ring-2 focus:ring-coral/50 transition-all duration-150"
-              title="GitHub"
-              aria-label="GitHub"
-            >
-              <Github size={16} />
-            </a>
-            <a
-              href="https://linkedin.com/in/sooraj2004"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center w-10 h-10 rounded-pill border-2 border-deep-black bg-soft-white text-warm-gray shadow-button hover:shadow-button-hover hover:text-[#0A66C2] hover:border-[#0A66C2] focus:outline-none focus:text-charcoal focus:ring-2 focus:ring-coral/50 transition-all duration-150"
-              title="LinkedIn"
-              aria-label="LinkedIn"
-            >
-              <Linkedin size={16} />
-            </a>
+              <a
+                href="https://github.com/Sooraj-Suresh-Dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-pill border-2 border-deep-black bg-soft-white text-warm-gray shadow-button hover:shadow-button-hover hover:text-[#24292E] hover:border-[#24292E] focus:outline-none focus:text-charcoal focus:ring-2 focus:ring-coral/50 transition-all duration-150"
+                title="GitHub"
+                aria-label="GitHub"
+              >
+                <Github size={16} />
+              </a>
+              <a
+                href="https://linkedin.com/in/sooraj2004"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-pill border-2 border-deep-black bg-soft-white text-warm-gray shadow-button hover:shadow-button-hover hover:text-[#0A66C2] hover:border-[#0A66C2] focus:outline-none focus:text-charcoal focus:ring-2 focus:ring-coral/50 transition-all duration-150"
+                title="LinkedIn"
+                aria-label="LinkedIn"
+              >
+                <Linkedin size={16} />
+              </a>
+            </div>
           </div>
-          </div>
-
-          
         </div>
 
         <div className={`pt-6 border-t-2 border-deep-black/20 ${reveal(2)}`}>
