@@ -65,23 +65,23 @@ export function Pricing() {
     <MarketingLayout>
       <main>
         {/* Split Hero: Price + Comparison Table */}
-        <section className="max-w-6xl mx-auto px-8 pt-16 pb-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start animate-fade-in-up">
+        <section className="max-w-6xl mx-auto px-4 py-10 md:px-8 md:pt-16 md:pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 items-start animate-fade-in-up">
             {/* Left: Price + CTA */}
             <div className="lg:sticky lg:top-24">
-              <h1 className="font-mono text-5xl lg:text-6xl font-bold text-charcoal mb-4 tracking-tight leading-tight">
+              <h1 className="font-mono text-3xl md:text-5xl lg:text-6xl font-bold text-charcoal mb-4 tracking-tight leading-tight">
                 START FREE
               </h1>
               <p className="font-serif text-xl text-warm-gray mb-8 leading-relaxed">
                 No trial. No credit card. No catch.
               </p>
 
-              <div className="bg-soft-white rounded-card border-3 border-deep-black shadow-card p-8 mb-6">
+              <div className="bg-soft-white rounded-card border-3 border-deep-black shadow-card p-5 md:p-8 mb-6">
                 <span className="font-mono text-sm uppercase text-warm-gray tracking-wider">
                   Free Forever
                 </span>
                 <div className="mt-2 flex items-baseline gap-1">
-                  <span className="font-mono text-6xl font-bold text-charcoal">
+                  <span className="font-mono text-4xl md:text-6xl font-bold text-charcoal">
                     $0
                   </span>
                   <span className="font-serif text-warm-gray text-lg">
@@ -131,10 +131,10 @@ export function Pricing() {
         </section>
 
         {/* Quirk vs Alternatives */}
-        <section className="max-w-6xl mx-auto px-8 py-16">
+        <section className="max-w-6xl mx-auto px-4 py-10 md:px-8 md:py-16">
           <div ref={howRef.ref}>
             <h2
-              className={`font-mono text-3xl font-bold text-charcoal mb-4 text-center ${
+              className={`font-mono text-2xl md:text-3xl font-bold text-charcoal mb-4 text-center ${
                 howRef.inView ? 'animate-slide-up' : 'opacity-0'
               }`}
             >
@@ -229,7 +229,7 @@ export function Pricing() {
 
         {/* Trust Bar */}
         <section className="border-y border-deep-black/10">
-          <div className="max-w-4xl mx-auto px-8 py-6 flex flex-wrap justify-center gap-8 md:gap-16">
+          <div className="max-w-4xl mx-auto px-4 py-4 md:px-8 md:py-6 flex flex-wrap justify-center gap-4 md:gap-8 lg:gap-16">
             {[
               'No credit card required',
               'Export your data anytime',
@@ -248,10 +248,10 @@ export function Pricing() {
 
         {/* FAQ — Accordion */}
         <section>
-          <div className="max-w-3xl mx-auto px-8 py-20">
+          <div className="max-w-3xl mx-auto px-4 py-12 md:px-8 md:py-20">
             <div ref={faqRef.ref}>
               <h2
-                className={`font-mono text-3xl font-bold text-charcoal mb-10 text-center ${
+                className={`font-mono text-2xl md:text-3xl font-bold text-charcoal mb-10 text-center ${
                   faqRef.inView ? 'animate-slide-up' : 'opacity-0'
                 }`}
               >
@@ -308,16 +308,16 @@ export function Pricing() {
 
         {/* CTA Banner — full-width coral */}
         <section >
-          <div className="max-w-4xl mx-auto px-8 py-20 text-center">
-            <h2 className="font-mono text-4xl font-bold text-charcoal mb-4">
+          <div className="max-w-4xl mx-auto px-4 py-12 md:px-8 md:py-20 text-center">
+            <h2 className="font-mono text-2xl md:text-4xl font-bold text-charcoal mb-4">
               READY TO TRY QUIRK?
             </h2>
-            <p className="font-serif text-xl text-charcoal mb-8 max-w-xl mx-auto">
+            <p className="font-serif text-base md:text-xl text-charcoal mb-8 max-w-xl mx-auto">
               Takes 30 seconds. No strings attached.
             </p>
             <Button
               variant="secondary"
-              className="text-lg px-8 py-4 bg-soft-white text-charcoal border-deep-black hover:bg-cream"
+              className="text-sm md:text-lg px-5 py-3 md:px-8 md:py-4 bg-soft-white text-charcoal border-deep-black hover:bg-cream"
               onClick={openSignup}
             >
               GET STARTED FREE <ArrowRight size={20} />

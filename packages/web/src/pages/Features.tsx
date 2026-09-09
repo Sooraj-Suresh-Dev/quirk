@@ -226,7 +226,7 @@ function FeatureBlock({ id, icon: Icon, title, description, details, bulletColor
   return (
     <div
       id={id}
-      className={`flex flex-col ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} gap-10 items-start mb-20 last:mb-0`}
+      className={`flex flex-col ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} gap-6 md:gap-10 items-start mb-12 md:mb-20 last:mb-0`}
       ref={idx === 0 ? undefined : blockRef.ref}
     >
       <div className={`md:w-1/2 ${shouldAnimate ? 'animate-fade-in-up' : 'opacity-0'}`}>
@@ -236,11 +236,11 @@ function FeatureBlock({ id, icon: Icon, title, description, details, bulletColor
       <div className={`md:w-1/2 md:text-left ${shouldAnimate ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
         <div className="flex items-center gap-3 mb-4">
           <Icon size={28} className={bulletColor} />
-          <h3 className="font-mono text-2xl font-bold text-charcoal">
+          <h3 className="font-mono text-xl md:text-2xl font-bold text-charcoal">
             {title}
           </h3>
         </div>
-        <p className="font-serif text-warm-gray leading-relaxed mb-6 text-lg">
+        <p className="font-serif text-warm-gray leading-relaxed mb-6 text-base md:text-lg">
           {description}
         </p>
         <ul className="space-y-3">
@@ -269,9 +269,9 @@ export function Features() {
     <MarketingLayout>
       <div>
         {/* Feature Sections */}
-        <section id="features-section" className="max-w-6xl mx-auto px-8 py-20 pb-20">
+        <section id="features-section" className="max-w-6xl mx-auto px-4 py-12 md:px-8 md:py-20 pb-20">
           <div className="text-center mb-16">
-            <h2 className="font-mono text-3xl font-bold text-charcoal mb-4 animate-fade-in-up">
+            <h2 className="font-mono text-2xl md:text-3xl font-bold text-charcoal mb-4 animate-fade-in-up">
               FOUR FEATURES, ONE WORKFLOW
             </h2>
             <p className="font-serif text-xl text-warm-gray max-w-2xl mx-auto animate-fade-in-up stagger-1">
@@ -286,16 +286,16 @@ export function Features() {
         </section>
 
         {/* CTA */}
-        <section id="cta" className="py-16">
-          <div ref={ctaRef.ref} className="max-w-4xl mx-auto px-8 text-center">
-            <h2 className={`font-mono text-4xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+        <section id="cta" className="py-10 md:py-16">
+          <div ref={ctaRef.ref} className="max-w-4xl mx-auto px-4 md:px-8 text-center">
+            <h2 className={`font-mono text-2xl md:text-4xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
               READY TO START?
             </h2>
-            <p className={`font-serif text-xl text-charcoal mb-8 max-w-xl mx-auto ${ctaRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
+            <p className={`font-serif text-base md:text-xl text-charcoal mb-8 max-w-xl mx-auto ${ctaRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
               Free during beta. No credit card required.
             </p>
             <div className={`flex flex-wrap justify-center gap-4 ${ctaRef.inView ? 'animate-fade-in-up stagger-2' : 'opacity-0'}`}>
-              <Button className="text-lg px-8 py-4" onClick={openSignup}>
+              <Button className="text-sm md:text-lg px-5 py-3 md:px-8 md:py-4" onClick={openSignup}>
                 TRY IT FREE <ArrowRight size={20} />
               </Button>
             </div>

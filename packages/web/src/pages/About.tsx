@@ -70,13 +70,13 @@ export function About() {
     <MarketingLayout>
       <main>
         {/* Hero — The Problem */}
-        <section className="max-w-6xl mx-auto px-8 pt-20 pb-16">
+        <section className="max-w-6xl mx-auto px-5 md:px-8 pt-20 pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div ref={heroRef.ref}>
               <p className={`font-mono text-sm uppercase text-coral mb-4 tracking-wider ${heroRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
                 WHY WE BUILT THIS
               </p>
-              <h1 className={`font-mono text-5xl lg:text-6xl font-bold text-charcoal mb-6 tracking-tight leading-tight ${heroRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
+              <h1 className={`font-mono text-4xl sm:text-5xl lg:text-6xl font-bold text-charcoal mb-6 tracking-tight leading-tight ${heroRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
                 BUILT FOR CREATORS
                 <br />
                 WHO SHOW UP
@@ -128,7 +128,7 @@ export function About() {
 
         {/* Founding Story */}
         <section className="border-y-3 border-deep-black bg-soft-white">
-          <div ref={storyRef.ref} className="max-w-4xl mx-auto py-8">
+          <div ref={storyRef.ref} className="max-w-4xl mx-auto px-5 md:px-8 py-8">
             <blockquote className="font-serif text-2xl lg:text-3xl text-charcoal leading-relaxed italic max-w-4xl min-h-[3.5rem]">
               {storyRef.inView && (
                 <TypewriterText
@@ -152,7 +152,7 @@ export function About() {
         </section>
 
         {/* What We Believe */}
-        <section className="max-w-6xl mx-auto px-8 py-20">
+        <section className="max-w-6xl mx-auto px-5 md:px-8 py-20">
           <div ref={beliefsRef.ref}>
             <div className="text-center mb-16">
               <p className={`font-mono text-sm uppercase text-coral mb-4 tracking-wider ${beliefsRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
@@ -190,7 +190,7 @@ export function About() {
         </section>
 
         {/* Where We're Headed */}
-        <section className="max-w-6xl mx-auto px-8 pb-20">
+        <section className="max-w-6xl mx-auto px-5 md:px-8 pb-20">
           <div ref={roadmapRef.ref} className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
             {/* Left: Headline + Roadmap */}
             <div>
@@ -229,7 +229,7 @@ export function About() {
             <div className={`${roadmapRef.inView ? 'animate-fade-in-up stagger-3' : 'opacity-0'}`}>
               <div className="relative">
                 <div className="absolute -top-4 -right-4 w-full h-full bg-mint/10 rounded-card border-2 border-mint/20 -z-10" />
-                <Card className="p-8">
+                <Card className="p-6 md:p-8">
                   <div className="space-y-6">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full bg-coral/10 flex items-center justify-center">
@@ -271,8 +271,8 @@ export function About() {
 
         {/* CTA */}
         <section>
-          <div ref={ctaRef.ref} className="max-w-4xl mx-auto px-8 py-20 text-center">
-            <h2 className={`font-mono text-4xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+          <div ref={ctaRef.ref} className="max-w-4xl mx-auto px-5 md:px-8 py-20 text-center">
+            <h2 className={`font-mono text-3xl sm:text-4xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
               READY TO FIND YOUR QUIRK?
             </h2>
             <p className={`font-serif text-xl text-warm-gray mb-8 max-w-xl mx-auto ${ctaRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
@@ -280,7 +280,7 @@ export function About() {
               sounds like you.
             </p>
             <div className={`flex flex-wrap justify-center gap-4 ${ctaRef.inView ? 'animate-fade-in-up stagger-2' : 'opacity-0'}`}>
-              <Button className="text-lg px-8 py-4" onClick={openSignup}>
+              <Button className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4" onClick={openSignup}>
                 START CREATING <ArrowRight size={20} />
               </Button>
             </div>

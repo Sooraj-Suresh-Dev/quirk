@@ -91,7 +91,7 @@ function DemoCard({ idx }: { idx: number }) {
 
   return (
     <>
-      <Card className="mb-4 h-[200px] flex flex-col justify-between overflow-hidden">
+      <Card className="mb-4 min-h-[200px] flex flex-col justify-between overflow-hidden">
         <div className="flex items-center gap-2 mb-3">
           <span className="inline-flex items-center px-2 py-1 rounded text-xs font-mono border border-deep-black bg-coral text-soft-white">
             <SourceIcon size={12} className="mr-1" />
@@ -119,7 +119,7 @@ function DemoCard({ idx }: { idx: number }) {
         </div>
       </div>
 
-      <Card className="border-mint h-[240px] flex flex-col justify-between overflow-hidden">
+      <Card className="border-mint min-h-[240px] flex flex-col justify-between overflow-hidden">
         <div className="flex items-center gap-2 mb-3">
           <span className="font-mono text-xs text-warm-gray">YOUR VOICE</span>
           <span className="inline-flex items-center px-2 py-1 rounded text-xs font-mono border border-deep-black bg-mint text-soft-white">
@@ -245,6 +245,26 @@ export function Landing() {
   const { openSignup } = useAuthModal();
   const featuresRef = useInView(0.4);
   const ctaRef = useInView(0.4);
+  const marqueeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = marqueeRef.current;
+    if (!el) return;
+
+    let animId: number;
+    let pos = 0;
+
+    const tick = () => {
+      pos -= 1;
+      const oneSetWidth = el.scrollWidth / 3;
+      if (Math.abs(pos) >= oneSetWidth) pos += oneSetWidth;
+      el.style.transform = `translateX(${pos}px)`;
+      animId = requestAnimationFrame(tick);
+    };
+
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, []);
 
   return (
     <MarketingLayout>
@@ -253,26 +273,26 @@ export function Landing() {
           <style>{`.animate-fade-in-up { opacity: 1 !important; }`}</style>
         </noscript>
         {/* Hero Section */}
-        <section className="max-w-6xl mx-auto px-8 pt-20 pb-16">
+        <section className="max-w-6xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-10 md:pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left: Copy */}
             <div>
-              <h1 className="font-mono text-5xl lg:text-6xl font-bold text-charcoal mb-6 tracking-tight leading-tight animate-slide-up">
+              <h1 className="font-mono text-4xl sm:text-5xl lg:text-6xl font-bold text-charcoal mb-6 tracking-tight leading-tight animate-slide-up">
                 YOUR LINKEDIN,
                 <br />
                 YOUR QUIRK
               </h1>
-              <p className="font-serif text-xl text-warm-gray max-w-lg mb-8 leading-relaxed animate-slide-up-delay-1">
+              <p className="font-serif text-lg sm:text-xl text-warm-gray max-w-lg mb-8 leading-relaxed animate-slide-up-delay-1">
                 AI-powered content generation from trending topics. Train your
                 voice, grow your presence.
               </p>
               <div className="flex flex-wrap gap-4 animate-slide-up-delay-2">
-                <Button className="text-lg px-8 py-4" onClick={openSignup}>
+                <Button className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4" onClick={openSignup}>
                   START CREATING <ArrowRight size={20} />
                 </Button>
                 <Button
                   variant="secondary"
-                  className="text-lg px-8 py-4"
+                  className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
                   onClick={() => document.getElementById('trends')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   SEE IT IN ACTION
@@ -287,8 +307,8 @@ export function Landing() {
 
         {/* Trend Sources Marquee */}
         <section className="border-y-3 border-deep-black bg-soft-white py-6 overflow-hidden">
-            <div className="animate-marquee flex whitespace-nowrap">
-              {[...marqueeSources, ...marqueeSources, ...marqueeSources, ...marqueeSources].map((source, i) => (
+            <div ref={marqueeRef} className="flex whitespace-nowrap">
+              {[...marqueeSources, ...marqueeSources, ...marqueeSources].map((source, i) => (
                 <span key={i} className="mx-8 font-mono text-base flex items-center gap-2">
                   <source.icon size={18} className={source.color} />
                   <span className="text-warm-gray">{source.label}</span>
@@ -298,7 +318,7 @@ export function Landing() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="max-w-6xl mx-auto px-8 pt-20 pb-12">
+        <section id="features" className="max-w-6xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-12">
           <div ref={featuresRef.ref}>
             <div className="text-center mb-16">
               <h2 className={`font-mono text-3xl font-bold text-charcoal mb-4 ${featuresRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
@@ -340,8 +360,8 @@ export function Landing() {
 
         {/* Final CTA */}
         <section id="cta" className="py-16">
-          <div ref={ctaRef.ref} className="max-w-4xl mx-auto px-8 text-center">
-            <h2 className={`font-mono text-4xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+          <div ref={ctaRef.ref} className="max-w-4xl mx-auto px-5 md:px-8 text-center">
+            <h2 className={`font-mono text-3xl sm:text-4xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
               READY TO FIND YOUR QUIRK?
             </h2>
             <p className={`font-serif text-xl text-charcoal mb-8 max-w-xl mx-auto ${ctaRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
@@ -349,7 +369,7 @@ export function Landing() {
               sounds like you.
             </p>
             <div className={`flex flex-wrap justify-center gap-4 ${ctaRef.inView ? 'animate-fade-in-up stagger-2' : 'opacity-0'}`}>
-              <Button className="text-lg px-8 py-4" onClick={openSignup}>
+              <Button className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4" onClick={openSignup}>
                 START CREATING <ArrowRight size={20} />
               </Button>
             </div>

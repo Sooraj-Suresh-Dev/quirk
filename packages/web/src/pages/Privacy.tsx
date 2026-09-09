@@ -86,22 +86,22 @@ export function Privacy() {
     <MarketingLayout>
       <main>
         {/* Hero */}
-        <section className="max-w-6xl mx-auto px-8 pt-16 pb-8">
+        <section className="max-w-6xl mx-auto px-4 py-10 md:px-8 md:pt-16 md:pb-8">
           <div ref={heroRef.ref}>
             <p className={`font-mono text-sm uppercase text-coral mb-4 tracking-wider ${heroRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
               LEGAL
             </p>
-            <h1 className={`font-mono text-4xl font-bold text-charcoal mb-4 ${heroRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
+            <h1 className={`font-mono text-2xl md:text-4xl font-bold text-charcoal mb-4 ${heroRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
               PRIVACY POLICY
             </h1>
-            <p className={`font-serif text-xl text-warm-gray ${heroRef.inView ? 'animate-fade-in-up stagger-2' : 'opacity-0'}`}>
+            <p className={`font-serif text-base md:text-xl text-warm-gray ${heroRef.inView ? 'animate-fade-in-up stagger-2' : 'opacity-0'}`}>
               Last updated: August 2026
             </p>
           </div>
         </section>
 
         {/* Content */}
-        <section className="max-w-6xl mx-auto px-8 py-12" ref={contentRef.ref}>
+        <section className="max-w-6xl mx-auto px-4 py-8 md:px-8 md:py-12" ref={contentRef.ref}>
           <div className="space-y-6">
             {sections.map(({ title, content }, i) => (
               <Card

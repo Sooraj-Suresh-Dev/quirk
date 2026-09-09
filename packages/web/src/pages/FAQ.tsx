@@ -136,15 +136,15 @@ export function FAQ() {
     <MarketingLayout>
       <main>
         {/* Hero */}
-        <section className="max-w-6xl mx-auto px-8 pt-16 pb-8 text-center">
+        <section className="max-w-6xl mx-auto px-4 py-10 md:px-8 md:pt-16 md:pb-8 text-center">
           <div ref={heroRef.ref}>
             <p className={`font-mono text-sm uppercase text-coral mb-4 tracking-wider ${heroRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
               Support
             </p>
-            <h1 className={`font-mono text-4xl font-bold text-charcoal mb-4 tracking-tight ${heroRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
+            <h1 className={`font-mono text-2xl md:text-4xl font-bold text-charcoal mb-4 tracking-tight ${heroRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
               FREQUENTLY ASKED QUESTIONS
             </h1>
-            <p className={`font-serif text-xl text-warm-gray mb-8 ${heroRef.inView ? 'animate-fade-in-up stagger-2' : 'opacity-0'}`}>
+            <p className={`font-serif text-base md:text-xl text-warm-gray mb-8 ${heroRef.inView ? 'animate-fade-in-up stagger-2' : 'opacity-0'}`}>
               Everything you need to know about Quirk
             </p>
             <div className={`flex items-center justify-center gap-6 font-mono text-xs text-warm-gray ${heroRef.inView ? 'animate-fade-in-up stagger-3' : 'opacity-0'}`}>
@@ -159,7 +159,7 @@ export function FAQ() {
        
 
         {/* FAQ 2x2 Grid */}
-        <section className="max-w-6xl mx-auto px-8 py-8">
+        <section className="max-w-6xl mx-auto px-4 md:px-8 py-8">
           <div ref={faqRef.ref} className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             {filteredCategories.map((category, catIdx) => {
               const CategoryIcon = category.icon;
@@ -236,17 +236,17 @@ export function FAQ() {
 
         {/* CTA Section */}
         <section>
-          <div ref={ctaRef.ref} className="max-w-4xl mx-auto px-8 py-20 text-center">
-            <h2 className={`font-mono text-4xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+          <div ref={ctaRef.ref} className="max-w-4xl mx-auto px-4 py-12 md:px-8 md:py-20 text-center">
+            <h2 className={`font-mono text-2xl md:text-4xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
               STILL HAVE QUESTIONS?
             </h2>
-            <p className={`font-serif text-xl text-charcoal mb-8 max-w-xl mx-auto ${ctaRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
+            <p className={`font-serif text-base md:text-xl text-charcoal mb-8 max-w-xl mx-auto ${ctaRef.inView ? 'animate-fade-in-up stagger-1' : 'opacity-0'}`}>
               We're here to help. Reach out directly or get started and see for yourself.
             </p>
             <div className={`flex flex-wrap justify-center gap-4 ${ctaRef.inView ? 'animate-fade-in-up stagger-2' : 'opacity-0'}`}>
                <Button
                 variant="secondary"
-                className="text-lg px-8 py-4"
+                className="text-sm md:text-lg px-5 py-3 md:px-8 md:py-4"
               >
                 <Mail size={16}/>
                  <a
