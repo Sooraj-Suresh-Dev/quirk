@@ -150,7 +150,7 @@ export function VoiceProfile({ profile, isPreview, isReadOnly, onDelete }: Voice
             <p className="font-serif text-charcoal leading-relaxed">{profile.brandSummary}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="bg-cream rounded-card p-4 border-2 border-deep-black/10">
               <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">Tone</p>
               <p className="font-serif text-charcoal text-sm leading-snug">{toneDisplay}</p>
@@ -173,7 +173,7 @@ export function VoiceProfile({ profile, isPreview, isReadOnly, onDelete }: Voice
 
           {showMore && (
             <div className="space-y-3 animate-slide-up">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-cream rounded-card p-3 border-2 border-deep-black/10">
                   <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">
                     Emoji

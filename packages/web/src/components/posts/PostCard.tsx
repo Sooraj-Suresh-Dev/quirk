@@ -86,7 +86,7 @@ export function PostCard({ post, onDelete }: PostCardProps) {
       <Card className="p-0 overflow-hidden group" hover>
         <div className="flex items-stretch">
           <div className={`w-1.5 shrink-0 ${config.accent}`} aria-hidden="true" />
-          <div className="flex-1 min-w-0 p-4">
+          <div className="flex-1 min-w-0 p-3 md:p-4">
             <div className="flex items-center justify-between gap-3 mb-2">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-deep-black bg-cream">
@@ -108,9 +108,9 @@ export function PostCard({ post, onDelete }: PostCardProps) {
               aria-label={expanded ? 'Collapse post content' : 'Expand post content'}
             >
               {expanded ? (
-                <p className="font-serif text-sm text-charcoal whitespace-pre-wrap leading-relaxed">{content}</p>
+                <p className="font-serif text-sm text-charcoal whitespace-pre-wrap leading-snug md:leading-relaxed">{content}</p>
               ) : (
-                <p className="font-serif text-sm text-charcoal line-clamp-2 leading-relaxed">{content}</p>
+                <p className="font-serif text-sm text-charcoal line-clamp-2 leading-snug md:leading-relaxed">{content}</p>
               )}
               {expanded && carousel && carousel.imagePrompts?.length > 0 && (
                 <div className="mt-3 space-y-2">
@@ -131,7 +131,7 @@ export function PostCard({ post, onDelete }: PostCardProps) {
               )}
             </button>
 
-            <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-cream">
+            <div className="flex items-center gap-1.5 mt-2 pt-2 md:mt-3 md:pt-3 border-t border-cream">
               <Button
                 variant="ghost"
                 onClick={handleCopy}

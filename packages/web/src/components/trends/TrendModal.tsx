@@ -20,6 +20,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
   const { openSignup } = useAuthModal();
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,8 +62,11 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
   }, [isOpen]);
 
   const handleClose = () => {
-    setVisible(false);
-    setTimeout(onClose, 300);
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 300);
   };
 
   const handleGenerate = () => {
@@ -81,7 +85,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
   };
 
   if (!trend) return null;
-  if (!isOpen) return null;
+  if (!isOpen && !isClosing) return null;
 
   const config = SOURCES[trend.source];
   const Icon = config?.icon;
@@ -134,7 +138,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
     <div className="fixed inset-0 z-50">
       <div
         className={`absolute -inset-12 bg-deep-black/50 backdrop-blur-sm transition-opacity duration-300 ${
-          visible ? 'opacity-100' : 'opacity-0'
+          visible && !isClosing ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={handleClose}
       />
@@ -144,7 +148,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
         aria-modal="true"
         aria-labelledby="trend-modal-title"
         className={`absolute bottom-0 left-0 right-0 bg-soft-white rounded-t-card border-t-3 border-deep-black shadow-card max-h-[85vh] w-full flex flex-col transition-transform duration-300 ease-out ${
-          visible ? 'translate-y-0' : 'translate-y-full'
+          visible && !isClosing ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-cream shrink-0">
@@ -161,9 +165,9 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
         </div>
 
         <div className="overflow-y-auto flex-1 p-6">
-            <div className="flex gap-6 min-h-[300px]">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6 min-h-[200px] md:min-h-[300px]">
               {/* Left: Thumbnail */}
-              <div className="w-2/5 shrink-0 max-h-[400px]">
+              <div className="w-full md:w-2/5 shrink-0 max-h-[200px] md:max-h-[400px]">
                 {trend.thumbnailUrl ? (
                   <div className="relative rounded-card overflow-hidden h-full">
                     <img

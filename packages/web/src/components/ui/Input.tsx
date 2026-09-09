@@ -10,7 +10,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className="w-full">
         <input
           ref={ref}
-          className={`bg-soft-white text-charcoal font-serif px-4 py-3 rounded-button border-2 border-deep-black shadow-input focus:border-coral focus:outline-none transition-all duration-150 w-full ${error ? 'border-red-500' : ''} ${className}`}
+          className={`bg-soft-white text-charcoal font-serif px-3 py-2 md:px-4 md:py-3 rounded-button border-2 border-deep-black shadow-input focus:border-coral focus:outline-none transition-all duration-150 w-full ${error ? 'border-red-500' : ''} ${className}`}
           {...props}
         />
         {error && (
