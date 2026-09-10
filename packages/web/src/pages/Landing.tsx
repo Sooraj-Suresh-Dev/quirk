@@ -3,6 +3,7 @@ import { Sparkles, TrendingUp, Mail, ArrowRight, Github, Zap, Star, ArrowUp, Pau
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MarketingLayout } from '@/components/layout/MarketingLayout';
+import { PageMeta } from '@/components/seo/PageMeta';
 import { useAuthModal } from '@/lib/auth-modal';
 import { TrendsSection } from '@/components/trends/TrendsSection';
 
@@ -268,6 +269,11 @@ export function Landing() {
 
   return (
     <MarketingLayout>
+      <PageMeta
+        title="Your LinkedIn, Your Quirk"
+        description="AI-powered LinkedIn content from trending topics. Train your voice, grow your presence."
+        canonicalPath="/"
+      />
       <main>
         <noscript>
           <style>{`.animate-fade-in-up { opacity: 1 !important; }`}</style>

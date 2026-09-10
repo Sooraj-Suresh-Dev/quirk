@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { TypewriterText } from '@/components/ui/TypewriterText';
 import { MarketingLayout } from '@/components/layout/MarketingLayout';
+import { PageMeta } from '@/components/seo/PageMeta';
 import { useAuthModal } from '@/lib/auth-modal';
 import { useInView } from '@/hooks/useInView';
 
@@ -68,6 +69,11 @@ export function About() {
 
   return (
     <MarketingLayout>
+      <PageMeta
+        title="Built for Creators Who Show Up"
+        description="Learn why we built Quirk — AI-powered LinkedIn content that sounds like you."
+        canonicalPath="/about"
+      />
       <main>
         {/* Hero — The Problem */}
         <section className="max-w-6xl mx-auto px-5 md:px-8 pt-20 pb-16">

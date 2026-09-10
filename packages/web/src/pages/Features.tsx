@@ -2,6 +2,7 @@ import { ArrowRight, TrendingUp, Sparkles, Mail, Users, Github, ArrowUp, Star, C
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MarketingLayout } from '@/components/layout/MarketingLayout';
+import { PageMeta } from '@/components/seo/PageMeta';
 import { useAuthModal } from '@/lib/auth-modal';
 import { useInView } from '@/hooks/useInView';
 
@@ -267,6 +268,11 @@ export function Features() {
 
   return (
     <MarketingLayout>
+      <PageMeta
+        title="Features"
+        description="Trend detection, AI ghostwriting, voice training, and daily digests — everything you need for LinkedIn content."
+        canonicalPath="/features"
+      />
       <div>
         {/* Feature Sections */}
         <section id="features-section" className="max-w-6xl mx-auto px-4 py-12 md:px-8 md:py-20 pb-20">

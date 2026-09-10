@@ -2,6 +2,7 @@
 import { Card } from '@/components/ui/Card';
 
 import { MarketingLayout } from '@/components/layout/MarketingLayout';
+import { PageMeta } from '@/components/seo/PageMeta';
 import { useInView } from '@/hooks/useInView';
 
 const sections = [
@@ -84,6 +85,11 @@ export function Terms() {
 
   return (
     <MarketingLayout>
+      <PageMeta
+        title="Terms of Service"
+        description="Rules and guidelines for using Quirk."
+        canonicalPath="/terms"
+      />
       <main>
         {/* Hero */}
         <section className="max-w-6xl mx-auto px-4 py-10 md:px-8 md:pt-16 md:pb-8">

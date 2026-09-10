@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useLayoutEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { AuthModalProvider } from '@/lib/auth-modal';
 import { ToastProvider } from '@/lib/toast';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { PageViewTracker } from '@/components/analytics/PageViewTracker';
 import { Landing } from '@/pages/Landing';
 import { SetPassword } from '@/pages/SetPassword';
 import { Dashboard } from '@/pages/Dashboard';
@@ -56,16 +58,19 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AuthModalProvider>
-          <ToastProvider>
+    <HelmetProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <AuthModalProvider>
+            <ToastProvider>
             <ErrorBoundary>
+              <PageViewTracker />
               <AppRoutes />
-            </ErrorBoundary>
-          </ToastProvider>
-        </AuthModalProvider>
-      </AuthProvider>
-    </BrowserRouter>
+              </ErrorBoundary>
+            </ToastProvider>
+          </AuthModalProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 }

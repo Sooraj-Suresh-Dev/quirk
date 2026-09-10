@@ -1,6 +1,7 @@
 
 import { Card } from '@/components/ui/Card';
 import { MarketingLayout } from '@/components/layout/MarketingLayout';
+import { PageMeta } from '@/components/seo/PageMeta';
 import { useInView } from '@/hooks/useInView';
 
 const sections = [
@@ -84,6 +85,11 @@ export function Privacy() {
 
   return (
     <MarketingLayout>
+      <PageMeta
+        title="Privacy Policy"
+        description="How Quirk collects, uses, and protects your data."
+        canonicalPath="/privacy"
+      />
       <main>
         {/* Hero */}
         <section className="max-w-6xl mx-auto px-4 py-10 md:px-8 md:pt-16 md:pb-8">

@@ -3,6 +3,7 @@ import { ArrowRight, Plus } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MarketingLayout } from '@/components/layout/MarketingLayout';
+import { PageMeta } from '@/components/seo/PageMeta';
 import { useAuthModal } from '@/lib/auth-modal';
 
 const features = [
@@ -63,6 +64,11 @@ export function Pricing() {
 
   return (
     <MarketingLayout>
+      <PageMeta
+        title="Start Free"
+        description="No trial, no credit card. All features included — trend detection, AI generation, voice training."
+        canonicalPath="/pricing"
+      />
       <main>
         {/* Split Hero: Price + Comparison Table */}
         <section className="max-w-6xl mx-auto px-4 py-10 md:px-8 md:pt-16 md:pb-20">
