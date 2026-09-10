@@ -84,7 +84,7 @@ export function Dashboard() {
               >
                 <div>
                   {trend.thumbnailUrl ? (
-                    <img src={trend.thumbnailUrl} alt="" className="w-full h-24 object-cover rounded mb-2.5" />
+                    <img src={trend.thumbnailUrl} alt={trend.title} className="w-full h-24 object-cover rounded mb-2.5" />
                   ) : (
                     <div className="w-full h-24 bg-soft-white rounded mb-2.5 flex items-center justify-center">
                       <TrendingUp size={24} className="text-warm-gray" />

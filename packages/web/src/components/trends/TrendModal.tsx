@@ -172,7 +172,7 @@ export function TrendModal({ trend, isOpen, onClose }: TrendModalProps) {
                   <div className="relative rounded-card overflow-hidden h-full">
                     <img
                       src={trend.thumbnailUrl}
-                      alt=""
+                      alt={trend.title}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute bottom-3 left-3">

@@ -76,7 +76,7 @@ export function TrendCard({ trend, selected, onClick }: TrendCardProps) {
             {imageLoading && <Skeleton variant="image" className="absolute inset-0" />}
             <img
               src={trend.thumbnailUrl}
-              alt=""
+              alt={trend.title}
               className={`w-full aspect-[3/1] object-cover transition-opacity duration-300 ${
                 imageLoading ? 'opacity-0' : 'opacity-100'
               }`}

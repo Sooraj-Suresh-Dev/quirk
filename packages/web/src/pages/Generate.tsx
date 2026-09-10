@@ -93,7 +93,7 @@ export function Generate() {
                 {trend.thumbnailUrl ? (
                   <img
                     src={trend.thumbnailUrl}
-                    alt=""
+                    alt={trend.title}
                     className="w-32 h-24 object-cover rounded-card border-2 border-deep-black shrink-0"
                   />
                 ) : (
