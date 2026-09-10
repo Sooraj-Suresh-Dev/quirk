@@ -13,10 +13,20 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+  const [fieldError, setFieldError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (!email.trim()) {
+      setFieldError('Email is required');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setFieldError('Enter a valid email address');
+      return;
+    }
+    setFieldError('');
     try {
       await signup(email);
       setSent(true);
@@ -28,10 +38,21 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
   if (sent) {
     return (
       <div className="text-center">
-        <Mail size={48} className="text-coral mx-auto mb-4" />
+        <div className="w-16 h-16 rounded-full bg-mint/10 flex items-center justify-center mx-auto mb-4">
+          <Mail size={32} className="text-mint" />
+        </div>
         <h2 className="font-mono text-xl font-bold text-charcoal mb-2">CHECK YOUR EMAIL</h2>
-        <p className="font-serif text-warm-gray mb-6">
-          We sent a magic link to <strong>{email}</strong>. Click the link to create your account.
+        <p className="font-serif text-warm-gray mb-2">
+          We sent a magic link to
+        </p>
+        <p className="font-mono text-sm text-charcoal font-bold mb-6">{email}</p>
+        <div className="bg-cream rounded-card border-2 border-deep-black/10 p-4 mb-6">
+          <p className="font-serif text-sm text-warm-gray">
+            Click the link in the email to sign in. The link expires in 15 minutes.
+          </p>
+        </div>
+        <p className="font-serif text-xs text-warm-gray mb-4">
+          Didn't receive it? Check your spam folder or try again.
         </p>
         {onSwitchToLogin ? (
           <button onClick={onSwitchToLogin} className="font-mono text-sm text-coral hover:underline">
@@ -54,7 +75,8 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
           type="email"
           placeholder="you@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => { setEmail(e.target.value); setFieldError(''); }}
+          error={fieldError}
           required
         />
         {error && <p className="text-sm text-red-500 font-serif">{error}</p>}

@@ -13,6 +13,7 @@ export function SetPassword() {
   const [password, setPasswordValue] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ password?: string; confirm?: string }>({});
   const [magicToken, setMagicToken] = useState('');
 
   useEffect(() => {
@@ -39,10 +40,16 @@ export function SetPassword() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (password !== confirm) {
-      setError('Passwords do not match');
+    const errors: typeof fieldErrors = {};
+    if (!password) errors.password = 'Password is required';
+    else if (password.length < 8) errors.password = 'At least 8 characters';
+    if (!confirm) errors.confirm = 'Please confirm your password';
+    else if (password !== confirm) errors.confirm = 'Passwords do not match';
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
+    setFieldErrors({});
     if (!magicToken) {
       setError('Invalid or expired magic link');
       return;
@@ -84,7 +91,8 @@ export function SetPassword() {
             type="password"
             placeholder="New password"
             value={password}
-            onChange={(e) => setPasswordValue(e.target.value)}
+            onChange={(e) => { setPasswordValue(e.target.value); setFieldErrors(prev => ({ ...prev, password: undefined })); }}
+            error={fieldErrors.password}
             required
             minLength={8}
           />
@@ -92,7 +100,8 @@ export function SetPassword() {
             type="password"
             placeholder="Confirm password"
             value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
+            onChange={(e) => { setConfirm(e.target.value); setFieldErrors(prev => ({ ...prev, confirm: undefined })); }}
+            error={fieldErrors.confirm}
             required
           />
           {error && <p className="text-sm text-red-500 font-serif">{error}</p>}

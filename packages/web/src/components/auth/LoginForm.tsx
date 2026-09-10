@@ -14,10 +14,20 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    const errors: typeof fieldErrors = {};
+    if (!email.trim()) errors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Enter a valid email address';
+    if (!password) errors.password = 'Password is required';
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors({});
     try {
       await login(email, password);
       navigate('/dashboard');
@@ -38,14 +48,16 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
           type="email"
           placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => { setEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: undefined })); }}
+          error={fieldErrors.email}
           required
         />
         <Input
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => { setPassword(e.target.value); setFieldErrors(prev => ({ ...prev, password: undefined })); }}
+          error={fieldErrors.password}
           required
         />
         {error && <p className="text-sm text-red-500 font-serif">{error}</p>}
