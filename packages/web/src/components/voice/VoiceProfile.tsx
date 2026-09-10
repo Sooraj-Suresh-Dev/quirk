@@ -29,6 +29,19 @@ export interface VoiceProfileData {
     emojiFrequency: number;
   };
   signaturePatterns: string[];
+  contentPatterns?: {
+    topics: string[];
+    audienceType: string;
+  };
+  generation?: {
+    formality: 'Formal' | 'Professional' | 'Casual';
+    energy: 'Low' | 'Medium' | 'High';
+    firstPersonUsage: 'Minimal' | 'Moderate' | 'Frequent';
+    sentenceComplexity: 'Simple' | 'Medium' | 'Complex';
+    vocabulary: 'Simple' | 'Simple-Technical Mix' | 'Technical' | 'Advanced';
+    evidenceUsage: 'None' | 'Low' | 'Medium' | 'High';
+    opinionStrength: 'Neutral' | 'Moderate' | 'Strong';
+  };
   brandSummary: string;
   trainingQuality: {
     score: number;
@@ -237,6 +250,69 @@ export function VoiceProfile({ profile, isPreview, isReadOnly, onDelete }: Voice
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+
+              {profile.contentPatterns && (
+                <div className="bg-cream rounded-card p-3 border-2 border-deep-black/10">
+                  <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">
+                    Content Patterns
+                  </p>
+                  <div className="space-y-2">
+                    {profile.contentPatterns.topics.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {profile.contentPatterns.topics.map((topic, i) => (
+                          <span
+                            key={i}
+                            className="text-xs font-mono bg-soft-white px-2 py-0.5 rounded border border-deep-black/20 text-charcoal"
+                          >
+                            {topic}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-xs font-mono text-warm-gray">
+                      Audience: {profile.contentPatterns.audienceType}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {profile.generation && (
+                <div className="bg-cream rounded-card p-3 border-2 border-deep-black/10">
+                  <p className="font-mono text-[10px] text-warm-gray uppercase tracking-wider mb-1.5">
+                    Generation Controls
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <p className="text-[10px] font-mono text-warm-gray">Formality</p>
+                      <EnumBadge value={profile.generation.formality} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-mono text-warm-gray">Energy</p>
+                      <EnumBadge value={profile.generation.energy} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-mono text-warm-gray">First Person</p>
+                      <EnumBadge value={profile.generation.firstPersonUsage} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-mono text-warm-gray">Sentence Complexity</p>
+                      <EnumBadge value={profile.generation.sentenceComplexity} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-mono text-warm-gray">Vocabulary</p>
+                      <EnumBadge value={profile.generation.vocabulary} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-mono text-warm-gray">Evidence/Data</p>
+                      <EnumBadge value={profile.generation.evidenceUsage} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-mono text-warm-gray">Opinion Strength</p>
+                      <EnumBadge value={profile.generation.opinionStrength} />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

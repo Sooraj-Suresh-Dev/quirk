@@ -236,6 +236,16 @@ function buildSystemPrompt(user: IUser, voice?: {
   structure: { description: string; pattern: string[] };
   engagement: { cta: string; questions: string; emoji: string };
   signaturePatterns: string[];
+  contentPatterns?: { topics: string[]; audienceType: string };
+  generation?: {
+    formality: string;
+    energy: string;
+    firstPersonUsage: string;
+    sentenceComplexity: string;
+    vocabulary: string;
+    evidenceUsage: string;
+    opinionStrength: string;
+  };
   brandSummary: string;
 }): string {
 
@@ -347,17 +357,39 @@ ENGAGEMENT:
 - Emoji: ${voice.engagement.emoji}
 
 ${voice.signaturePatterns.length > 0 ? `SIGNATURE PATTERNS:\n${voice.signaturePatterns.map((p: string) => `- ${p}`).join('\n')}` : ''}
+`;
 
+    if (voice.contentPatterns) {
+      prompt += `
+CONTENT FOCUS:
+- Topics: ${voice.contentPatterns.topics.join(', ')}
+- Audience: ${voice.contentPatterns.audienceType}
+`;
+    }
+
+    if (voice.generation) {
+      const g = voice.generation;
+      prompt += `
+GENERATION RULES:
+- Formality: ${g.formality}${g.formality === 'Formal' ? ' — no contractions, structured, third-person' : g.formality === 'Casual' ? ' — conversational, first-person heavy, informal language' : ' — polished but approachable, contractions OK'}
+- Energy: ${g.energy}${g.energy === 'High' ? ' — energetic, punchy, use exclamations' : g.energy === 'Low' ? ' — calm, measured, reflective' : ' — balanced, steady'}
+- First-person usage: ${g.firstPersonUsage}${g.firstPersonUsage === 'Frequent' ? ' — write from "I" perspective throughout' : g.firstPersonUsage === 'Minimal' ? ' — avoid first-person, focus on insights' : ' — mix first-person with general observations'}
+- Sentence complexity: ${g.sentenceComplexity}
+- Vocabulary: ${g.vocabulary}
+- Evidence/data usage: ${g.evidenceUsage}${g.evidenceUsage === 'High' ? ' — include specific numbers, data points, and sources' : g.evidenceUsage === 'None' ? ' — focus on opinion and observation, no data' : ''}
+- Opinion strength: ${g.opinionStrength}${g.opinionStrength === 'Strong' ? ' — make definitive claims, take contrarian positions' : g.opinionStrength === 'Neutral' ? ' — present balanced perspectives' : ' — clear opinion with nuance'}
+`;
+    }
+
+    prompt += `
 MANDATORY RULES FOR VOICE MATCHING:
-1. Use personal experience — write from "I" perspective, share real observations or lessons learned. Do not just describe the product.
-2. Show humility — avoid words like "revolutionizing", "game-changing", "disrupting", "changes the game". Let the insight speak for itself.
-3. Include empathy — acknowledge the reader's challenges or perspective before offering your view.
-4. Reflect genuinely — don't just describe the product/trend, share what it means to you or what you learned from it.
-5. Follow the structure pattern exactly as listed above.
-6. End with a meaningful takeaway or insight, NOT a promotional statement or engagement-focused CTA.
-7. CTA style is ${voice.engagement.cta} — if "None", do NOT include any call-to-action or question at the end.
-8. Question frequency is ${voice.engagement.questions} — if "None", do NOT include any questions.
-9. Emoji usage is ${voice.engagement.emoji} — follow this level strictly.
+1. Use personal experience — write from "I" perspective, share real observations or lessons learned.
+2. Show humility — avoid "revolutionizing", "game-changing", "disrupting". Let the insight speak for itself.
+3. Include empathy — acknowledge the reader's challenges before offering your view.
+4. Follow the structure pattern exactly as listed above.
+5. CTA style is ${voice.engagement.cta} — if "None", do NOT include any call-to-action.
+6. Question frequency is ${voice.engagement.questions} — if "None", do NOT include any questions.
+7. Emoji usage is ${voice.engagement.emoji} — follow this level strictly.
 `;
   }
 

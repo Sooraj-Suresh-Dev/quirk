@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Plus, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { X, Plus, AlertCircle, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 
 interface VoiceSamplesProps {
   samples: string[];
@@ -11,9 +11,16 @@ interface VoiceSamplesProps {
   canRemove: boolean;
   canAdd: boolean;
   minSamples: number;
+  onExtractUrl?: (index: number, url: string) => void;
+  extractingIndex?: number | null;
 }
 
 const MAX_CHARS = 2000;
+const LINKEDIN_URL_RE = /^https?:\/\/(www\.)?linkedin\.com\/(posts|feed\/update)/i;
+
+function isLinkedInUrl(value: string): boolean {
+  return LINKEDIN_URL_RE.test(value.trim());
+}
 
 function getCharCountStatus(charCount: number): { text: string; color: string; tone: 'muted' | 'warn' | 'ok' } {
   if (charCount === 0) return { text: 'Empty', color: 'text-warm-gray', tone: 'muted' };
@@ -34,14 +41,32 @@ export function VoiceSamples({
   canRemove,
   canAdd,
   minSamples,
+  onExtractUrl,
+  extractingIndex,
 }: VoiceSamplesProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const debounceTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
+
+  useEffect(() => {
+    return () => {
+      Object.values(debounceTimers.current).forEach(clearTimeout);
+    };
+  }, []);
 
   const updateSample = (index: number, value: string) => {
     const truncated = value.length > MAX_CHARS ? value.slice(0, MAX_CHARS) : value;
     const updated = [...samples];
     updated[index] = truncated;
     onChange(updated);
+
+    if (onExtractUrl) {
+      clearTimeout(debounceTimers.current[index]);
+      if (isLinkedInUrl(truncated)) {
+        debounceTimers.current[index] = setTimeout(() => {
+          onExtractUrl(index, truncated);
+        }, 1500);
+      }
+    }
   };
 
   return (
@@ -95,18 +120,23 @@ export function VoiceSamples({
           );
         }
 
+        const isFetching = extractingIndex === i;
+
         return (
           <div key={i} className="group">
             <div className="flex items-center justify-between mb-1">
               <label
                 htmlFor={`voice-sample-${i}`}
-                className="font-mono text-xs text-warm-gray"
+                className="font-mono text-xs text-warm-gray flex items-center gap-1.5"
               >
                 SAMPLE {i + 1}
                 {isRequired && (
-                  <span className="text-coral ml-1" aria-label="required">
+                  <span className="text-coral" aria-label="required">
                     *
                   </span>
+                )}
+                {isFetching && (
+                  <Loader2 size={10} className="animate-spin text-coral" />
                 )}
               </label>
               {canRemove && !disabled && (
@@ -125,27 +155,27 @@ export function VoiceSamples({
                 id={`voice-sample-${i}`}
                 value={sample}
                 onChange={(e) => updateSample(i, e.target.value)}
-                placeholder={`Paste your LinkedIn post #${i + 1} here…`}
+                placeholder={`Paste your LinkedIn post #${i + 1} here… or paste a URL to import`}
                 rows={4}
                 disabled={disabled}
                 aria-label={`LinkedIn post sample ${i + 1}${isRequired ? ' (required)' : ''}`}
                 aria-describedby={`voice-sample-status-${i}`}
-                className={`bg-soft-white text-charcoal font-mono text-sm leading-relaxed px-4 py-3 pr-20 rounded-card border-2 border-deep-black shadow-input focus:border-coral focus:outline-none focus:shadow-card focus-visible:ring-2 focus-visible:ring-coral focus-visible:ring-offset-2 transition-all duration-150 w-full resize-none max-h-36 overflow-y-auto ${
+                className={`bg-soft-white text-charcoal font-mono text-sm leading-relaxed px-4 py-3 text-justify rounded-card border-2 border-deep-black shadow-input focus:border-coral focus:outline-none focus:shadow-card focus-visible:ring-2 focus-visible:ring-coral focus-visible:ring-offset-2 transition-all duration-150 w-full resize-none max-h-36 overflow-y-auto ${
                   disabled ? 'opacity-60 cursor-not-allowed' : ''
                 }`}
               />
-              <div className="absolute bottom-2 right-3 flex items-center gap-1.5">
-                {status.tone === 'warn' && (
-                  <AlertCircle size={12} className="text-coral shrink-0" />
-                )}
-                <span
-                  id={`voice-sample-status-${i}`}
-                  className={`text-xs font-mono ${status.color}`}
-                  aria-live="polite"
-                >
-                  {status.text}
-                </span>
-              </div>
+            </div>
+            <div className="flex items-center justify-end gap-1.5 mt-1">
+              {status.tone === 'warn' && (
+                <AlertCircle size={12} className="text-coral shrink-0" />
+              )}
+              <span
+                id={`voice-sample-status-${i}`}
+                className={`text-xs font-mono ${status.color}`}
+                aria-live="polite"
+              >
+                {status.text}
+              </span>
             </div>
           </div>
         );

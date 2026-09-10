@@ -4,6 +4,7 @@ import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
 import { analyzeVoice, VoiceProfile } from '../services/voiceAnalyzer.js';
+import { extractLinkedInPost } from '../services/scrapers/linkedin.js';
 import { Voice } from '../models/Voice.js';
 import { User } from '../models/User.js';
 import { logError } from '../config/logger.js';
@@ -42,6 +43,19 @@ const saveVoiceSchema = z.object({
       emojiFrequency: z.number(),
     }),
     signaturePatterns: z.array(z.string()),
+    contentPatterns: z.object({
+      topics: z.array(z.string()),
+      audienceType: z.string(),
+    }).optional(),
+    generation: z.object({
+      formality: z.enum(['Formal', 'Professional', 'Casual']),
+      energy: z.enum(['Low', 'Medium', 'High']),
+      firstPersonUsage: z.enum(['Minimal', 'Moderate', 'Frequent']),
+      sentenceComplexity: z.enum(['Simple', 'Medium', 'Complex']),
+      vocabulary: z.enum(['Simple', 'Simple-Technical Mix', 'Technical', 'Advanced']),
+      evidenceUsage: z.enum(['None', 'Low', 'Medium', 'High']),
+      opinionStrength: z.enum(['Neutral', 'Moderate', 'Strong']),
+    }).optional(),
     brandSummary: z.string(),
     trainingQuality: z.object({
       score: z.number(),
@@ -113,6 +127,31 @@ router.post('/voice/analyze', requireAuth, async (req: AuthRequest, res) => {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     logError('Voice analyze failed', { error: errorMessage, stack: err });
     res.status(500).json({ error: `Failed to analyze voice: ${errorMessage}` });
+  }
+});
+
+const extractUrlSchema = z.object({
+  url: z.string().url().refine(
+    (u) => /linkedin\.com\/(posts|feed\/update)/i.test(u),
+    'Must be a LinkedIn post URL'
+  ),
+});
+
+// POST /api/users/voice/extract-url — Extract post text from a LinkedIn URL
+router.post('/voice/extract-url', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const { url } = extractUrlSchema.parse(req.body);
+    const result = await extractLinkedInPost(url);
+    const truncated = result.text.length > 2000 ? result.text.slice(0, 2000) : result.text;
+    res.json({ text: truncated, title: result.title });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: err.errors[0]?.message || 'Invalid URL' });
+      return;
+    }
+    const message = err instanceof Error ? err.message : 'Failed to extract post';
+    logError('LinkedIn extract failed', { error: message });
+    res.status(422).json({ error: message });
   }
 });
 

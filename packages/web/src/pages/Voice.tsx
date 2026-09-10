@@ -24,6 +24,13 @@ const MIN_SAMPLES = 3;
 const MAX_SAMPLES = 5;
 const INITIAL_SAMPLES = 3;
 
+const ANALYZING_MESSAGES = [
+  'Reading your writing style...',
+  'Analyzing tone and patterns...',
+  'Building your voice profile...',
+  'Almost there...',
+];
+
 export function Voice() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -38,6 +45,8 @@ export function Voice() {
   const [globalMouse, setGlobalMouse] = useState({ x: -999, y: -999 });
   const [samplesOpen, setSamplesOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [extractingIndex, setExtractingIndex] = useState<number | null>(null);
+  const [messageIndex, setMessageIndex] = useState(0);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     setGlobalMouse({ x: e.clientX, y: e.clientY });
@@ -58,6 +67,17 @@ export function Voice() {
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, [samples, previewVoice]);
+
+  useEffect(() => {
+    if (!isAnalyzing) {
+      setMessageIndex(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setMessageIndex(prev => (prev + 1) % ANALYZING_MESSAGES.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isAnalyzing]);
 
   const loadVoice = async () => {
     setIsLoadingVoice(true);
@@ -105,6 +125,26 @@ export function Voice() {
   const handleRemoveSample = (index: number) => {
     if (samples.length <= INITIAL_SAMPLES) return;
     setSamples(samples.filter((_, i) => i !== index));
+  };
+
+  const handleExtractUrl = async (index: number, url: string) => {
+    setExtractingIndex(index);
+    try {
+      const result = await api.post<{ text: string; title?: string }>(
+        '/users/voice/extract-url',
+        { url }
+      );
+      const updated = [...samples];
+      updated[index] = result.text;
+      setSamples(updated);
+      const titlePreview = result.title ? `: ${result.title.slice(0, 60)}` : '';
+      toast('success', `Post imported${titlePreview}`);
+    } catch (err: any) {
+      const msg = err?.message || 'Failed to fetch post from URL';
+      toast('error', msg);
+    } finally {
+      setExtractingIndex(null);
+    }
   };
 
   const handleAnalyze = async () => {
@@ -275,6 +315,8 @@ export function Voice() {
                     canRemove={samples.length > INITIAL_SAMPLES}
                     canAdd={samples.length < MAX_SAMPLES}
                     minSamples={MIN_SAMPLES}
+                    onExtractUrl={handleExtractUrl}
+                    extractingIndex={extractingIndex}
                   />
                 </div>
                 <div className="shrink-0 p-4 md:p-5 border-t-2 border-deep-black/10" data-walkthrough="analyze-button">
@@ -361,16 +403,29 @@ export function Voice() {
                 )}
 
                 {isAnalyzing && (
-                  <Card>
-                    <div className="space-y-3">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-16 w-full" />
-                      <div className="grid grid-cols-2 gap-3 mt-4">
-                        <Skeleton className="h-16" />
-                        <Skeleton className="h-16" />
+                  <div className="animate-fade-in-up">
+                    <Card className="overflow-hidden">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="flex gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-coral animate-dot-bounce" style={{ animationDelay: '0s' }} />
+                          <span className="w-2 h-2 rounded-full bg-coral animate-dot-bounce" style={{ animationDelay: '0.2s' }} />
+                          <span className="w-2 h-2 rounded-full bg-coral animate-dot-bounce" style={{ animationDelay: '0.4s' }} />
+                        </div>
+                        <span className="font-mono text-xs text-warm-gray tracking-wider">
+                          {ANALYZING_MESSAGES[messageIndex]}
+                        </span>
                       </div>
-                    </div>
-                  </Card>
+                      <div className="space-y-3">
+                        <div className="h-4 rounded-full animate-shimmer w-3/4" />
+                        <div className="h-4 rounded-full animate-shimmer w-full" />
+                        <div className="h-4 rounded-full animate-shimmer w-5/6" />
+                        <div className="grid grid-cols-2 gap-3 mt-4">
+                          <div className="h-16 rounded-card animate-shimmer" />
+                          <div className="h-16 rounded-card animate-shimmer" />
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
                 )}
 
                 {(hasPreview || hasSavedVoice) && !isAnalyzing && !isLoadingVoice && (

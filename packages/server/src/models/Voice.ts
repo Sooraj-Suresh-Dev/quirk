@@ -29,6 +29,19 @@ export interface IVoice extends Document {
       emojiFrequency: number;
     };
     signaturePatterns: string[];
+    contentPatterns?: {
+      topics: string[];
+      audienceType: string;
+    };
+    generation?: {
+      formality: 'Formal' | 'Professional' | 'Casual';
+      energy: 'Low' | 'Medium' | 'High';
+      firstPersonUsage: 'Minimal' | 'Moderate' | 'Frequent';
+      sentenceComplexity: 'Simple' | 'Medium' | 'Complex';
+      vocabulary: 'Simple' | 'Simple-Technical Mix' | 'Technical' | 'Advanced';
+      evidenceUsage: 'None' | 'Low' | 'Medium' | 'High';
+      opinionStrength: 'Neutral' | 'Moderate' | 'Strong';
+    };
     brandSummary: string;
     trainingQuality: {
       score: number;
@@ -70,6 +83,19 @@ const voiceSchema = new Schema<IVoice>({
       emojiFrequency: { type: Number },
     },
     signaturePatterns: [{ type: String }],
+    contentPatterns: {
+      topics: [{ type: String }],
+      audienceType: { type: String },
+    },
+    generation: {
+      formality: { type: String, enum: ['Formal', 'Professional', 'Casual'] },
+      energy: { type: String, enum: ['Low', 'Medium', 'High'] },
+      firstPersonUsage: { type: String, enum: ['Minimal', 'Moderate', 'Frequent'] },
+      sentenceComplexity: { type: String, enum: ['Simple', 'Medium', 'Complex'] },
+      vocabulary: { type: String, enum: ['Simple', 'Simple-Technical Mix', 'Technical', 'Advanced'] },
+      evidenceUsage: { type: String, enum: ['None', 'Low', 'Medium', 'High'] },
+      opinionStrength: { type: String, enum: ['Neutral', 'Moderate', 'Strong'] },
+    },
     brandSummary: { type: String },
     trainingQuality: {
       score: { type: Number },
