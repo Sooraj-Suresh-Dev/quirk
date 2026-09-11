@@ -18,8 +18,10 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   OPENROUTER_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
-  RESEND_API_KEY: z.string().optional(),
-  EMAIL_FROM: z.string().default('Quirk <digest@localhost>'),
+  SMTP_HOST: z.string().default('smtp.gmail.com'),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_USER: z.string().email(),
+  SMTP_PASS: z.string().min(1),
   PRODUCT_HUNT_API_TOKEN: z.string().optional(),
 });
 
