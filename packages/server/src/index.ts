@@ -16,7 +16,17 @@ import { fetchAllTrends } from './services/trendFetcher.js';
 
 const app = express();
 
-app.use(cors({ origin: config.CLIENT_URL, credentials: true }));
+const allowedOrigins = config.CLIENT_URL.split(',').map(url => url.trim());
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
