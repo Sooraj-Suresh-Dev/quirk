@@ -1,35 +1,19 @@
-import nodemailer, { type Transporter } from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import { config } from '../config/env.js';
 import { IUser } from '../models/User.js';
 import { DigestContent } from './digestGenerator.js';
 import { logError } from '../config/logger.js';
 
-let transporter: Transporter | null = null;
-
-function getTransporter() {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: config.SMTP_HOST,
-      port: config.SMTP_PORT,
-      secure: false,
-      auth: {
-        user: config.SMTP_USER,
-        pass: config.SMTP_PASS,
-      },
-    });
-  }
-  return transporter;
-}
+sgMail.setApiKey(config.SENDGRID_API_KEY);
 
 export async function sendMagicLinkEmail(email: string, magicLink: string): Promise<boolean> {
-  const transport = getTransporter();
   const html = renderMagicLinkHtml(magicLink);
   const text = renderMagicLinkText(magicLink);
 
   try {
-    await transport.sendMail({
-      from: `"Quirk" <${config.SMTP_USER}>`,
+    await sgMail.send({
       to: email,
+      from: config.EMAIL_FROM,
       subject: 'Welcome to Quirk — Create your account',
       text,
       html,
@@ -99,13 +83,12 @@ If you didn't request this account, you can safely ignore this email.
 }
 
 export async function sendDigestEmail(user: IUser, digest: DigestContent): Promise<boolean> {
-  const transport = getTransporter();
   const html = renderDigestHtml(user, digest);
 
   try {
-    await transport.sendMail({
-      from: `"Quirk" <${config.SMTP_USER}>`,
+    await sgMail.send({
       to: user.email,
+      from: config.EMAIL_FROM,
       subject: 'Your Daily LinkedIn Content is Ready',
       text: `Your daily LinkedIn content is ready. Log in to view it.`,
       html,
@@ -145,7 +128,7 @@ function renderDigestHtml(user: IUser, digest: DigestContent): string {
 
     <h2>Carousel</h2>
     <div class="post">
-      ${Array.isArray(digest.carousel) 
+      ${Array.isArray(digest.carousel)
         ? digest.carousel.map((slide: Record<string, unknown>, i: number) => `<strong>${(slide.heading as string) || `Slide ${i+1}`}</strong><br>${(slide.body as string) || ''}`).join('<br><br>')
         : 'Carousel content'}
     </div>

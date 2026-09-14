@@ -18,10 +18,8 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   OPENROUTER_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
-  SMTP_HOST: z.string().default('smtp.gmail.com'),
-  SMTP_PORT: z.coerce.number().default(587),
-  SMTP_USER: z.string().email(),
-  SMTP_PASS: z.string().min(1),
+  SENDGRID_API_KEY: z.string(),
+  EMAIL_FROM: z.string().email(),
   PRODUCT_HUNT_API_TOKEN: z.string().optional(),
 });
 
