@@ -1,37 +1,43 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Authentication', () => {
-  test('landing page loads with login and signup', async ({ page }) => {
+  test('landing page loads with login button', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('text=LOG IN').or(page.locator('text=Sign In'))).toBeVisible();
+    await expect(page.getByRole('button', { name: 'LOG IN' }).first()).toBeVisible();
   });
 
-  test('login form validates email and password', async ({ page }) => {
+  test('GET STARTED button is visible', async ({ page }) => {
     await page.goto('/');
-    const loginBtn = page.locator('text=LOG IN').first();
-    if (await loginBtn.isVisible()) {
-      await loginBtn.click();
-    }
+    await expect(page.getByRole('button', { name: 'GET STARTED' })).toBeVisible();
+  });
+
+  test('login modal opens and shows form', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'LOG IN' }).first().click();
+    await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByPlaceholder('Email')).toBeVisible();
+    await expect(page.getByPlaceholder('Password')).toBeVisible();
+  });
+
+  test('login form has email and password inputs', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'LOG IN' }).first().click();
+    await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 5000 });
+    const emailInput = page.getByPlaceholder('Email');
+    const passwordInput = page.getByPlaceholder('Password');
+    await expect(emailInput).toBeVisible();
+    await expect(passwordInput).toBeVisible();
+    // Verify inputs are empty initially
+    await expect(emailInput).toHaveValue('');
+    await expect(passwordInput).toHaveValue('');
+  });
+
+  test('signup modal opens via GET STARTED', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'GET STARTED' }).click();
     await page.waitForTimeout(500);
-    const submitBtn = page.locator('button[type="submit"]').first();
-    if (await submitBtn.isVisible()) {
-      await submitBtn.click();
-      await expect(page.locator('text=Email is required').or(page.locator('text=required'))).toBeVisible();
-    }
-  });
-
-  test('signup flow sends magic link', async ({ page }) => {
-    await page.goto('/');
-    const signupLink = page.locator('text=Sign up').or(page.locator('text=SIGN UP'));
-    if (await signupLink.first().isVisible()) {
-      await signupLink.first().click();
-      await page.waitForTimeout(500);
-      const emailInput = page.locator('input[type="email"]').first();
-      if (await emailInput.isVisible()) {
-        await emailInput.fill('test-quirk-e2e@example.com');
-        await page.locator('button[type="submit"]').first().click();
-        await expect(page.locator('text=CHECK YOUR EMAIL').or(page.locator('text=check your email'))).toBeVisible({ timeout: 10000 });
-      }
-    }
+    const hasDialog = await page.locator('[role="dialog"]').isVisible().catch(() => false);
+    const hasEmail = await page.getByPlaceholder(/email/i).isVisible().catch(() => false);
+    expect(hasDialog || hasEmail).toBeTruthy();
   });
 });

@@ -1,24 +1,27 @@
 import { test, expect } from '@playwright/test';
+import { authenticate } from './helpers/auth';
 
-test.describe('Trends', () => {
-  test('trends page loads with title', async ({ page }) => {
-    await page.goto('/trends');
+test.describe('Discover (Trends)', () => {
+  test.beforeEach(async ({ page }) => {
+    await authenticate(page);
+  });
+
+  test('discover page loads with title', async ({ page }) => {
+    await page.goto('/discover');
     await page.waitForTimeout(1000);
-    await expect(page.locator('text=TRENDS')).toBeVisible();
+    await expect(page.getByText('TRENDS')).toBeVisible();
   });
 
   test('search input is present', async ({ page }) => {
-    await page.goto('/trends');
-    await expect(page.locator('input[placeholder*="Search"]').or(page.locator('input[placeholder*="search"]'))).toBeVisible();
+    await page.goto('/discover');
+    await expect(page.getByPlaceholder(/search/i)).toBeVisible();
   });
 
   test('trend cards or empty state load', async ({ page }) => {
-    await page.goto('/trends');
+    await page.goto('/discover');
     await page.waitForTimeout(3000);
-    const trendCards = page.locator('[data-testid="trend-card"]');
-    const emptyState = page.locator('text=No trends');
-    const hasCards = await trendCards.count().then(c => c > 0).catch(() => false);
-    const hasEmpty = await emptyState.isVisible().catch(() => false);
+    const hasCards = await page.locator('button').filter({ hasText: /github|hackernews|producthunt/i }).count().then(c => c > 0).catch(() => false);
+    const hasEmpty = await page.getByText(/no trends/i).isVisible().catch(() => false);
     expect(hasCards || hasEmpty).toBeTruthy();
   });
 });

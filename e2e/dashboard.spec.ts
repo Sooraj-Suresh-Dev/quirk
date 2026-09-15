@@ -1,27 +1,34 @@
 import { test, expect } from '@playwright/test';
+import { authenticate } from './helpers/auth';
 
 test.describe('Dashboard', () => {
-  test('dashboard page redirects or shows content', async ({ page }) => {
-    await page.goto('/dashboard');
-    await page.waitForTimeout(2000);
-    const url = page.url();
-    const isOnDashboard = url.includes('/dashboard');
-    const isOnLanding = url === '/' || url.endsWith('/');
-    expect(isOnDashboard || isOnLanding).toBeTruthy();
+  test.beforeEach(async ({ page }) => {
+    await authenticate(page);
   });
 
-  test('sidebar navigation links exist', async ({ page }) => {
+  test('dashboard page loads with content', async ({ page }) => {
     await page.goto('/dashboard');
     await page.waitForTimeout(1000);
-    const sidebar = page.locator('aside, nav').first();
-    await expect(sidebar).toBeVisible();
+    const url = page.url();
+    expect(url).toContain('/dashboard');
   });
 
-  test('trending section is visible on dashboard', async ({ page }) => {
+  test('sidebar navigation is visible', async ({ page }) => {
+    await page.goto('/dashboard');
+    await expect(page.locator('aside').first()).toBeVisible();
+  });
+
+  test('trending section is visible', async ({ page }) => {
     await page.goto('/dashboard');
     await page.waitForTimeout(2000);
-    const trending = page.locator('text=TRENDING NOW').or(page.locator('[data-walkthrough="trending-now"]'));
-    const hasTrending = await trending.first().isVisible().catch(() => false);
-    expect(hasTrending).toBeTruthy();
+    const trending = page.locator('[data-walkthrough="trending-now"]').or(page.getByText('TRENDING NOW'));
+    await expect(trending.first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test('post stats section is visible', async ({ page }) => {
+    await page.goto('/dashboard');
+    await page.waitForTimeout(2000);
+    const stats = page.getByText('POST STATS');
+    await expect(stats).toBeVisible({ timeout: 5000 });
   });
 });
