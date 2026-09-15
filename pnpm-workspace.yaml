@@ -2,5 +2,6 @@ packages:
   - "packages/*"
 allowBuilds:
   esbuild: true
+  mongodb-memory-server: true
 minimumReleaseAgeExclude:
   - nodemailer@10.0.3

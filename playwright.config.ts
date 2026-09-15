@@ -1,0 +1,27 @@
+import { defineConfig, devices } from '@playwright/test';
+
+const CI = !!process.env.CI;
+
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: !CI,
+  retries: CI ? 2 : 0,
+  timeout: 30_000,
+  use: {
+    baseURL: process.env.E2E_BASE_URL || 'http://localhost:5173',
+    trace: 'on',
+    screenshot: 'on',
+    video: 'on-first-retry',
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  ],
+  webServer: CI
+    ? undefined
+    : {
+        command: 'pnpm dev',
+        url: 'http://localhost:5173',
+        reuseExistingServer: true,
+        timeout: 120_000,
+      },
+});

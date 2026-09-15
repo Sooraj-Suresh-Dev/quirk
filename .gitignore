@@ -1,6 +1,7 @@
 ref1.jpg
 ref2.jpg
 .impeccable/
+test-results
 
 # Dependencies
 node_modules/

@@ -1,15 +1,22 @@
 {
   "name": "quirk",
   "private": true,
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "dev": "turbo dev",
     "dev:server": "pnpm --filter @quirk/server dev",
     "dev:web": "pnpm --filter @quirk/web dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "clean": "turbo clean"
+    "clean": "turbo clean",
+    "test": "turbo test",
+    "test:unit": "turbo test --filter='./packages/*'",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:deployed": "E2E_BASE_URL=https://your-app.vercel.app playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "turbo": "^2.3.0"
   }
 }
