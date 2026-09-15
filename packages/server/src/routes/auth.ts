@@ -15,8 +15,8 @@ const router: ExpressRouter = Router();
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: false,  // true in production
-  sameSite: 'lax' as const,
+  secure: config.NODE_ENV === 'production',
+  sameSite: (config.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
   path: '/',
 };
 
@@ -208,8 +208,13 @@ router.post('/refresh', async (req, res) => {
 
 // POST /api/auth/logout — Sign out
 router.post('/logout', (_req, res) => {
-  res.clearCookie('token', { path: '/' });
-  res.clearCookie('refreshToken', { path: '/api/auth/refresh' });
+  const clearOptions = {
+    httpOnly: true,
+    secure: config.NODE_ENV === 'production',
+    sameSite: (config.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
+  };
+  res.clearCookie('token', { ...clearOptions, path: '/' });
+  res.clearCookie('refreshToken', { ...clearOptions, path: '/api/auth/refresh' });
   res.json({ message: 'Logged out' });
 });
 
