@@ -7,6 +7,7 @@ import { User } from '../models/User.js';
 import { MagicLink } from '../models/MagicLink.js';
 import { Voice } from '../models/Voice.js';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
+import { authRateLimiter } from '../middleware/authRateLimiter.js';
 import { logError, logWarn } from '../config/logger.js';
 import { sendMagicLinkEmail } from '../services/emailSender.js';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../services/token.js';
@@ -43,7 +44,7 @@ const loginSchema = z.object({
 });
 
 // POST /api/auth/magic-link — Send magic link email
-router.post('/magic-link', async (req, res) => {
+router.post('/magic-link', authRateLimiter, async (req, res) => {
   try {
     const { email } = magicLinkSchema.parse(req.body);
 
@@ -130,7 +131,7 @@ router.post('/set-password', async (req, res) => {
 });
 
 // POST /api/auth/login — Email + password login
-router.post('/login', async (req, res) => {
+router.post('/login', authRateLimiter, async (req, res) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
 

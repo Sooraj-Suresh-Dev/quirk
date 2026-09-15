@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { config } from './config/env.js';
 import { connectDB } from './config/db.js';
@@ -27,6 +28,7 @@ app.use(cors({
   },
   credentials: true,
 }));
+app.use(helmet());
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
