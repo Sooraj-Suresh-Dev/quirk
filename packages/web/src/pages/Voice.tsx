@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { BlueprintGridBg } from '@/components/layout/BlueprintGridBg';
 import { VoiceSamples } from '@/components/voice/VoiceSamples';
 import { VoiceProfile, VoiceProfileData } from '@/components/voice/VoiceProfile';
@@ -234,10 +234,10 @@ export function Voice() {
   );
 
   return (
+    <DashboardLayout>
     <div className="h-screen flex flex-col bg-cream relative" onMouseMove={handleMouseMove}>
       <BlueprintGridBg mouse={globalMouse} />
       <div className="relative z-10 flex flex-col h-full">
-        <Sidebar />
         <div className="md:ml-[60px] pb-20 md:pb-0 flex flex-col h-full">
           <header className="h-auto md:h-16 shrink-0 flex flex-wrap items-center gap-3 md:gap-6 px-4 md:px-6 py-3 md:py-0 border-b-2 border-deep-black/10 bg-cream/80 backdrop-blur-sm z-10">
             <div className="flex items-center gap-3 min-w-0">
@@ -564,5 +564,6 @@ export function Voice() {
         </div>
       </Modal>
     </div>
+    </DashboardLayout>
   );
 }

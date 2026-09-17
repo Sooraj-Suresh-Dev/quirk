@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Compass, BookOpen, Mic, Settings, LogOut } from 'lucide-react';
+import { Home, Compass, BookOpen, Mic, Settings, LogOut, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { HelpButton } from '@/components/ui/HelpButton';
 
@@ -11,7 +11,11 @@ const navItems = [
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onHelpClick?: () => void;
+}
+
+export function Sidebar({ onHelpClick }: SidebarProps) {
   const { logout } = useAuth();
 
   return (
@@ -42,7 +46,7 @@ export function Sidebar() {
         </nav>
 
         <div className="flex flex-col gap-2">
-          <HelpButton />
+          <HelpButton onClick={onHelpClick ?? (() => {})} />
           <button
             onClick={logout}
             className="w-10 h-10 flex items-center justify-center rounded-button text-charcoal hover:bg-cream transition-all duration-150"
@@ -70,6 +74,14 @@ export function Sidebar() {
             <Icon size={20} />
           </NavLink>
         ))}
+        <button
+          onClick={onHelpClick}
+          aria-label="Help"
+          className="w-10 h-10 flex items-center justify-center rounded-button text-charcoal hover:bg-cream transition-all duration-150"
+          title="Help"
+        >
+          <HelpCircle size={20} />
+        </button>
         <button
           onClick={logout}
           className="w-10 h-10 flex items-center justify-center rounded-button text-charcoal hover:bg-cream transition-all duration-150"

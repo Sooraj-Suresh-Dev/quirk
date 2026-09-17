@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { BlueprintGridBg } from '@/components/layout/BlueprintGridBg';
 import { PostCard } from '@/components/posts/PostCard';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -145,10 +145,10 @@ export function Library() {
   const currentSort = sortOptions.find(o => o.value === sortBy) ?? sortOptions[0];
 
   return (
+    <DashboardLayout>
     <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
       <BlueprintGridBg mouse={globalMouse} />
       <div className="relative z-10">
-        <Sidebar />
         <main className="md:ml-[60px] p-4 pb-24 md:pb-6 md:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-row items-center justify-between gap-3 mb-6">
@@ -184,7 +184,7 @@ export function Library() {
                   className="pl-10 md:pl-12"
                 />
               </div>
-              <div className="flex items-center gap-2" ref={sortRef} data-walkthrough="sort-dropdown">
+              <div className="flex items-center gap-2" ref={sortRef} data-walkthrough={posts.length > 0 ? "sort-dropdown" : undefined}>
                 <ArrowUpDown size={14} className="text-warm-gray shrink-0" aria-hidden="true" />
                 <div className="relative">
                   <button
@@ -219,7 +219,7 @@ export function Library() {
             </div>
 
 
-            <div id="post-list" role="tabpanel" className="space-y-2 md:space-y-3" data-walkthrough="posts-list">
+            <div id="post-list" role="tabpanel" className="space-y-2 md:space-y-3" data-walkthrough={posts.length > 0 ? "posts-list" : undefined}>
               {isLoading ? (
                 <>
                   <Skeleton className="h-28" />
@@ -300,5 +300,6 @@ export function Library() {
         </button>
       )}
     </div>
+    </DashboardLayout>
   );
 }

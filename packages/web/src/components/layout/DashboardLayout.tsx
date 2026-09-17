@@ -1,21 +1,33 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
+import { PageTooltips } from '@/components/ui/PageTooltips';
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const [forceShow, setForceShow] = useState(false);
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    setForceShow(false);
+  }, [pathname]);
+
+  const handleHelpClick = () => {
+    setForceShow(true);
+  };
+
+  const handleDismiss = () => {
+    setForceShow(false);
+  };
+
   return (
-    <div className="min-h-screen bg-cream">
-      <div className="relative z-10">
-        <Sidebar />
-        <main className="md:ml-[60px] p-4 pb-24 md:pb-6 md:p-6">
-          <div className="bento-grid">
-            {children}
-          </div>
-        </main>
-      </div>
-    </div>
+    <>
+      <Sidebar onHelpClick={handleHelpClick} />
+      {children}
+      <PageTooltips pathname={pathname} forceShow={forceShow} onDismiss={handleDismiss} />
+    </>
   );
 }

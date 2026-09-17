@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { BlueprintGridBg } from '@/components/layout/BlueprintGridBg';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -204,10 +204,10 @@ export function Settings() {
   };
 
   return (
+    <DashboardLayout>
     <div className="min-h-screen bg-cream flex flex-col relative" onMouseMove={handleMouseMove}>
       <BlueprintGridBg mouse={globalMouse} />
       <div className="relative z-10 flex flex-col flex-1">
-      <Sidebar />
 
       <main className="md:ml-[60px] pb-20 md:pb-0 flex-1 flex flex-col">
         {/* Header */}
@@ -236,11 +236,11 @@ export function Settings() {
 
         {/* Grid */}
           <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-8">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6" data-walkthrough="settings-form">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-6">
               {/* API Keys */}
-              <Card>
+              <Card data-walkthrough="api-keys">
                 <div className="flex items-center gap-3 mb-2">
                   <Key size={20} className="text-coral" />
                   <h2 className="font-mono text-lg font-bold text-charcoal">API KEYS</h2>
@@ -279,7 +279,7 @@ export function Settings() {
               </Card>
 
               {/* Daily Digest */}
-              <Card>
+              <Card data-walkthrough="daily-digest">
                 <div className="flex items-center gap-3 mb-2">
                   <Clock size={20} className="text-coral" />
                   <h2 className="font-mono text-lg font-bold text-charcoal">DAILY DIGEST</h2>
@@ -313,7 +313,7 @@ export function Settings() {
             {/* Right Column */}
             <div className="space-y-6">
               {/* Trend Sources */}
-              <Card>
+              <Card data-walkthrough="trend-sources">
                 <div className="flex items-center gap-3 mb-2">
                   <Bell size={20} className="text-coral" />
                   <h2 className="font-mono text-lg font-bold text-charcoal">TREND SOURCES</h2>
@@ -395,5 +395,6 @@ export function Settings() {
       </Modal>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

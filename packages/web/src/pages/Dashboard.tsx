@@ -54,6 +54,10 @@ export function Dashboard() {
 
   return (
     <DashboardLayout>
+    <div className="min-h-screen bg-cream">
+      <div className="relative z-10">
+        <main className="md:ml-[60px] p-4 pb-24 md:pb-6 md:p-6">
+          <div className="bento-grid">
       <div className="bento-card md:col-span-2 flex flex-col justify-between" data-walkthrough="trending-now">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -294,6 +298,10 @@ export function Dashboard() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
       />
+          </div>
+        </main>
+      </div>
+    </div>
     </DashboardLayout>
   );
 }

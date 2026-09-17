@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { BlueprintGridBg } from '@/components/layout/BlueprintGridBg';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -41,10 +41,10 @@ export function Generate() {
 
   if (isLoading) {
     return (
+      <DashboardLayout>
       <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
         <BlueprintGridBg mouse={globalMouse} />
         <div className="relative z-10">
-          <Sidebar />
           <main className="md:ml-[60px] p-4 pb-24 md:pb-8 md:p-8">
             <div className="max-w-4xl mx-auto">
               <Skeleton className="h-8 w-48 mb-6" />
@@ -55,15 +55,16 @@ export function Generate() {
           </main>
         </div>
       </div>
+      </DashboardLayout>
     );
   }
 
   if (!trend) {
     return (
+      <DashboardLayout>
       <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
         <BlueprintGridBg mouse={globalMouse} />
         <div className="relative z-10">
-          <Sidebar />
           <main className="md:ml-[60px] p-4 pb-24 md:pb-8 md:p-8">
             <div className="max-w-4xl mx-auto">
               <p className="font-serif text-warm-gray">Trend not found</p>
@@ -74,14 +75,15 @@ export function Generate() {
           </main>
         </div>
       </div>
+      </DashboardLayout>
     );
   }
 
   return (
+    <DashboardLayout>
     <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
       <BlueprintGridBg mouse={globalMouse} />
       <div className="relative z-10">
-        <Sidebar />
         <main className="md:ml-[60px] p-4 pb-24 md:pb-8 md:p-8">
           <div className="max-w-7xl mx-auto">
             <Button variant="ghost" onClick={() => navigate('/discover')} className="mb-6 animate-slide-up">
@@ -158,5 +160,6 @@ export function Generate() {
         </main>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { BlueprintGridBg } from '@/components/layout/BlueprintGridBg';
 import { TrendFilters } from '@/components/trends/TrendFilters';
 import { TrendGridFetcher } from '@/components/trends/TrendGridFetcher';
@@ -44,10 +44,10 @@ export const Discover = memo(function Discover() {
   };
 
   return (
+    <DashboardLayout>
     <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
       <BlueprintGridBg mouse={globalMouse} />
       <div className="relative z-10">
-        <Sidebar />
         <main className="md:ml-[60px] p-4 pb-24 md:pb-8 md:p-8">
           <div className="max-w-7xl mx-auto">
             <div className="mb-6">
@@ -74,7 +74,7 @@ export const Discover = memo(function Discover() {
               )}
             </div>
 
-            <div data-walkthrough="trend-filters">
+            <div data-walkthrough="trend-filters" className="w-fit">
               <TrendFilters active={activeFilter} onChange={setActiveFilter} />
             </div>
 
@@ -100,5 +100,6 @@ export const Discover = memo(function Discover() {
         </button>
       )}
     </div>
+    </DashboardLayout>
   );
 });

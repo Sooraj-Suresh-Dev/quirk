@@ -13,6 +13,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.27.20",
     "clsx": "^2.1.0",
     "lucide-react": "^0.460.0",
     "react": "^18.3.0",
