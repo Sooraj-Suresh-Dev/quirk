@@ -1,0 +1,13 @@
+﻿User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /generate/
+Disallow: /library/
+Disallow: /settings/
+Disallow: /voice-training/
+Disallow: /discover/
+Disallow: /set-password/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://quirk-web-one.vercel.app/sitemap.xml
