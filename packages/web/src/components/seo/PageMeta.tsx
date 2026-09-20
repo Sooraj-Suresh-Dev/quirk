@@ -16,8 +16,9 @@ export function PageMeta({
   canonicalPath,
 }: PageMetaProps) {
   const fullTitle = `${title} | Quirk`;
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://quirk-web-one.vercel.app';
   const url = canonicalPath
-    ? `https://tryquirk.com${canonicalPath}`
+    ? `${origin}${canonicalPath}`
     : undefined;
 
   return (
@@ -28,7 +29,12 @@ export function PageMeta({
       <meta property="og:description" content={description} />
       <meta property="og:type" content={ogType} />
       <meta property="og:image" content={ogImage} />
-      {url && <meta property="og:url" content={url} />}
+      {url && (
+        <>
+          <link rel="canonical" href={url} />
+          <meta property="og:url" content={url} />
+        </>
+      )}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
