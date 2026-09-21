@@ -24,7 +24,6 @@ export function NotFound() {
         <PageMeta
           title="Page Not Found"
           description="The page you're looking for doesn't exist or has been moved."
-          canonicalPath="/404"
         />
         <Helmet>
           <meta name="robots" content="noindex, nofollow" />
@@ -32,7 +31,7 @@ export function NotFound() {
       </>
       <main className="min-h-[60vh] flex items-center justify-center px-5 md:px-8 pb-16 md:pb-24">
         <div className="text-center max-w-md mx-auto">
-          <div ref={heroRef.ref} className={heroRef.inView ? 'animate-fade-in-up' : 'opacity-0'}>
+          <div ref={heroRef.ref} className={heroRef.inView ? 'animate-fade-in-up' : 'opacity-0'} role="alert">
             <p className="font-mono text-sm uppercase text-coral mb-4 tracking-wider">404</p>
             <h1 className="font-mono text-5xl sm:text-7xl lg:text-8xl font-bold text-charcoal mb-6 leading-tight tracking-tight">
               PAGE NOT FOUND
