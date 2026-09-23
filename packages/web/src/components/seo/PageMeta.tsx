@@ -33,8 +33,10 @@ export function PageMeta({
         <>
           <link rel="canonical" href={url} />
           <meta property="og:url" content={url} />
+          <link rel="alternate" type="text/markdown" href={`${url}.md`} />
         </>
       )}
+      <link rel="describedby" href="/llms.txt" />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />

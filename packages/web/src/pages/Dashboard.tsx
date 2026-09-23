@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { PageMeta } from '@/components/seo/PageMeta';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -53,8 +54,14 @@ export function Dashboard() {
   const recentPosts = posts.slice(0, 3);
 
   return (
-    <DashboardLayout>
-    <div className="min-h-screen bg-cream">
+    <>
+      <PageMeta
+        title="Dashboard"
+        description="Your LinkedIn content command center. View trending topics, generate posts in your voice, and track your publishing stats."
+        canonicalPath="/dashboard"
+      />
+      <DashboardLayout>
+      <div className="min-h-screen bg-cream">
       <div className="relative z-10">
         <main className="md:ml-[60px] p-4 pb-24 md:pb-6 md:p-6">
           <div className="bento-grid">
@@ -303,5 +310,6 @@ export function Dashboard() {
       </div>
     </div>
     </DashboardLayout>
+    </>
   );
 }

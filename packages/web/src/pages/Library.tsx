@@ -10,6 +10,7 @@ import { api } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { Post } from '@/lib/api';
 import { Search, RefreshCw, ArrowUpDown, Compass, BookOpen, ArrowUp, ChevronDown } from 'lucide-react';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 const sortOptions = [
   { value: 'newest', label: 'NEWEST' },
@@ -145,10 +146,16 @@ export function Library() {
   const currentSort = sortOptions.find(o => o.value === sortBy) ?? sortOptions[0];
 
   return (
-    <DashboardLayout>
-    <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
-      <BlueprintGridBg mouse={globalMouse} />
-      <div className="relative z-10">
+    <>
+      <PageMeta
+        title="Library"
+        description="Browse and manage all your generated LinkedIn posts. Copy, regenerate, mark as posted, or delete posts from your content library."
+        canonicalPath="/library"
+      />
+      <DashboardLayout>
+      <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
+        <BlueprintGridBg mouse={globalMouse} />
+        <div className="relative z-10">
         <main className="md:ml-[60px] p-4 pb-24 md:pb-6 md:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-row items-center justify-between gap-3 mb-6">
@@ -301,5 +308,6 @@ export function Library() {
       )}
     </div>
     </DashboardLayout>
+    </>
   );
 }

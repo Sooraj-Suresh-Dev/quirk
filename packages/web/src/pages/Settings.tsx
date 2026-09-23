@@ -12,6 +12,7 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { useToast } from '@/lib/toast';
 import { Key, Clock, Bell, Save, Trash2, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 type KeyStatus = 'idle' | 'verifying' | 'valid' | 'invalid';
 
@@ -204,10 +205,16 @@ export function Settings() {
   };
 
   return (
-    <DashboardLayout>
-    <div className="min-h-screen bg-cream flex flex-col relative" onMouseMove={handleMouseMove}>
-      <BlueprintGridBg mouse={globalMouse} />
-      <div className="relative z-10 flex flex-col flex-1">
+    <>
+      <PageMeta
+        title="Settings"
+        description="Manage your Quirk preferences: configure trend sources, daily digest time, email notifications, and AI provider API keys."
+        canonicalPath="/settings"
+      />
+      <DashboardLayout>
+      <div className="min-h-screen bg-cream flex flex-col relative" onMouseMove={handleMouseMove}>
+        <BlueprintGridBg mouse={globalMouse} />
+        <div className="relative z-10 flex flex-col flex-1">
 
       <main className="md:ml-[60px] pb-20 md:pb-0 flex-1 flex flex-col">
         {/* Header */}
@@ -396,5 +403,6 @@ export function Settings() {
       </div>
     </div>
     </DashboardLayout>
+    </>
   );
 }

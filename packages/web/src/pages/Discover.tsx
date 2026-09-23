@@ -5,6 +5,7 @@ import { TrendFilters } from '@/components/trends/TrendFilters';
 import { TrendGridFetcher } from '@/components/trends/TrendGridFetcher';
 import { Input } from '@/components/ui/Input';
 import { Search, ArrowUp, X } from 'lucide-react';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 export const Discover = memo(function Discover() {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -44,10 +45,16 @@ export const Discover = memo(function Discover() {
   };
 
   return (
-    <DashboardLayout>
-    <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
-      <BlueprintGridBg mouse={globalMouse} />
-      <div className="relative z-10">
+    <>
+      <PageMeta
+        title="Discover Trends"
+        description="Browse trending topics from GitHub, Product Hunt, Hacker News, and TechCrunch. Filter by source and search to find the perfect topic for your next LinkedIn post."
+        canonicalPath="/discover"
+      />
+      <DashboardLayout>
+      <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
+        <BlueprintGridBg mouse={globalMouse} />
+        <div className="relative z-10">
         <main className="md:ml-[60px] p-4 pb-24 md:pb-8 md:p-8">
           <div className="max-w-7xl mx-auto">
             <div className="mb-6">
@@ -101,5 +108,6 @@ export const Discover = memo(function Discover() {
       )}
     </div>
     </DashboardLayout>
+    </>
   );
 });

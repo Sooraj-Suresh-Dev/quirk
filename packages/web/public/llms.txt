@@ -1,0 +1,227 @@
+# Quirk
+
+> Your LinkedIn, your quirk - AI-powered LinkedIn content generation from trending topics.
+
+**Type:** MERN-stack SaaS Web Application  
+**Repository:** https://github.com/Sooraj-Suresh-Dev/quirk  
+**License:** MIT
+
+Quirk is an AI-powered content generation platform that scrapes trending topics from GitHub Trending, Product Hunt, and Hacker News — then generates personalized LinkedIn posts (text, carousel frameworks, image prompts) using AI. Users can train a personal brand voice by pasting sample posts.
+
+**Technology Stack**
+
+*Frontend (`packages/web`)*: React 18 + TypeScript + Vite, Tailwind CSS + shadcn/ui components, React Router v6, React Helmet Async, Lucide React icons, clsx, Vitest + React Testing Library
+
+*Backend (`packages/server`)*: Express.js + TypeScript, MongoDB + Mongoose ODM, JWT authentication + magic links (Supabase), OpenRouter (Llama 3.1 70B default, OpenAI GPT-4o/mini, Anthropic Claude 3.5, Mixtral, Gemma), Google Gemini for image prompts, Node-cron for scheduled jobs, Resend for email delivery, Zod for validation
+
+*Monorepo*: pnpm workspaces + Turborepo
+
+**Key Pages & Routes**
+
+*Public Pages*: `/` (Landing page with hero, features, trend preview, CTA), `/auth/magic-link` (Magic link authentication flow), `/auth/set-password` (Password setup via magic token), `/trends` (Public trend browsing), `/features` (Feature overview), `/pricing` (Pricing page), `/about` (About page), `/faq` (FAQ page), `/terms` (Terms of service), `/privacy` (Privacy policy)
+
+*Authenticated Pages*: `/dashboard` (Main dashboard with trends + generation + history), `/discover` (Full trend feed with source filters), `/voice-training` (Voice training interface with 3-5 sample posts), `/settings` (User preferences for sources, digest time, notifications, AI keys), `/library` (Generated post history management), `/generate/:trendId` (Post generation interface)
+
+**API Endpoints**
+
+Base URL: `/api` (frontend proxies via Vite to `localhost:3001/api`)
+
+*Authentication*: `POST /api/auth/magic-link` (Send magic link email, public), `POST /api/auth/set-password` (Set password via magic token, public), `POST /api/auth/login` (Email + password login, public), `GET /api/auth/session` (Get current session, auth required), `POST /api/auth/refresh` (Refresh access token, auth required), `POST /api/auth/logout` (Sign out, auth required)
+
+*Trends (Public)*: `GET /api/trends` (List cached trends with source filter, pagination, search), `GET /api/trends/:id` (Get single trend), `POST /api/trends/refresh` (Force-refresh trends, auth required)
+
+*Posts (Auth Required)*: `GET /api/posts` (List user's generated posts with pagination, weekly/total counts), `GET /api/posts/models` (List available AI providers/models), `POST /api/posts/generate` (Generate new post: text, carousel, image-prompt), `PATCH /api/posts/:id` (Update post status: generated/copied/posted), `DELETE /api/posts/:id` (Delete post)
+
+*User Profile (Auth Required)*: `GET /api/users/profile` (Get user profile + voice profile), `GET /api/users/voice` (Get saved voice profile), `POST /api/users/voice/analyze` (Analyze samples only, preview not saved), `POST /api/users/voice/extract-url` (Extract post text from LinkedIn URL), `POST /api/users/voice` (Save analyzed voice profile), `PATCH /api/users/voice/toggle` (Toggle voice active/inactive), `DELETE /api/users/voice` (Delete voice profile), `PUT /api/users/preferences` (Update preferences: sources, digest time, email toggle, AI keys, provider/model/temperature), `POST /api/users/verify-key` (Verify OpenAI/Anthropic API key)
+
+*Health*: `GET /api/health` (Health check, public)
+
+**Data Models**
+
+*User*:
+```typescript
+{
+  email: string (unique, lowercase, trim)
+  passwordHash?: string
+  refreshToken?: string
+  preferences: {
+    sources: string[]              // default: ['github', 'producthunt']
+    digestTime: string             // default: "09:00"
+    emailDigest: boolean           // default: false
+    openaiKey?: string
+    anthropicKey?: string
+    preferredProvider?: string     // 'openai' | 'anthropic' | 'openrouter'
+    preferredModel?: string
+    preferredTemperature?: number
+  }
+  createdAt: Date
+}
+```
+
+*Voice*:
+```typescript
+{
+  userId: ObjectId (unique, indexed)
+  samples: string[]                // 3-5 samples, max 2000 chars each
+  profile: {
+    tone: {
+      primary: string
+      secondary: string[]
+      confidence: number
+    }
+    writingStyle: {
+      description: string
+      avgSentenceLength: number
+      avgParagraphLength: number
+    }
+    personality: {
+      traits: string[]
+      description: string
+    }
+    structure: {
+      description: string
+      pattern: string[]
+    }
+    engagement: {
+      cta: 'None' | 'Soft' | 'Direct'
+      questions: 'None' | 'Rare' | 'Occasional' | 'Frequent'
+      emoji: 'None' | 'Low' | 'Medium' | 'High'
+      emojiFrequency: number
+    }
+    signaturePatterns: string[]
+    contentPatterns?: {
+      topics: string[]
+      audienceType: string
+    }
+    generation?: {
+      formality: 'Formal' | 'Professional' | 'Casual'
+      energy: 'Low' | 'Medium' | 'High'
+      firstPersonUsage: 'Minimal' | 'Moderate' | 'Frequent'
+      sentenceComplexity: 'Simple' | 'Medium' | 'Complex'
+      vocabulary: 'Simple' | 'Simple-Technical Mix' | 'Technical' | 'Advanced'
+      evidenceUsage: 'None' | 'Low' | 'Medium' | 'High'
+      opinionStrength: 'Neutral' | 'Moderate' | 'Strong'
+    }
+    brandSummary: string
+    trainingQuality: {
+      score: number
+      consistency: string          // 'High' | 'Medium' | 'Low'
+      limitations: string[]
+    }
+  }
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+*Trend*:
+```typescript
+{
+  source: 'github' | 'producthunt' | 'hackernews'
+  title: string
+  url: string
+  summary: string
+  tags: string[]
+  thumbnailUrl?: string
+  stars?: number
+  forks?: number
+  votes?: number
+  points?: number
+  comments?: number
+  website?: string
+  makers?: string[]
+  author?: string
+  createdAt?: string
+  fetchedAt: Date
+  expiresAt: Date                 // TTL index: 7 days (604800 seconds)
+}
+```
+
+*Post*:
+```typescript
+{
+  userId: ObjectId (indexed)
+  trendId?: ObjectId
+  content: string | Record<string, unknown>[]  // text | carousel slides | image prompt
+  type: 'text' | 'carousel' | 'image-prompt'
+  status: 'generated' | 'copied' | 'posted'
+  createdAt: Date
+}
+```
+
+**Key Features**
+
+1. **Trend Discovery** — Hourly scraping from GitHub Trending, Product Hunt, Hacker News with 7-day MongoDB cache (TTL index) and quality filtering/deduplication
+2. **AI Post Generation** — Three post types: text (hook+body+CTA), carousel (multi-slide structure), image prompts (Gemini-ready); supports OpenRouter (Llama 3.1 70B default), OpenAI, Anthropic
+3. **Personal Voice Training** — Paste 3-5 sample posts (or extract from LinkedIn URLs) → AI analyzes tone, writing style, personality, structure, engagement patterns, generation preferences → saves comprehensive profile → applies to all generations
+4. **Daily Digest** — Configurable morning email with 3 text posts + 1 carousel + 1 image prompt via Resend
+5. **Post Management** — History with pagination, copy-to-clipboard, regenerate, mark as posted, delete, weekly/total stats
+6. **Magic Link Auth** — Passwordless authentication via email with JWT access/refresh tokens in httpOnly cookies
+
+**Getting Started**
+
+*Prerequisites*: Node.js >= 18, pnpm (`npm i -g pnpm`), MongoDB (local or Atlas)
+
+*Install*:
+```bash
+git clone https://github.com/Sooraj-Suresh-Dev/quirk.git
+cd quirk
+pnpm install
+```
+
+*Configure*:
+```bash
+cp .env.example packages/server/.env
+```
+Required env vars: `MONGODB_URI`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `OPENROUTER_API_KEY`
+Optional: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `EMAIL_FROM`, `PRODUCT_HUNT_API_TOKEN`, `VITE_API_URL`, `VITE_GA_MEASUREMENT_ID`
+
+*Run Development*:
+```bash
+pnpm dev            # both web + server
+pnpm dev:web        # frontend only → localhost:5173
+pnpm dev:server     # backend only → localhost:3001
+```
+
+*Build*:
+```bash
+pnpm build
+```
+
+## Documentation
+
+- [README](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/README.md): Project overview, tech stack, API endpoints, getting started, deployment
+- [PRD](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/PRD.md): Product requirements, user journeys, data models, API specification, UI/UX requirements
+- [PRODUCT](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/PRODUCT.md): Product strategy and specifications
+- [DESIGN](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/DESIGN.md): Design system, color palette, typography, components, responsive breakpoints
+- [Audit Report](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/audit-report.md): Security and performance audit findings
+
+## API Reference
+
+- [Auth Routes](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/packages/server/src/routes/auth.ts): Magic link, session, refresh, logout endpoints
+- [Trends Routes](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/packages/server/src/routes/trends.ts): Trend listing, refresh endpoints
+- [Posts Routes](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/packages/server/src/routes/posts.ts): Post generation, management, models endpoints
+- [Users Routes](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/packages/server/src/routes/users.ts): Profile, voice (get/analyze/extract/save/toggle/delete), preferences, verify-key endpoints
+
+## External Services
+
+- [OpenRouter API](https://openrouter.ai/docs): Unified API for Llama, OpenAI, Anthropic, Mistral, Gemma models
+- [Supabase Auth](https://supabase.com/docs/guides/auth): Magic link authentication reference
+- [Resend Email](https://resend.com/docs): Transactional email API
+- [MongoDB Atlas](https://www.mongodb.com/docs/atlas/): Cloud database hosting
+- [Vercel Deploy](https://vercel.com/docs): Frontend deployment platform
+- [Render Deploy](https://render.com/docs): Backend deployment platform
+
+## Configuration
+
+- [.env.example](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/packages/server/.env.example): Required and optional environment variables
+- [Server Config](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/packages/server/src/config/env.ts): Environment variable validation schema
+- [AI Models Config](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/packages/server/src/config/models.ts): Provider/model definitions and defaults
+
+## Optional
+
+- [Frontend Package](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/packages/web/package.json): Frontend dependencies and scripts
+- [Server Package](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/packages/server/package.json): Backend dependencies and scripts
+- [Turbo Config](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/turbo.json): Turborepo pipeline configuration
+- [pnpm Workspace](https://raw.githubusercontent.com/Sooraj-Suresh-Dev/quirk/main/pnpm-workspace.yaml): Monorepo workspace configuration

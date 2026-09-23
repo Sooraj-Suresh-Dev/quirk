@@ -12,6 +12,7 @@ import { timeAgo } from '@/lib/timeAgo';
 import { api } from '@/lib/api';
 import { ArrowLeft, Star, Heart, Clock, User, ExternalLink, Github, Rocket } from 'lucide-react';
 import { Trend } from '@/types/trend';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 export function Generate() {
   const { trendId } = useParams<{ trendId: string }>();
@@ -80,10 +81,16 @@ export function Generate() {
   }
 
   return (
-    <DashboardLayout>
-    <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
-      <BlueprintGridBg mouse={globalMouse} />
-      <div className="relative z-10">
+    <>
+      <PageMeta
+        title="Generate Post"
+        description="Generate LinkedIn posts from trending topics. Choose text posts, carousels, or image prompts — all in your trained brand voice."
+        canonicalPath="/generate"
+      />
+      <DashboardLayout>
+      <div className="min-h-screen bg-cream relative" onMouseMove={handleMouseMove}>
+        <BlueprintGridBg mouse={globalMouse} />
+        <div className="relative z-10">
         <main className="md:ml-[60px] p-4 pb-24 md:pb-8 md:p-8">
           <div className="max-w-7xl mx-auto">
             <Button variant="ghost" onClick={() => navigate('/discover')} className="mb-6 animate-slide-up">
@@ -161,5 +168,6 @@ export function Generate() {
       </div>
     </div>
     </DashboardLayout>
+    </>
   );
 }

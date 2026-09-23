@@ -11,6 +11,7 @@ import { Modal } from '@/components/ui/Modal';
 import { api } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { Sparkles, Loader2, AlertTriangle, Check, X, Info, ArrowRight, ChevronDown } from 'lucide-react';
+import { PageMeta } from '@/components/seo/PageMeta';
 
 interface Voice {
   samples: string[];
@@ -234,10 +235,16 @@ export function Voice() {
   );
 
   return (
-    <DashboardLayout>
-    <div className="h-screen flex flex-col bg-cream relative" onMouseMove={handleMouseMove}>
-      <BlueprintGridBg mouse={globalMouse} />
-      <div className="relative z-10 flex flex-col h-full">
+    <>
+      <PageMeta
+        title="Voice Training"
+        description="Train your personal brand voice by pasting 3-5 sample LinkedIn posts. Quirk analyzes your tone, sentence structure, and CTA style to generate content that sounds like you."
+        canonicalPath="/voice-training"
+      />
+      <DashboardLayout>
+      <div className="h-screen flex flex-col bg-cream relative" onMouseMove={handleMouseMove}>
+        <BlueprintGridBg mouse={globalMouse} />
+        <div className="relative z-10 flex flex-col h-full">
         <div className="md:ml-[60px] pb-20 md:pb-0 flex flex-col h-full">
           <header className="h-auto md:h-16 shrink-0 flex flex-wrap items-center gap-3 md:gap-6 px-4 md:px-6 py-3 md:py-0 border-b-2 border-deep-black/10 bg-cream/80 backdrop-blur-sm z-10">
             <div className="flex items-center gap-3 min-w-0">
@@ -565,5 +572,6 @@ export function Voice() {
       </Modal>
     </div>
     </DashboardLayout>
+    </>
   );
 }
