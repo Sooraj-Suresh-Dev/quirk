@@ -18,9 +18,9 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   OPENROUTER_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
-  SENDGRID_API_KEY: z.string(),
-  EMAIL_FROM: z.string().email(),
   PRODUCT_HUNT_API_TOKEN: z.string().optional(),
+  N8N_WEBHOOK_URL: z.string().url().optional(),
+  N8N_WEBHOOK_SECRET: z.string().min(16).optional(),
 });
 
 export const config = envSchema.parse(process.env);

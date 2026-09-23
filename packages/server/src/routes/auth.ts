@@ -55,19 +55,19 @@ router.post('/magic-link', authRateLimiter, async (req, res) => {
 
     const magicLink = `${config.CLIENT_URL}/set-password?token=${token}`;
 
-    if (config.NODE_ENV === 'development') {
-      console.log('');
-      console.log('\x1b[36m🔗 MAGIC LINK (dev mode):\x1b[0m');
-      console.log(`\x1b[1m${magicLink}\x1b[0m`);
-      console.log('');
-      res.json({ message: 'Magic link generated', magicLink });
-    } else {
+    if (config.NODE_ENV === 'production') {
       const sent = await sendMagicLinkEmail(email, magicLink);
       if (!sent) {
         res.status(500).json({ error: 'Failed to send magic link email' });
         return;
       }
       res.json({ message: 'Magic link sent' });
+    } else {
+      console.log('');
+      console.log('\x1b[36m🔗 MAGIC LINK (dev mode):\x1b[0m');
+      console.log(`\x1b[1m${magicLink}\x1b[0m`);
+      console.log('');
+      res.json({ message: 'Magic link generated', magicLink });
     }
   } catch (err) {
     if (err instanceof z.ZodError) {
