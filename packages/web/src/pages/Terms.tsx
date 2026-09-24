@@ -72,7 +72,7 @@ const sections = [
     content: (
       <p className="font-serif text-warm-gray">
         For questions about these Terms, contact us at{' '}
-        <span className="text-coral">legal@quirk.app</span>.
+        <span className="text-coral">soorajsuresh9597@gmail.com</span>.
       </p>
     ),
   },

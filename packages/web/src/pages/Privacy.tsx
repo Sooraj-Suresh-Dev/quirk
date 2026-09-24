@@ -73,7 +73,7 @@ const sections = [
       <p className="font-serif text-warm-gray">
         If you have questions about this Privacy Policy, please contact
         us at{' '}
-        <span className="text-coral">privacy@quirk.app</span>.
+        <span className="text-coral">soorajsuresh9597@gmail.com</span>.
       </p>
     ),
   },
