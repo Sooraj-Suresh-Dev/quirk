@@ -81,6 +81,9 @@ export function TrendCard({ trend, selected, onClick }: TrendCardProps) {
                 imageLoading ? 'opacity-0' : 'opacity-100'
               }`}
               loading="lazy"
+              decoding="async"
+              width="600"
+              height="200"
               onLoad={() => setImageLoading(false)}
               onError={() => {
                 setImageLoading(false);

@@ -22,7 +22,7 @@ export function Sidebar({ onHelpClick }: SidebarProps) {
     <>
       <aside className="hidden md:flex fixed left-0 top-0 h-screen w-[60px] bg-cream border-r-3 border-deep-black flex-col items-center py-4 z-50">
         <div className="mb-8">
-          <img src="/logo.svg" alt="Quirk" className="h-10 w-auto" />
+          <img src="/logo.svg" alt="Quirk" className="h-10 w-auto" width="40" height="40" decoding="async" />
         </div>
 
         <nav className="flex-1 flex flex-col gap-2">

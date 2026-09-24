@@ -1,11 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
-import { LoginForm } from '@/components/auth/LoginForm';
-import { SignupForm } from '@/components/auth/SignupForm';
 import { useAuthModal } from '@/lib/auth-modal';
+
+const LoginForm = lazy(() => import('@/components/auth/LoginForm').then((m) => ({ default: m.LoginForm })));
+const SignupForm = lazy(() => import('@/components/auth/SignupForm').then((m) => ({ default: m.SignupForm })));
+
+const AuthModalFallback = (
+  <div className="py-8 text-center font-mono text-sm text-warm-gray">Loading...</div>
+);
 
 export function MarketingNav() {
   const { activeModal, openLogin, openSignup, closeModal } = useAuthModal();
@@ -36,7 +41,15 @@ export function MarketingNav() {
       <nav className="flex items-center px-8 py-6 relative">
         <div className="flex-1">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/logo.svg" alt="Quirk" className="h-12 w-auto" />
+            <img
+              src="/logo.svg"
+              alt="Quirk"
+              className="h-12 w-auto"
+              width="48"
+              height="48"
+              fetchPriority="high"
+              decoding="async"
+            />
             <span className="font-mono text-2xl font-bold text-coral">QUIRK</span>
           </Link>
         </div>
@@ -115,10 +128,14 @@ export function MarketingNav() {
       </nav>
 
       <Modal isOpen={activeModal === 'login'} onClose={closeModal}>
-        <LoginForm onSwitchToSignup={openSignup} />
+        <Suspense fallback={AuthModalFallback}>
+          <LoginForm onSwitchToSignup={openSignup} />
+        </Suspense>
       </Modal>
       <Modal isOpen={activeModal === 'signup'} onClose={closeModal}>
-        <SignupForm onSwitchToLogin={openLogin} />
+        <Suspense fallback={AuthModalFallback}>
+          <SignupForm onSwitchToLogin={openLogin} />
+        </Suspense>
       </Modal>
     </>
   );

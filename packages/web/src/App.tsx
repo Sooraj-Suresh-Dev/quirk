@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, lazy, Suspense } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { AuthModalProvider } from '@/lib/auth-modal';
@@ -7,20 +7,27 @@ import { ToastProvider } from '@/lib/toast';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { PageViewTracker } from '@/components/analytics/PageViewTracker';
 import { Landing } from '@/pages/Landing';
-import { SetPassword } from '@/pages/SetPassword';
-import { Dashboard } from '@/pages/Dashboard';
-import { Discover } from '@/pages/Discover';
-import { Library } from '@/pages/Library';
-import { Voice } from '@/pages/Voice';
-import { Settings } from '@/pages/Settings';
-import { Generate } from '@/pages/Generate';
-import { About } from '@/pages/About';
-import { Pricing } from '@/pages/Pricing';
-import { Features } from '@/pages/Features';
-import { Privacy } from '@/pages/Privacy';
-import { Terms } from '@/pages/Terms';
-import { FAQ } from '@/pages/FAQ';
-import { NotFound } from '@/pages/NotFound';
+
+const SetPassword = lazy(() => import('@/pages/SetPassword').then((m) => ({ default: m.SetPassword })));
+const Dashboard = lazy(() => import('@/pages/Dashboard').then((m) => ({ default: m.Dashboard })));
+const Discover = lazy(() => import('@/pages/Discover').then((m) => ({ default: m.Discover })));
+const Library = lazy(() => import('@/pages/Library').then((m) => ({ default: m.Library })));
+const Voice = lazy(() => import('@/pages/Voice').then((m) => ({ default: m.Voice })));
+const Settings = lazy(() => import('@/pages/Settings').then((m) => ({ default: m.Settings })));
+const Generate = lazy(() => import('@/pages/Generate').then((m) => ({ default: m.Generate })));
+const About = lazy(() => import('@/pages/About').then((m) => ({ default: m.About })));
+const Pricing = lazy(() => import('@/pages/Pricing').then((m) => ({ default: m.Pricing })));
+const Features = lazy(() => import('@/pages/Features').then((m) => ({ default: m.Features })));
+const Privacy = lazy(() => import('@/pages/Privacy').then((m) => ({ default: m.Privacy })));
+const Terms = lazy(() => import('@/pages/Terms').then((m) => ({ default: m.Terms })));
+const FAQ = lazy(() => import('@/pages/FAQ').then((m) => ({ default: m.FAQ })));
+const NotFound = lazy(() => import('@/pages/NotFound').then((m) => ({ default: m.NotFound })));
+
+const RouteFallback = (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+    Loading...
+  </div>
+);
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -30,8 +37,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function GuestOnlyRoute() {
-  const { user, isLoading } = useAuth();
-  if (isLoading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
+  const { user } = useAuth();
   if (user) return <Navigate to="/dashboard" replace />;
   return <Outlet />;
 }
@@ -73,9 +79,11 @@ export default function App() {
         <AuthProvider>
           <AuthModalProvider>
             <ToastProvider>
-            <ErrorBoundary>
-              <PageViewTracker />
-              <AppRoutes />
+              <ErrorBoundary>
+                <PageViewTracker />
+                <Suspense fallback={RouteFallback}>
+                  <AppRoutes />
+                </Suspense>
               </ErrorBoundary>
             </ToastProvider>
           </AuthModalProvider>

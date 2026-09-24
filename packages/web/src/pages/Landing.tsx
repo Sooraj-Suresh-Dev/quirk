@@ -1,11 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { Sparkles, TrendingUp, Mail, ArrowRight, Github, Zap, Star, ArrowUp, Pause, Play, Rocket } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MarketingLayout } from '@/components/layout/MarketingLayout';
 import { PageMeta } from '@/components/seo/PageMeta';
 import { useAuthModal } from '@/lib/auth-modal';
-import { TrendsSection } from '@/components/trends/TrendsSection';
+
+const TrendsSection = lazy(() =>
+  import('@/components/trends/TrendsSection').then((m) => ({ default: m.TrendsSection }))
+);
 
 const sampleTrends = [
   {
@@ -324,7 +327,11 @@ export function Landing() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="max-w-6xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-12">
+        <section
+          id="features"
+          className="max-w-6xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-12"
+          style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 600px' }}
+        >
           <div ref={featuresRef.ref}>
             <div className="text-center mb-16">
               <h2 className={`font-mono text-3xl font-bold text-charcoal mb-4 ${featuresRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
@@ -360,12 +367,31 @@ export function Landing() {
         </section>
 
         {/* Trends Section */}
-       <div id="trends">
-          <TrendsSection showFilters={false} />
+        <div id="trends" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}>
+          <Suspense
+            fallback={
+              <section className="py-24 px-8">
+                <div className="max-w-6xl mx-auto">
+                  <div className="h-9 w-64 bg-cream rounded mb-2" />
+                  <div className="h-5 w-80 bg-cream rounded mb-8" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="h-48 bg-cream rounded-card animate-shimmer" />
+                    <div className="h-48 bg-cream rounded-card animate-shimmer" />
+                  </div>
+                </div>
+              </section>
+            }
+          >
+            <TrendsSection showFilters={false} />
+          </Suspense>
         </div>
 
         {/* Final CTA */}
-        <section id="cta" className="py-16">
+        <section
+          id="cta"
+          className="py-16"
+          style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}
+        >
           <div ref={ctaRef.ref} className="max-w-4xl mx-auto px-5 md:px-8 text-center">
             <h2 className={`font-mono text-3xl sm:text-4xl font-bold text-charcoal mb-4 ${ctaRef.inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
               READY TO FIND YOUR QUIRK?

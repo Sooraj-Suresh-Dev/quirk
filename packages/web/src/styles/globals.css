@@ -1,3 +1,39 @@
+@font-face {
+  font-family: 'Space Mono';
+  src: url('/fonts/space-mono-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Mono';
+  src: url('/fonts/space-mono-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('/fonts/plus-jakarta-sans.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lora';
+  src: url('/fonts/lora-normal.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lora';
+  src: url('/fonts/lora-italic.woff2') format('woff2');
+  font-weight: 400 500;
+  font-style: italic;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -49,7 +85,7 @@
 @layer utilities {
   @keyframes slide-up-fade {
     from {
-      opacity: 0;
+      opacity: 1;
       transform: translateY(16px);
     }
     to {
@@ -60,7 +96,7 @@
 
   @keyframes slide-in-right {
     from {
-      opacity: 0;
+      opacity: 1;
       transform: translateX(24px);
     }
     to {
@@ -90,35 +126,35 @@
   }
 
   .animate-slide-up {
-    animation: slide-up-fade 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: slide-up-fade 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .animate-slide-up-delay-1 {
-    animation: slide-up-fade 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+    animation: slide-up-fade 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
   }
 
   .animate-slide-up-delay-2 {
-    animation: slide-up-fade 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+    animation: slide-up-fade 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
   }
 
   .animate-slide-up-delay-3 {
-    animation: slide-up-fade 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+    animation: slide-up-fade 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
   }
 
   .animate-slide-up-delay-4 {
-    animation: slide-up-fade 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+    animation: slide-up-fade 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
   }
 
   .animate-slide-up-delay-5 {
-    animation: slide-up-fade 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.75s both;
+    animation: slide-up-fade 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
   }
 
   .animate-slide-in-right {
-    animation: slide-in-right 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+    animation: slide-in-right 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .animate-slide-in-right-delay {
-    animation: slide-in-right 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+    animation: slide-in-right 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
   }
 
   .animate-fade-in-up {
