@@ -21,6 +21,7 @@ const envSchema = z.object({
   PRODUCT_HUNT_API_TOKEN: z.string().optional(),
   N8N_WEBHOOK_URL: z.string().url().optional(),
   N8N_WEBHOOK_SECRET: z.string().min(16).optional(),
+  N8N_DIGEST_WEBHOOK_URL: z.string().url().optional(),
 });
 
 export const config = envSchema.parse(process.env);
