@@ -1,48 +1,60 @@
+import { config } from '../config/env.js';
 import { IUser } from '../models/User.js';
 import { Trend } from '../models/Trend.js';
-import { generatePost } from './postGenerator.js';
 
-export interface DigestContent {
-  textPosts: string[];
-  carousel: Record<string, unknown>[];
-  imagePrompt: string;
+export interface DigestTrend {
+  id: string;
+  title: string;
+  summary: string;
+  source: string;
+  url: string;
+  tags: string[];
+  stars?: number;
+  forks?: number;
+  votes?: number;
+  points?: number;
+  comments?: number;
+  author?: string;
+  makers?: string[];
+  createdAt?: string;
+  thumbnailUrl?: string;
+  generateUrl: string;
 }
 
-export async function generateDigest(user: IUser): Promise<DigestContent> {
+export interface DigestContent {
+  trends: DigestTrend[];
+}
+
+export async function generateDigest(user: IUser): Promise<DigestContent | null> {
   const trends = await Trend.find({
     source: { $in: user.preferences?.sources || ['github', 'producthunt'] },
     expiresAt: { $gt: new Date() },
   })
     .sort({ fetchedAt: -1 })
-    .limit(5);
+    .limit(3);
 
   if (trends.length < 3) {
-    return {
-      textPosts: ['No trends available for digest generation today.'],
-      carousel: [{ heading: 'Check back later', body: 'More trends coming soon!', imagePrompt: 'Empty state illustration' }],
-      imagePrompt: 'Stay tuned for more content!',
-    };
+    return null;
   }
 
-  // Generate 3 text posts
-  const textPostsRaw = await Promise.all(
-    trends.slice(0, 3).map(trend => generatePost(trend, 'text', user))
-  );
-  const textPosts = textPostsRaw.map(p => typeof p === 'string' ? p : JSON.stringify(p));
-
-  // Generate 1 carousel
-  const carouselResult = await generatePost(trends[3] || trends[0], 'carousel', user);
-  const carousel = Array.isArray(carouselResult) ? carouselResult as Record<string, unknown>[] : [];
-
-  // Generate 1 image prompt
-  const imagePromptResult = await generatePost(trends[4] || trends[1], 'image-prompt', user);
-  const imagePrompt = typeof imagePromptResult === 'string'
-    ? imagePromptResult
-    : JSON.stringify(imagePromptResult);
-
   return {
-    textPosts,
-    carousel,
-    imagePrompt,
+    trends: trends.map(t => ({
+      id: String(t._id),
+      title: t.title,
+      summary: t.summary,
+      source: t.source,
+      url: t.url,
+      tags: t.tags,
+      stars: t.stars,
+      forks: t.forks,
+      votes: t.votes,
+      points: t.points,
+      comments: t.comments,
+      author: t.author,
+      makers: t.makers,
+      createdAt: t.createdAt,
+      thumbnailUrl: t.thumbnailUrl,
+      generateUrl: `${config.CLIENT_URL}/generate/${t._id}`,
+    })),
   };
 }
