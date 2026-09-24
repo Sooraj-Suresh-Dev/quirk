@@ -36,16 +36,22 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;
+          const n = id.split(path.sep).join('/');
           if (
-            id.includes('react-router') ||
-            id.includes(`${path.sep}react-dom${path.sep}`) ||
-            id.includes(`${path.sep}react${path.sep}`) ||
-            id.includes('react-helmet')
+            n.includes('/lucide-react/') ||
+            n.includes('/@floating-ui/') ||
+            n.includes('/clsx/')
+          ) {
+            return 'vendor-ui';
+          }
+          if (
+            n.includes('/react-router/') ||
+            n.includes('/react-dom/') ||
+            n.includes('/react-helmet') ||
+            n.includes('/scheduler/') ||
+            n.includes('/react/')
           ) {
             return 'vendor-react';
-          }
-          if (id.includes('lucide-react') || id.includes('@floating-ui') || id.includes('clsx')) {
-            return 'vendor-ui';
           }
           return undefined;
         },
