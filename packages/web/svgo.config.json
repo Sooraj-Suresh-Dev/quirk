@@ -1,0 +1,12 @@
+{
+  "multipass": true,
+  "precision": 1,
+  "plugins": [
+    "preset-default",
+    "removeDimensions",
+    "removeTitle",
+    "removeDesc",
+    "cleanupIds",
+    "convertPathData"
+  ]
+}
