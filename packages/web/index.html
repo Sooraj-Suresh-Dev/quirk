@@ -9,22 +9,41 @@
     <meta property="og:site_name" content="Quirk" />
     <meta property="og:locale" content="en_US" />
     <meta name="theme-color" content="#E8725C" />
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX');
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
+    <style>
+      html, body { margin: 0; background: #F5F0E8; color: #1d1d1d; }
+      #root { min-height: 100vh; }
+      .shell { min-height: 100vh; font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "Liberation Mono", monospace; }
+      .shell-nav { display: flex; align-items: center; padding: 1.5rem 2rem; }
+      .shell-brand { display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; font-weight: 700; color: #E8725C; }
+      .shell-brand img { height: 3rem; width: auto; display: block; }
+      .shell-main { max-width: 72rem; margin: 0 auto; padding: 3rem 1.25rem 2.5rem; }
+      .shell h1 { margin: 0 0 1.5rem; font-size: 2.25rem; line-height: 1.15; font-weight: 700; text-transform: uppercase; letter-spacing: -0.025em; color: #1d1d1d; }
+      .shell p { margin: 0 0 2rem; max-width: 32rem; font-size: 1.125rem; line-height: 1.65; color: #3D3D3D; font-family: Georgia, "Times New Roman", serif; }
+      .shell-actions { display: flex; flex-wrap: wrap; gap: 1rem; }
+      .shell-btn { display: inline-block; background: #E8725C; color: #FDFBF7; border: 3px solid #1A1A1A; border-radius: 8px; box-shadow: 3px 3px 0 #1A1A1A; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 700; text-decoration: none; }
+      .shell-btn.secondary { background: #FDFBF7; color: #1d1d1d; }
+      @media (min-width: 640px) { .shell h1 { font-size: 3rem; } .shell p { font-size: 1.25rem; } }
+      @media (min-width: 768px) { .shell-main { padding: 5rem 2rem 4rem; } }
+      @media (min-width: 1024px) { .shell h1 { font-size: 3.75rem; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="shell" aria-label="Loading Quirk">
+        <div class="shell-nav"><div class="shell-brand">
+          <img src="/logo.svg" width="48" height="48" alt="" />
+          QUIRK
+        </div>
+      </div>
+      <div class="shell-main">
+        <h1>Your LinkedIn,<br />Your Quirk</h1>
+        <p>AI-powered content generation from trending topics. Train your voice, grow your presence.</p>
+        <div class="shell-actions">
+          <span class="shell-btn">START CREATING</span>
+          <span class="shell-btn secondary">SEE IT IN ACTION</span>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

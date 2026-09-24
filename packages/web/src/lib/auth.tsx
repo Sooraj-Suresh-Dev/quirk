@@ -78,23 +78,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    api.get<{ user: User; voice: Voice | null }>('/auth/session')
-      .then(res => {
+    let cancelled = false;
+
+    const loadSession = async () => {
+      try {
+        const res = await api.get<{ user: User; voice: Voice | null }>('/auth/session');
+        if (cancelled) return;
         setUser(res.user);
         setVoice(res.voice);
-      })
-      .catch(async (err) => {
-        if (err.status === 401) {
+      } catch (err) {
+        if (cancelled) return;
+        if ((err as { status?: number }).status === 401) {
           try {
             await api.post('/auth/refresh');
             const res = await api.get<{ user: User; voice: Voice | null }>('/auth/session');
+            if (cancelled) return;
             setUser(res.user);
             setVoice(res.voice);
           } catch {
           }
         }
-      })
-      .finally(() => setIsLoading(false));
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    const schedule = () => {
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(() => { void loadSession(); }, { timeout: 4000 });
+      } else {
+        window.setTimeout(() => { void loadSession(); }, 2000);
+      }
+    };
+
+    if (document.readyState === 'complete') {
+      schedule();
+    } else {
+      window.addEventListener('load', schedule, { once: true });
+    }
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('load', schedule);
+    };
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {

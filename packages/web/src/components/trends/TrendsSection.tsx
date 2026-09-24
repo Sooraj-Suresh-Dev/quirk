@@ -48,8 +48,28 @@ export function TrendsSection({
   }, []);
 
   useEffect(() => {
-    fetchTrends();
-  }, [fetchTrends]);
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      if (cancelled) return;
+      void (async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const data = await api.get<{ trends: Trend[] }>('/trends?limit=50');
+          if (!cancelled) setTrends(data.trends);
+        } catch (err) {
+          console.error('Failed to fetch trends:', err);
+          if (!cancelled) setError('Unable to load trends. Please try again.');
+        } finally {
+          if (!cancelled) setIsLoading(false);
+        }
+      })();
+    }, 1500);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   useEffect(() => {
     setCurrentPage(1);
