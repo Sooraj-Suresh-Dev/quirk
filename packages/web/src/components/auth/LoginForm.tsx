@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
+import { safeNextPath } from '@/lib/redirect';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
@@ -11,6 +12,7 @@ interface LoginFormProps {
 export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,7 +32,8 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
     setFieldErrors({});
     try {
       await login(email, password);
-      navigate('/dashboard');
+      const next = safeNextPath(searchParams.get('next'));
+      navigate(next || '/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     }

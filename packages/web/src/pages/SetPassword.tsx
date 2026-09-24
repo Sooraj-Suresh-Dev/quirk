@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
+import { safeNextPath } from '@/lib/redirect';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -56,7 +57,8 @@ export function SetPassword() {
     }
     try {
       await setPassword(magicToken, password);
-      navigate('/dashboard');
+      const next = safeNextPath(searchParams.get('next'));
+      navigate(next || '/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to set password');
     }

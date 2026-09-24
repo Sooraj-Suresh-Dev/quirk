@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Sparkles, TrendingUp, Mail, ArrowRight, Github, Zap, Star, ArrowUp, Pause, Play, Rocket } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MarketingLayout } from '@/components/layout/MarketingLayout';
 import { PageMeta } from '@/components/seo/PageMeta';
 import { useAuthModal } from '@/lib/auth-modal';
+import { safeNextPath } from '@/lib/redirect';
 
 const TrendsSection = lazy(() =>
   import('@/components/trends/TrendsSection').then((m) => ({ default: m.TrendsSection }))
@@ -246,10 +248,17 @@ function useInView(threshold = 0.1) {
 }
 
 export function Landing() {
-  const { openSignup } = useAuthModal();
+  const { openSignup, openLogin } = useAuthModal();
+  const [searchParams] = useSearchParams();
   const featuresRef = useInView(0.4);
   const ctaRef = useInView(0.4);
   const marqueeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (safeNextPath(searchParams.get('next'))) {
+      openLogin();
+    }
+  }, [searchParams, openLogin]);
 
   useEffect(() => {
     const el = marqueeRef.current;

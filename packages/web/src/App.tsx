@@ -31,8 +31,12 @@ const RouteFallback = (
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
   if (isLoading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
-  if (!user) return <Navigate to="/" replace />;
+  if (!user) {
+    const next = `${location.pathname}${location.search}`;
+    return <Navigate to={`/?next=${encodeURIComponent(next)}`} replace />;
+  }
   return <>{children}</>;
 }
 
