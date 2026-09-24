@@ -1,94 +1,94 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 
 export interface BlueprintGridBgProps {
   mouse: { x: number; y: number };
 }
 
 const GRID_SIZE = 60;
+const STEP = GRID_SIZE * 1.5; // 90 — matches original crosshair spacing
+const PROXIMITY = 120;
+const OFFSET = 30; // + center: c * STEP + 30
+
+const gridLines = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${GRID_SIZE}' height='${GRID_SIZE}'%3E%3Cpath d='M ${GRID_SIZE} 0 L 0 0 0 ${GRID_SIZE}' fill='none' stroke='%232D2D2D' stroke-opacity='0.15' stroke-width='1'/%3E%3C/svg%3E`;
+
+// Idle + marks — charcoal/15, 10px, same grid as original crosshairs
+const crosshairIdle = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${STEP}' height='${STEP}'%3E%3Ctext x='${OFFSET}' y='${OFFSET}' text-anchor='middle' dominant-baseline='central' font-family='ui-monospace,monospace' font-size='10' fill='rgba(29,29,29,0.15)'%3E+%3C/text%3E%3C/svg%3E`;
+
+// Near cursor — coral, bold, ~1.25× (scale-125 equivalent)
+const crosshairActive = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${STEP}' height='${STEP}'%3E%3Ctext x='${OFFSET}' y='${OFFSET}' text-anchor='middle' dominant-baseline='central' font-family='ui-monospace,monospace' font-size='12.5' font-weight='700' fill='%23E8725C'%3E+%3C/text%3E%3C/svg%3E`;
 
 export function BlueprintGridBg({ mouse }: BlueprintGridBgProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [localMouse, setLocalMouse] = useState({ x: -999, y: -999, active: false });
-  const rafRef = useRef<number>(0);
+  const rafRef = useRef(0);
+  const hasPointer = mouse.x > -990 || mouse.y > -990;
 
   useEffect(() => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    if (
+    if (!hasPointer) return;
+    const el = containerRef.current;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const inside =
       mouse.x >= rect.left &&
       mouse.x <= rect.right &&
       mouse.y >= rect.top &&
-      mouse.y <= rect.bottom
-    ) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        setLocalMouse({
-          x: Math.round(mouse.x - rect.left),
-          y: Math.round(mouse.y - rect.top),
-          active: true,
-        });
-      });
-    } else {
-      setLocalMouse((prev) => ({ ...prev, active: false }));
-    }
+      mouse.y <= rect.bottom;
+
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      if (inside) {
+        el.style.setProperty('--mx', `${Math.round(mouse.x - rect.left)}px`);
+        el.style.setProperty('--my', `${Math.round(mouse.y - rect.top)}px`);
+        el.style.setProperty('--crosshair-visible', '1');
+      } else {
+        el.style.setProperty('--crosshair-visible', '0');
+      }
+    });
+
     return () => cancelAnimationFrame(rafRef.current);
-  }, [mouse]);
+  }, [mouse, hasPointer]);
 
-  const [dimensions, setDimensions] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : 1920,
-    height: typeof window !== 'undefined' ? window.innerHeight : 1080,
-  });
-
-  useEffect(() => {
-    const handleResize = () => {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const STEP = GRID_SIZE * 1.5;
-  const cols = Math.ceil(dimensions.width / STEP) + 2;
-  const rows = Math.ceil(dimensions.height / STEP) + 2;
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none">
-      {/* 1. SVG Grid Lines Pattern */}
-      <svg className="absolute inset-0 w-full h-full" strokeWidth="1">
-        <defs>
-          <pattern id="blueprint-grid-pattern" width={GRID_SIZE} height={GRID_SIZE} patternUnits="userSpaceOnUse">
-            <path d={`M ${GRID_SIZE} 0 L 0 0 0 ${GRID_SIZE}`} fill="none" stroke="#2D2D2D" strokeOpacity="0.15" strokeWidth="1" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#blueprint-grid-pattern)" />
-      </svg>
-
-      {/* 2. Grid Intersection Crosshairs */}
-      <div className="absolute inset-0">
-        {Array.from({ length: rows }).map((_, r) =>
-          Array.from({ length: cols }).map((_, c) => {
-            const cx = c * GRID_SIZE * 1.5 + 30;
-            const cy = r * GRID_SIZE * 1.5 + 30;
-            const dist = localMouse.active ? Math.hypot(localMouse.x - cx, localMouse.y - cy) : 999;
-            const isNear = dist < 120;
-
-            return (
-              <div
-                key={`${r}-${c}`}
-                className={`absolute font-mono text-[10px] transition-all duration-200 ${
-                  isNear ? 'text-coral scale-125 font-bold' : 'text-charcoal/15'
-                }`}
-                style={{ left: `${cx}px`, top: `${cy}px`, transform: 'translate(-50%, -50%)' }}
-              >
-                +
-              </div>
-            );
-          })
-        )}
-      </div>
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none blueprint-grid"
+      aria-hidden="true"
+      style={{
+        '--mx': '-999px',
+        '--my': '-999px',
+        '--crosshair-visible': '0',
+        '--proximity': `${PROXIMITY}px`,
+        backgroundImage: `url("${gridLines}")`,
+        backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
+      } as React.CSSProperties}
+    >
+      {/* Idle crosshairs — always visible, same as before */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url("${crosshairIdle}")`,
+          backgroundSize: `${STEP}px ${STEP}px`,
+          backgroundPosition: `${OFFSET}px ${OFFSET}px`,
+        }}
+      />
+      {/* Active crosshairs — only after first pointer move (skips mask cost on mobile first paint) */}
+      {hasPointer && (
+        <div
+          className="absolute inset-0 transition-opacity duration-200"
+          style={{
+            backgroundImage: `url("${crosshairActive}")`,
+            backgroundSize: `${STEP}px ${STEP}px`,
+            backgroundPosition: `${OFFSET}px ${OFFSET}px`,
+            opacity: 'var(--crosshair-visible)',
+            WebkitMaskImage:
+              'radial-gradient(circle var(--proximity) at var(--mx) var(--my), #000 0%, #000 55%, transparent 100%)',
+            maskImage:
+              'radial-gradient(circle var(--proximity) at var(--mx) var(--my), #000 0%, #000 55%, transparent 100%)',
+          }}
+        />
+      )}
     </div>
   );
 }
