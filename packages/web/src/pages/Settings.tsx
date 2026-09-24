@@ -42,8 +42,8 @@ export function Settings() {
 
   const [openaiKey, setOpenaiKey] = useState('');
   const [anthropicKey, setAnthropicKey] = useState('');
-  const [digestTime, setDigestTime] = useState('09:00');
-  const [emailDigest, setEmailDigest] = useState(false);
+  const [digestTime, setDigestTime] = useState('10:00');
+  const [emailDigest, setEmailDigest] = useState(true);
   const [sources, setSources] = useState<string[]>(['github', 'producthunt']);
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -59,8 +59,8 @@ export function Settings() {
   const snapshotRef = useRef<FormState>({
     openaiKey: '',
     anthropicKey: '',
-    digestTime: '09:00',
-    emailDigest: false,
+    digestTime: '10:00',
+    emailDigest: true,
     sources: ['github', 'producthunt'],
   });
 
@@ -88,8 +88,8 @@ export function Settings() {
       const snapshot: FormState = {
         openaiKey: '',
         anthropicKey: '',
-        digestTime: user.preferences.digestTime || '09:00',
-        emailDigest: user.preferences.emailDigest || false,
+        digestTime: user.preferences.digestTime || '10:00',
+        emailDigest: user.preferences.emailDigest ?? true,
         sources: user.preferences.sources || ['github', 'producthunt'],
       };
       snapshotRef.current = snapshot;

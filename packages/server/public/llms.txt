@@ -46,8 +46,8 @@ Base URL: `/api` (frontend proxies via Vite to `localhost:3001/api`)
   refreshToken?: string
   preferences: {
     sources: string[]              // default: ['github', 'producthunt']
-    digestTime: string             // default: "09:00"
-    emailDigest: boolean           // default: false
+    digestTime: string             // default: "10:00"
+    emailDigest: boolean           // default: true
     openaiKey?: string
     anthropicKey?: string
     preferredProvider?: string     // 'openai' | 'anthropic' | 'openrouter'

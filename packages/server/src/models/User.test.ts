@@ -26,6 +26,15 @@ describe('User Model', () => {
     expect(user._id).toBeDefined();
   });
 
+  it('defaults daily digest on at 10:00', async () => {
+    const user = await User.create({
+      email: 'digest-defaults@example.com',
+      passwordHash: 'hashedpassword123',
+    });
+    expect(user.preferences?.emailDigest).toBe(true);
+    expect(user.preferences?.digestTime).toBe('10:00');
+  });
+
   it('requires email to be unique', async () => {
     await User.create({ email: 'dup@example.com', passwordHash: 'hash1' });
     await expect(

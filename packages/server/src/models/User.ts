@@ -23,8 +23,8 @@ const userSchema = new Schema<IUser>({
   refreshToken: { type: String },
   preferences: {
     sources: { type: [String], default: ['github', 'producthunt'] },
-    digestTime: { type: String, default: '09:00' },
-    emailDigest: { type: Boolean, default: false },
+    digestTime: { type: String, default: '10:00' },
+    emailDigest: { type: Boolean, default: true },
     openaiKey: { type: String },
     anthropicKey: { type: String },
     preferredProvider: { type: String },
