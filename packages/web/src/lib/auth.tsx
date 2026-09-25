@@ -50,6 +50,7 @@ interface User {
     sources: string[];
     digestTime: string;
     emailDigest: boolean;
+    timezone: string;
     openaiKey?: string;
     anthropicKey?: string;
     preferredProvider?: string;

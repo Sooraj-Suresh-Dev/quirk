@@ -8,6 +8,7 @@ export interface IUser extends Document {
     sources: string[];
     digestTime: string;
     emailDigest: boolean;
+    timezone: string;
     openaiKey?: string;
     anthropicKey?: string;
     preferredProvider?: string;
@@ -25,6 +26,7 @@ const userSchema = new Schema<IUser>({
     sources: { type: [String], default: ['github', 'producthunt'] },
     digestTime: { type: String, default: '10:00' },
     emailDigest: { type: Boolean, default: true },
+    timezone: { type: String, default: 'UTC' },
     openaiKey: { type: String },
     anthropicKey: { type: String },
     preferredProvider: { type: String },

@@ -10,15 +10,21 @@ export function startDailyDigestCron() {
     if (config.NODE_ENV !== 'production') return;
 
     const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
     try {
-      const users = await User.find({
-        'preferences.emailDigest': true,
-        'preferences.digestTime': currentTime,
-      });
+      const users = await User.find({ 'preferences.emailDigest': true });
 
       for (const user of users) {
+        const userTz = user.preferences.timezone || 'UTC';
+        const userLocalTime = now.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+          timeZone: userTz,
+        });
+
+        if (userLocalTime !== user.preferences.digestTime) continue;
+
         try {
           const digest = await generateDigest(user);
           if (!digest) {

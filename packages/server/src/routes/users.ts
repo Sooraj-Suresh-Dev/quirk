@@ -69,6 +69,7 @@ const preferencesSchema = z.object({
   sources: z.array(z.string()).optional(),
   digestTime: z.string().optional(),
   emailDigest: z.boolean().optional(),
+  timezone: z.string().optional(),
   openaiKey: z.string().optional(),
   anthropicKey: z.string().optional(),
   preferredProvider: z.string().optional(),

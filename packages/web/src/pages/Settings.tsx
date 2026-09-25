@@ -11,7 +11,7 @@ import { Modal } from '@/components/ui/Modal';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { useToast } from '@/lib/toast';
-import { Key, Clock, Bell, Save, Trash2, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Key, Clock, Bell, Save, Trash2, Loader2, CheckCircle, AlertCircle, Globe } from 'lucide-react';
 import { PageMeta } from '@/components/seo/PageMeta';
 
 type KeyStatus = 'idle' | 'verifying' | 'valid' | 'invalid';
@@ -21,6 +21,7 @@ interface FormState {
   anthropicKey: string;
   digestTime: string;
   emailDigest: boolean;
+  timezone: string;
   sources: string[];
 }
 
@@ -30,6 +31,7 @@ function equalState(a: FormState, b: FormState) {
     a.anthropicKey === b.anthropicKey &&
     a.digestTime === b.digestTime &&
     a.emailDigest === b.emailDigest &&
+    a.timezone === b.timezone &&
     a.sources.length === b.sources.length &&
     a.sources.every((s) => b.sources.includes(s))
   );
@@ -44,6 +46,7 @@ export function Settings() {
   const [anthropicKey, setAnthropicKey] = useState('');
   const [digestTime, setDigestTime] = useState('10:00');
   const [emailDigest, setEmailDigest] = useState(true);
+  const [timezone, setTimezone] = useState('UTC');
   const [sources, setSources] = useState<string[]>(['github', 'producthunt']);
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -61,11 +64,12 @@ export function Settings() {
     anthropicKey: '',
     digestTime: '10:00',
     emailDigest: true,
+    timezone: 'UTC',
     sources: ['github', 'producthunt'],
   });
 
   const isDirty = !equalState(
-    { openaiKey, anthropicKey, digestTime, emailDigest, sources },
+    { openaiKey, anthropicKey, digestTime, emailDigest, timezone, sources },
     snapshotRef.current
   );
 
@@ -85,16 +89,19 @@ export function Settings() {
 
   useEffect(() => {
     if (user?.preferences) {
+      const detectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const snapshot: FormState = {
         openaiKey: '',
         anthropicKey: '',
         digestTime: user.preferences.digestTime || '10:00',
         emailDigest: user.preferences.emailDigest ?? true,
+        timezone: user.preferences.timezone || detectedTz || 'UTC',
         sources: user.preferences.sources || ['github', 'producthunt'],
       };
       snapshotRef.current = snapshot;
       setDigestTime(snapshot.digestTime);
       setEmailDigest(snapshot.emailDigest);
+      setTimezone(snapshot.timezone);
       setSources(snapshot.sources);
     }
   }, [user]);
@@ -152,11 +159,12 @@ export function Settings() {
         sources,
         digestTime,
         emailDigest,
+        timezone,
         openaiKey: openaiKey || undefined,
         anthropicKey: anthropicKey || undefined,
       });
-      snapshotRef.current = { openaiKey, anthropicKey, digestTime, emailDigest, sources };
-      updatePreferences({ sources, digestTime, emailDigest });
+      snapshotRef.current = { openaiKey, anthropicKey, digestTime, emailDigest, timezone, sources };
+      updatePreferences({ sources, digestTime, emailDigest, timezone });
       toast('success', 'Settings saved successfully!');
     } catch (err) {
       console.error('Failed to save settings:', err);
@@ -172,6 +180,7 @@ export function Settings() {
     setAnthropicKey(s.anthropicKey);
     setDigestTime(s.digestTime);
     setEmailDigest(s.emailDigest);
+    setTimezone(s.timezone);
     setSources(s.sources);
     setOpenaiKeyStatus('idle');
     setAnthropicKeyStatus('idle');
@@ -302,15 +311,54 @@ export function Settings() {
                     label="Send me a daily digest email"
                   />
                   {emailDigest && (
-                    <div>
-                      <label htmlFor="digest-time" className="font-mono text-xs text-charcoal mb-1.5 block tracking-wide">DELIVERY TIME</label>
-                      <Input
-                        id="digest-time"
-                        type="time"
-                        value={digestTime}
-                        onChange={(e) => setDigestTime(e.target.value)}
-                        className="w-40"
-                      />
+                    <div className="space-y-4">
+                      <div>
+                        <label htmlFor="digest-time" className="font-mono text-xs text-charcoal mb-1.5 block tracking-wide">DELIVERY TIME</label>
+                        <Input
+                          id="digest-time"
+                          type="time"
+                          value={digestTime}
+                          onChange={(e) => setDigestTime(e.target.value)}
+                          className="w-40"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="timezone" className="font-mono text-xs text-charcoal mb-1.5 block tracking-wide">TIMEZONE</label>
+                        <div className="flex items-center gap-2">
+                          <Globe size={16} className="text-coral" />
+                          <select
+                            id="timezone"
+                            value={timezone}
+                            onChange={(e) => setTimezone(e.target.value)}
+                            className="bg-soft-white border border-charcoal/20 rounded-lg px-3 py-2 font-mono text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-coral w-64"
+                          >
+                            <option value="UTC">UTC (Coordinated Universal Time)</option>
+                            <option value="America/Los_Angeles">America/Los_Angeles (PST/PDT)</option>
+                            <option value="America/Denver">America/Denver (MST/MDT)</option>
+                            <option value="America/Chicago">America/Chicago (CST/CDT)</option>
+                            <option value="America/New_York">America/New_York (EST/EDT)</option>
+                            <option value="America/Toronto">America/Toronto (EST/EDT)</option>
+                            <option value="America/Vancouver">America/Vancouver (PST/PDT)</option>
+                            <option value="Europe/London">Europe/London (GMT/BST)</option>
+                            <option value="Europe/Paris">Europe/Paris (CET/CEST)</option>
+                            <option value="Europe/Berlin">Europe/Berlin (CET/CEST)</option>
+                            <option value="Europe/Madrid">Europe/Madrid (CET/CEST)</option>
+                            <option value="Europe/Rome">Europe/Rome (CET/CEST)</option>
+                            <option value="Europe/Amsterdam">Europe/Amsterdam (CET/CEST)</option>
+                            <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+                            <option value="Asia/Shanghai">Asia/Shanghai (CST)</option>
+                            <option value="Asia/Singapore">Asia/Singapore (SGT)</option>
+                            <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                            <option value="Asia/Dubai">Asia/Dubai (GST)</option>
+                            <option value="Australia/Sydney">Australia/Sydney (AEST/AEDT)</option>
+                            <option value="Australia/Melbourne">Australia/Melbourne (AEST/AEDT)</option>
+                            <option value="Pacific/Auckland">Pacific/Auckland (NZST/NZDT)</option>
+                          </select>
+                        </div>
+                        <p className="font-serif text-xs text-warm-gray mt-1">
+                          Auto-detected: {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
