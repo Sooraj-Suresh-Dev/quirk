@@ -355,9 +355,6 @@ export function Settings() {
                             <option value="Pacific/Auckland">Pacific/Auckland (NZST/NZDT)</option>
                           </select>
                         </div>
-                        <p className="font-serif text-xs text-warm-gray mt-1">
-                          Auto-detected: {Intl.DateTimeFormat().resolvedOptions().timeZone}
-                        </p>
                       </div>
                     </div>
                   )}
