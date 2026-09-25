@@ -8,7 +8,7 @@ import { MagicLink } from '../models/MagicLink.js';
 import { Voice } from '../models/Voice.js';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
 import { authRateLimiter } from '../middleware/authRateLimiter.js';
-import { logError, logWarn } from '../config/logger.js';
+import { logError } from '../config/logger.js';
 import { sendMagicLinkEmail } from '../services/emailSender.js';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../services/token.js';
 

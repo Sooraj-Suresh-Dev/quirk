@@ -1,5 +1,3 @@
-import { logError } from '../../config/logger.js';
-
 interface ExtractionResult {
   text: string;
   title?: string;
@@ -105,9 +103,9 @@ export async function extractLinkedInPost(url: string): Promise<ExtractionResult
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (message.includes('timeout') || message.includes('abort')) {
-      throw new Error('LinkedIn took too long to respond. Please try again.');
+      throw new Error('LinkedIn took too long to respond. Please try again.', { cause: err });
     }
-    throw new Error('Failed to connect to LinkedIn. Please check your network and try again.');
+    throw new Error('Failed to connect to LinkedIn. Please check your network and try again.', { cause: err });
   }
 
   if (!res.ok) {

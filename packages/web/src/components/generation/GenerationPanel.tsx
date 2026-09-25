@@ -132,7 +132,7 @@ export function GenerationPanel({ trend, type }: GenerationPanelProps) {
     try {
       await api.patch('/users/voice/toggle', {});
       await refreshVoice();
-    } catch (err: any) {
+    } catch {
       toast('error', 'Failed to toggle voice');
     } finally {
       setIsToggling(false);

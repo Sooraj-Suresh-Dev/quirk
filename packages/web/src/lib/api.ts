@@ -1,6 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
-interface RequestOptions extends RequestInit {}
+type RequestOptions = RequestInit;
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const headers: Record<string, string> = {

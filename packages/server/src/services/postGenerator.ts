@@ -64,7 +64,7 @@ export async function generatePost(
       // Provider has no API key — throw descriptive error instead of silent fallback
       if (provider !== 'openrouter') {
         const providerName = provider === 'openai' ? 'OpenAI' : 'Anthropic';
-        throw new Error(`No API key available for ${providerName}. Add your key in Settings or switch to OpenRouter.`);
+        throw new Error(`No API key available for ${providerName}. Add your key in Settings or switch to OpenRouter.`, { cause: err });
       }
       logError('OpenRouter failed, using fallback', { error: err });
       result = generateFallbackContent(trend, type) as string;
@@ -400,9 +400,8 @@ function buildUserPrompt(trend: ITrend, type: 'text' | 'carousel' | 'image-promp
   const topic = trend.title;
   const summary = trend.summary;
   const tags = trend.tags?.length ? trend.tags.join(', ') : 'technology';
-  const source = trend.source === 'github' ? 'GitHub trending' : 'Product Hunt top product';
 
-  let metricsContext = '';
+  let metricsContext: string;
   if (trend.source === 'github') {
     metricsContext = `GitHub stats: ${trend.stars?.toLocaleString() || 'N/A'} stars, ${trend.forks?.toLocaleString() || 'N/A'} forks`;
   } else {
@@ -530,7 +529,7 @@ function generateFallbackContent(trend: ITrend, type: 'text' | 'carousel' | 'ima
     return [
       { heading: cleanTopic, body: firstSentence || 'Here\'s what you need to know about this trending topic.', imagePrompt: `Modern tech illustration representing ${cleanTopic}` },
       { heading: 'Why It Matters', body: secondSentence || 'This trend is shaping how the industry approaches this space.', imagePrompt: 'Impact visualization showing industry transformation' },
-      { heading: 'Key Details', body: tags ? `This touches ${tags} — a space that\'s evolving fast.` : 'The technical details here are worth understanding.', imagePrompt: 'Close-up detail illustration with warm tones' },
+      { heading: 'Key Details', body: tags ? `This touches ${tags} — a space that's evolving fast.` : 'The technical details here are worth understanding.', imagePrompt: 'Close-up detail illustration with warm tones' },
       { heading: 'What Most Miss', body: 'The real value isn\'t in the tool itself — it\'s in how it changes your workflow.', imagePrompt: 'Before/after comparison or workflow diagram' },
       { heading: 'Stay Ahead', body: 'The teams exploring this now will have the advantage later. What\'s your take?', imagePrompt: 'Forward-looking scene with editorial lighting' },
     ];
@@ -541,31 +540,6 @@ function generateFallbackContent(trend: ITrend, type: 'text' | 'carousel' | 'ima
     style: 'warm editorial, modern minimalist',
     caption: `${cleanTopic} — worth watching closely`,
   });
-}
-
-function parseCarouselFallback(text: string): Record<string, unknown>[] {
-  const slides = text.split(/slide\s*\d+/i).filter(s => s.trim().length > 0).slice(0, 5);
-
-  return slides.map((slide, i) => ({
-    heading: `Slide ${i + 1}`,
-    body: slide.trim(),
-    imagePrompt: 'Tech illustration with warm colors',
-  }));
-}
-
-function generateCarouselCaption(slides: Record<string, unknown>[]): string {
-  if (slides.length === 0) return '';
-
-  const parts: string[] = [];
-
-  for (const slide of slides) {
-    const heading = slide.heading as string;
-    const body = slide.body as string;
-    if (heading) parts.push(heading);
-    if (body) parts.push(body);
-  }
-
-  return parts.join('\n\n');
 }
 
 function generateFallbackCarouselCaption(): string {

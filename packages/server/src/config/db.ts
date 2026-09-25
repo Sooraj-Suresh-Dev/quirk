@@ -7,7 +7,7 @@ export async function connectDB(): Promise<void> {
       serverSelectionTimeoutMS: 3000,
     });
     console.log('Connected to MongoDB');
-  } catch (error) {
+  } catch {
     console.warn('MongoDB unavailable — running without database. Start MongoDB and restart server.');
   }
 }

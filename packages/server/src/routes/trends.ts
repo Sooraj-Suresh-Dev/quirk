@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
     ]);
 
     res.json({ trends, total, hasMore: offset + limit < total });
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Failed to fetch trends' });
   }
 });
@@ -53,7 +53,7 @@ router.get('/:id', async (req, res) => {
       return;
     }
     res.json({ trend });
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Failed to fetch trend' });
   }
 });
@@ -63,7 +63,7 @@ router.post('/refresh', requireAuth, async (_req: AuthRequest, res) => {
   try {
     await fetchAllTrends();
     res.json({ message: 'Trend refresh triggered' });
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Failed to refresh trends' });
   }
 });

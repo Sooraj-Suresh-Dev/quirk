@@ -22,7 +22,7 @@ async function fetchReadme(repoUrl: string): Promise<string | undefined> {
     if (!res.ok) return undefined;
     const text = await res.text();
     return text
-      .replace(/[#*_`>\[\]()!]/g, '')
+      .replace(/[#*_`>[\]()!]/g, '')
       .replace(/\n+/g, ' ')
       .trim()
       .slice(0, 300);

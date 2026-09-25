@@ -16,7 +16,11 @@
     "test:e2e:deployed": "E2E_BASE_URL=https://your-app.vercel.app playwright test"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.63.0",
-    "turbo": "^2.3.0"
+    "eslint": "^10.11.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "turbo": "^2.3.0",
+    "typescript-eslint": "^8.70.1"
   }
 }

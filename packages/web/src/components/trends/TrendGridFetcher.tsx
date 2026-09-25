@@ -49,7 +49,7 @@ export const TrendGridFetcher = memo(function TrendGridFetcher({ activeFilter, s
       }
       setOffset(currentOffset + data.trends.length);
       setHasMore(data.hasMore);
-    } catch (err) {
+    } catch {
       setError('Failed to load trends. Check your connection and try again.');
     }
   }, [activeFilter, search]);

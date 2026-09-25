@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../services/token.js';
 import { User, IUser } from '../models/User.js';
-import { logError, logWarn } from '../config/logger.js';
+import { logWarn } from '../config/logger.js';
 
 export interface AuthRequest extends Request {
   user?: IUser;
