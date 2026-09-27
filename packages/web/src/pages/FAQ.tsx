@@ -256,7 +256,7 @@ export function FAQ() {
               >
                 <Mail size={16}/>
                  <a
-                href="https://mail.google.com/mail/?view=cm&fs=1&to=techalchemist9597@gmail.com"
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=soorajsuresh9597@gmail.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 >EMAIL SUPPORT</a>

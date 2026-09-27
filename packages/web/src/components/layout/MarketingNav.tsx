@@ -88,12 +88,12 @@ export function MarketingNav() {
 
             {/* Dropdown */}
             <div
-              className={`absolute right-0 top-full mt-2 w-96 bg-soft-white border-3 border-deep-black rounded-card shadow-card transition-all duration-200 ease-out origin-top-right z-50 ${
+              className={`absolute right-0 top-full mt-2 w-[calc(100vw-4rem)] sm:w-96 bg-soft-white border-3 border-deep-black rounded-card shadow-card transition-all duration-200 ease-out origin-top-right z-50 ${
                 mobileOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'
               }`}
             >
               <nav className="p-4">
-                {navLinks.map(({ to, label, end }, i) => (
+                {navLinks.map(({ to, label, end }) => (
                   <NavLink
                     key={to}
                     to={to}
@@ -104,7 +104,7 @@ export function MarketingNav() {
                         isActive
                           ? 'bg-coral text-soft-white'
                           : 'text-charcoal hover:bg-cream hover:text-coral'
-                      } ${mobileOpen ? `animate-slide-up stagger-${i}` : 'opacity-0'}`
+                      }`
                     }
                   >
                     {label}
@@ -114,7 +114,7 @@ export function MarketingNav() {
 
               <div className="mx-4 border-t-2 border-deep-black/10" />
 
-              <div className={`p-4 flex gap-3 ${mobileOpen ? 'animate-slide-up stagger-4' : 'opacity-0'}`}>
+              <div className="p-4 flex flex-col sm:flex-row gap-3">
                 <Button variant="secondary" onClick={() => { openLogin(); setMobileOpen(false); }} className="flex-1">
                   LOG IN
                 </Button>
